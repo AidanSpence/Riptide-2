@@ -1,8 +1,6 @@
 .git
-.env
-__pycache__
-*.pyc
-venv/
-.venv/
-db.sqlite3
-node_modules/
+.venv
+**/__pycache__
+**/*.py[cod]
+Django/db.sqlite3
+Django/staticfiles

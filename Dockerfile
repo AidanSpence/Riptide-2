@@ -1,18 +1,22 @@
-FROM python:3.12-slim
+FROM python:3.13-slim
 
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-
-COPY requirements.txt .
+COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY Django/ /app/
 
-# Run as non-root
-RUN adduser --disabled-password --no-create-home appuser
-USER appuser
+RUN addgroup --system django \
+    && adduser --system --ingroup django django \
+    && mkdir -p /data /app/staticfiles \
+    && chown -R django:django /app /data
 
-EXPOSE 8000
+USER django
 
-CMD ["gunicorn", "myproject.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+EXPOSE 8080
+
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8080"]
