@@ -1,5 +1,0 @@
-Django
-gunicorn
-psycopg[binary]
-python-dotenv
-whitenoise
