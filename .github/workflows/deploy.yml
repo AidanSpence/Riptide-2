@@ -1,0 +1,46 @@
+name: Deploy to Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - Deployment
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  APPLICATION_NAME: riptide
+  ENVIRONMENT_NAME: Riptide2-env
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Elastic Beanstalk deployment package
+        run: |
+          cd django
+          zip -r ../riptide2-deploy.zip . \
+            -x "db.sqlite3" \
+            -x "__pycache__/*" \
+            -x "*/__pycache__/*" \
+            -x ".git/*"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::024902989166:role/Riptide2-GitHubActions
+          aws-region: us-east-1
+
+      - name: Deploy to Elastic Beanstalk
+        uses: aws-actions/aws-elasticbeanstalk-deploy@v1
+        with:
+          aws-region: us-east-1
+          application-name: riptide2
+          environment-name: Riptide2-docker
+          deployment-package: riptide2-deploy.zip
