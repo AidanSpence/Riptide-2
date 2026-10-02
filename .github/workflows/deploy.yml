@@ -38,7 +38,7 @@ jobs:
         
       - name: Create Elastic Beanstalk deployment package
         run: |
-          cd django
+          cd Django
           zip -r ../riptide2-deploy.zip . \
             -x "db.sqlite3" \
             -x "__pycache__/*" \
