@@ -59,4 +59,4 @@ jobs:
           aws-region: us-east-1
           application-name: riptide
           environment-name: Riptide2-env
-          deployment-package: riptide2-deploy.zip
+          deployment-package-path: riptide2-deploy.zip
