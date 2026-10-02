@@ -19,5 +19,5 @@ class Cleaning:
 
 
 if __name__ == '__main__':
-    cleaner = Cleaning('playlist.csv')
+    cleaner = Cleaning('merged.csv')
     cleaner.clean()
