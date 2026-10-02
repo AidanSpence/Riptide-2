@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Create Elastic Beanstalk deployment package
         run: |
@@ -41,6 +41,6 @@ jobs:
         uses: aws-actions/aws-elasticbeanstalk-deploy@v1
         with:
           aws-region: us-east-1
-          application-name: riptide2
-          environment-name: Riptide2-docker
+          application-name: riptide
+          environment-name: Riptide2-env
           deployment-package: riptide2-deploy.zip
