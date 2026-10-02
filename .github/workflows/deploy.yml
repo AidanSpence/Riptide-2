@@ -46,12 +46,6 @@ jobs:
             -x ".git/*"
             
         
-      - name: Show GitHub context
-        run: |
-            echo "GITHUB_REF=$GITHUB_REF"
-            echo "GITHUB_REPOSITORY=$GITHUB_REPOSITORY"
-            echo "GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER"
-
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
