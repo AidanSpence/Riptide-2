@@ -22,6 +22,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+
+      - name: Show checked out files
+        run: |
+          echo "Branch/ref:"
+          git branch --show-current
+          echo "GitHub ref:"
+          echo "$GITHUB_REF"
+          echo "Repository root:"
+          pwd
+          echo "Top-level files:"
+          ls -la
+
+
+        
       - name: Create Elastic Beanstalk deployment package
         run: |
           cd django
