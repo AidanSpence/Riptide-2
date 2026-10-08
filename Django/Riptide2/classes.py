@@ -1,11 +1,12 @@
-import sqlite3
-import struct
 import csv
 import re
 import datetime
+import psycopg
+import os
 import pandas as pd
 import numpy as np
-
+from pathlib import Path
+from psycopg import sql
 
 RENAME = {
     'Song': 'title', 'Artist': 'artists', 'BPM': 'bpm', 'Camelot': 'camelot',
@@ -89,10 +90,12 @@ class Cleaning:
         if pd.isna(s):
             return None, None, None
         s = str(s).strip()
+        # Checks if data is year month day defaults to 0 if only year or year month e.g (1999 0 0)
         m = re.fullmatch(r'(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?', s)
         if m:
             y, mo, d = int(m[1]), int(m[2] or 0), int(m[3] or 0)
         else:
+            # if order is day month year
             m = re.fullmatch(r'(\d{1,2})/(\d{1,2})/(\d{4})', s)
             if not m:
                 return None, None, None
@@ -122,8 +125,6 @@ class Cleaning:
         if pd.isna(s) or not str(s).strip():
             return None
         return '|'.join(g.strip() for g in str(s).split(',') if g.strip())
-
-        
 
 
 
@@ -177,11 +178,237 @@ class Cleaning:
         df.to_csv("clean_"+ self.file, index=False)
         return "clean_"+ self.file
 
-class PostgreSQLImport:
-    def __init__(self):
-        pass
+class SongUploader:
 
+    LOCK_ID = 664486
+
+
+    # POSTGRES CODE
+
+    STAGING_COLUMNS = {
+        'title': 'TEXT',
+        'artists': 'TEXT',            
+        'bpm': 'NUMERIC(6,2)',
+        'camelot': 'TEXT',
+        'energy': 'REAL',
+        'duration_s': 'INT',
+        'popularity': 'SMALLINT',
+        'genres': 'TEXT',               
+        'album': 'TEXT',
+        'danceability': 'REAL',
+        'acousticness': 'REAL',
+        'instrumentalness': 'REAL',
+        'valence': 'REAL',
+        'speechiness': 'REAL',
+        'liveness': 'REAL',
+        'loudness_db': 'NUMERIC(5,2)',
+        'time_signature': 'SMALLINT',
+        'spotify_track_id': 'TEXT',
+        'isrc': 'TEXT',
+        'explicit': 'BOOLEAN',
+        'pitch_class': 'SMALLINT',
+        'mode': 'SMALLINT',
+        'release_date': 'DATE',
+        'release_precision': 'TEXT',
+        'release_year': 'SMALLINT',
+    }
+    REQUIRED = {'title', 'spotify_track_id'}
+
+ 
+    INSERT_ARTISTS = """
+        INSERT INTO music.artists (name)
+        SELECT DISTINCT btrim(a)
+        FROM staging_songs, unnest(string_to_array(artists, '|')) AS a
+        WHERE spotify_track_id IS NOT NULL AND btrim(a) <> ''
+        ON CONFLICT (name) DO NOTHING
+    """
+ 
+    INSERT_GENRES = """
+        INSERT INTO music.genres (name)
+        SELECT DISTINCT btrim(g)
+        FROM staging_songs, unnest(string_to_array(genres, '|')) AS g
+        WHERE spotify_track_id IS NOT NULL AND genres IS NOT NULL AND btrim(g) <> ''
+        ON CONFLICT (name) DO NOTHING
+    """
+ 
+    INSERT_ALBUMS = """
+        INSERT INTO music.albums (title, release_year)
+        SELECT DISTINCT album, release_year
+        FROM staging_songs
+        WHERE spotify_track_id IS NOT NULL AND album IS NOT NULL
+        ON CONFLICT (title, release_year) DO NOTHING
+    """
+
+    INSERT_SONGS = """
+        WITH ins AS (
+            INSERT INTO music.songs (
+                title, album_id, spotify_track_id, isrc, bpm, camelot, pitch_class, mode,
+                time_signature, duration_s, loudness_db, energy, danceability,
+                acousticness, instrumentalness, valence, speechiness, liveness,
+                popularity, explicit)
+            SELECT
+                s.title, a.id, s.spotify_track_id, s.isrc, s.bpm, s.camelot,
+                s.pitch_class, s.mode, s.time_signature, s.duration_s, s.loudness_db,
+                s.energy, s.danceability, s.acousticness, s.instrumentalness,
+                s.valence, s.speechiness, s.liveness, s.popularity,
+                COALESCE(s.explicit, FALSE)
+            FROM staging_songs s
+            LEFT JOIN music.albums a
+                   ON a.title = s.album
+                  AND a.release_year IS NOT DISTINCT FROM s.release_year
+            WHERE s.spotify_track_id IS NOT NULL
+            ON CONFLICT DO NOTHING          -- skips duplicate Spotify id OR ISRC
+            RETURNING id, spotify_track_id
+        )
+        INSERT INTO tmp_new_songs (song_id, spotify_track_id)
+        SELECT id, spotify_track_id FROM ins
+    """
+ 
+    LINK_ARTISTS = """
+        INSERT INTO music.song_artists (song_id, artist_id, position)
+        SELECT n.song_id, ar.id, (x.ord - 1)::smallint
+        FROM tmp_new_songs n
+        JOIN staging_songs s ON s.spotify_track_id = n.spotify_track_id
+        CROSS JOIN LATERAL unnest(string_to_array(s.artists, '|'))
+                           WITH ORDINALITY AS x(name, ord)
+        JOIN music.artists ar ON ar.name = btrim(x.name)
+        ON CONFLICT DO NOTHING
+    """
+ 
+    LINK_GENRES = """
+        INSERT INTO music.song_genres (song_id, genre_id)
+        SELECT n.song_id, g.id
+        FROM tmp_new_songs n
+        JOIN staging_songs s ON s.spotify_track_id = n.spotify_track_id
+        CROSS JOIN LATERAL unnest(string_to_array(s.genres, '|')) AS x(name)
+        JOIN music.genres g ON g.name = btrim(x.name)
+        WHERE s.genres IS NOT NULL
+        ON CONFLICT DO NOTHING
+    """
+ 
+    ASSIGN_CLUSTERS = """
+        UPDATE music.songs so
+        SET cluster_id = (SELECT c.id FROM music.clusters c
+                          ORDER BY c.centroid <-> so.features LIMIT 1)
+        FROM tmp_new_songs n
+        WHERE so.id = n.song_id
+          AND so.features IS NOT NULL
+          AND EXISTS (SELECT 1 FROM music.clusters)
+    """
+ 
+    STATS_ARE_PLACEHOLDERS = """
+        SELECT COALESCE(bool_and(mean = 0 AND stddev = 1), TRUE)
+        FROM music.feature_stats
+    """
+
+    def __init__(self, dsn: str = None):
+        self.dsn = dsn or os.environ.get('DATABASE_URL')
+        if not self.dsn:
+            raise RuntimeError("set the DATABASE_URL enviroment variable")
+
+    def read_header(self, path: Path):
+        """reads the first line and checks the column names are all matching."""
+        with open(path, encoding='utf-8') as f:
+            header = f.readline().strip().split(",")
+        unknown = set(header) - set(self.STAGING_COLUMNS)
+        if unknown:
+            raise ValueError(f"Unexpected csv columns: {sorted(unknown)}")
+        missing = self.REQUIRED - set(header)
+        if missing:
+            raise ValueError(f"CSV is missing columns: {sorted(missing)}")
+        return header
+
+    def create_staging(self, cur):
+        """makes two temporary tables that vanish when the load ends:"""
+        cols = sql.SQL(', ').join(
+            sql.SQL("{} {}").format(sql.Identifier(c), sql.SQL(t))
+            for c, t in self.STAGING_COLUMNS.items())
+        cur.execute(sql.SQL(
+            'CREATE TEMP TABLE staging_songs ({}) ON COMMIT DROP').format(cols))
+        cur.execute('CREATE TEMP TABLE tmp_new_songs '
+                    '(song_id BIGINT, spotify_track_id TEXT) ON COMMIT DROP')
+
+    def copy_csv(self, cur, path: Path, header):
+        """inputs the file into staging_songs (temp table) using Postgres's COPY."""
+        state = sql.SQL('COPY staging_songs ({}) FROM STDIN with (FORMAT csv, HEADER true)').format(
+            sql.SQL(", ").join(sql.Identifier(c) for c in header))
+        # opens csv file as binary then bulk uploads directly into postgres db
+        with open(path, 'rb') as f, cur.copy(state) as copy:
+            while chunk := f.read(65536):
+                copy.write(chunk)
+
+    def load(self, path, clean: bool = True) -> dict:
+        """Optionally run Cleaning, then check the header for correct columns.
+        "load in progress" flag. Extra uploads wait for the first to finish.
+        Create the temporary tables and copy the CSV into staging.
+        Insert any new artists, genres and albums.
+        Insert the songs. Songs with a Spotify id or ISRC already in the database are skipped.
+        Link artists and genres
+        Rebuild all vectors.
+        Put each new song into its nearest cluster
+        Return a summary: rows in the file, rows inserted, rows skipped."""
+        csv_path = Path(Cleaning(str(path)).clean()) if clean else Path(path)
+        header = self.read_header(csv_path)
+
+        revectorized = False
+        # pushs new songs of success, cancels and resets if error
+        with psycopg.connect(self.dsn) as conn:
+            with conn.cursor() as cur:
+                # "load in progress" flag
+                cur.execute('SELECT pg_advisory_xact_lock(%s)' (self.LOCK_ID))
+                self.create_staging(cur)
+                self.copy_csv(cur, csv_path, header)
+
+                cur.execute('SELECT count(*) FROM staging_songs')
+                rows_in_file = cur.fetchone()[0]
+
+                cur.execute(self.INSERT_ARTISTS)
+                cur.execute(self.INSERT_GENRES)
+                cur.execute(self.INSERT_ALBUMS)
+                cur.execute(self.INSERT_SONGS)
+                inserted = cur.rowcount
+                cur.execute(self.LINK_ARTISTS)
+                cur.execute(self.LINK_GENRES)
+
+                cur.execute(self.STATS_ARE_PLACEHOLDERS)
+                if inserted and cur.fetchone()[0]:
+                    cur.execute('SELECT music.refresh_feature_stats()')
+                    cur.execute('UPDATE music.songs SET energy = energy')
+                    revectorized = True
+
+                cur.execute(self.ASSIGN_CLUSTERS)
+
+            if revectorized:
+                with psycopg.connect(self.dsn, autocommint=True) as conn:
+                    conn.execute('REINDEX INDEX CONCURRENTLY music.songs_features_hnsw')
+
+            return{
+                'rows_in_file': rows_in_file,
+                'inserted': inserted,
+                'skipped': rows_in_file - inserted,
+                'revectorized': revectorized,
+                'clean_csv' : str(csv_path)
+            }
+
+    def rebuild_vectors(self) -> None:
+        """Standardization stats and every song's vector recalculated
+        
+        Should only be run ocassionaly when low usage or libary has doubled"""
+        with psycopg.connect(self.dsn) as conn:
+            conn.execute('SELECT pg_advisory_xact_lock(%s)', (self.LOCK_ID))
+            conn.execute('SELECT music.refresh_feature_stats()')
+            conn.execute('UPDATE music.songs SET energy = energy')
+        with psycopg.connect(self.dsn, autocommint= True) as conn:
+            conn.execute('REINDEX INDEX CONCURRENTLY music.songs_features_hnsw')
+            
 
 if __name__ == '__main__':
-    cleaner = Cleaning('merged.csv')
-    print(cleaner.clean())
+    # for clean file
+    loader = SongUploader()
+    cleaned = Cleaning('merged.csv').clean()
+    print(loader.load(cleaned, clean=False))
+
+
+    # for unclean file
+    loader = SongUploader()
+    print(loader.load('merged.csv'))
