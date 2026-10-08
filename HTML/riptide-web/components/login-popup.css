@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+
+/*
+--color-background: #0B1020;
+--color-surface: #151B2B;
+--color-primary: #3B82F6;
+--color-muted: #94A3B8;
+--color-text: #E5E7EB;
+--border-thin: #94a3b829, solid, 1px;
+--border-thick: #94a3b829, solid, 3px;
+*/
+
+
+
+
+.login_main{
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    width: 85vmin;
+    aspect-ratio: 4 / 3;
+    border: var(--border-thick);
+    border-radius: var(--corner-rad-small);
+}
+/* title bar elements */
+.title_bar{
+    display:flex;
+    align-self: top;
+    justify-self: top;
+    justify-content:space-between;
+    width: 100%;
+    height: 10%;
+    padding: 1.5%;
+    border: var(--border-thin);
+    border-top: none;
+    border-right: none;
+    border-left: none;
+}
+
+.logo_login{
+    aspect-ratio: 1;
+    width: 5%;
+}
+.close_login{
+    aspect-ratio: 1;
+    width: 5%;
+}
+
+/* main login elements */
+.left_right_container_login
+{
+    display: flex;
+    flex-direction: row;
+    align-self: bottom;
+    width: 100%;
+    height: 100%;
+}
+
+
+
+/* right */
+.right_login{
+    display: auto;
+    position: relative;
+    background-image: radial-gradient(circle at left top, #3b82f6,#2f6cff,#151b2b,#0b1020);
+    width: 100%;
+    height: 100%;
+}
+.title_riptide_login{
+    color: var(--color-text);
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 5vmin;
+    padding: 2vmin;
+}
+.accent_login{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding-right: 0px;
+    padding-bottom: 0px;
+    width: 90%;
+}
+
+
+
+/* left */
+.left_login{
+    display: auto;
+    width: 100%;
+    height: 100%;
+}
