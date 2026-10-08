@@ -86,7 +86,81 @@
 
 /* left */
 .left_login{
-    display: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    align-items:center;
+    justify-content:space-between;
     width: 100%;
     height: 100%;
+}
+
+.login_title_left{
+    padding: 1%;
+    font-size: var(--font-med);
+}
+
+/* username */
+.username_box{
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    width:80%;
+    height:10%;
+
+}
+.username_text{
+    color: var(--color-text);
+    font-size: var(--font-sml);
+}
+
+.username_input{
+    height: 100%;
+    aspect-ratio: 7/1;
+    border-radius: var(--corner-rad-small);
+    background-color: var(--color-background);
+}
+
+
+/* password */
+.password_box{
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    width:80%;
+    height:10%;
+
+}
+.password_text{
+    color: var(--color-text);
+    font-size: var(--font-sml);
+}
+
+.password_input{
+    height: 100%;
+    aspect-ratio: 7/1;
+    border-radius: var(--corner-rad-small);
+    background-color: var(--color-background);
+}
+
+
+
+/* Login button */
+
+
+.login_button_box{
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    height:10%;
+    width: 50%;
+    border-radius: var(--corner-rad-small);
+    background-color: var(--color-primary);
+    border: var(--border-thick);
+}
+
+.login_button{
+    color:var(--color-text);
+    font-size: var(--font-med);
+
 }

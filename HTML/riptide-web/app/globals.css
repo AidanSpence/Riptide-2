@@ -19,7 +19,13 @@
 }
 
   /* corner rad */
-  --corner-rad-small: 2vmin
+  --corner-rad-small: 2vmin;
+
+  /* font sizing */
+  --font-lar: 2vmin;
+  --font-med: 2vmin;
+  --font-sml: 1.4vmin;
+
 }
 
 @theme inline {
