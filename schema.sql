@@ -1,9 +1,3 @@
--- =====================================================================
--- Riptide schema: music library + similarity search + users
--- Requires PostgreSQL 15+ (NULLS NOT DISTINCT) and pgvector 0.5+
--- (0.8+ for hnsw.iterative_scan)
--- =====================================================================
-
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS citext;
 
@@ -75,7 +69,6 @@ CREATE TABLE music.songs (
     created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- many-to-many: a song can have several artists and genres
 CREATE TABLE music.song_artists (
     song_id    BIGINT NOT NULL REFERENCES music.songs(id)   ON DELETE CASCADE,
     artist_id  BIGINT NOT NULL REFERENCES music.artists(id) ON DELETE CASCADE,
@@ -96,8 +89,7 @@ CREATE INDEX ON music.songs (bpm);
 CREATE INDEX ON music.songs (camelot);
 CREATE INDEX ON music.songs (cluster_id);
 
--- approximate nearest-neighbour index (cosine distance).
--- Keep query operators consistent with this: <=> for cosine.
+-- nearest-neighbour index (cosine distance).
 CREATE INDEX songs_features_hnsw ON music.songs
     USING hnsw (features vector_cosine_ops);
 
@@ -188,14 +180,13 @@ CREATE TABLE app.users (
     id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email          CITEXT NOT NULL UNIQUE,
     username       CITEXT NOT NULL UNIQUE,
-    password_hash  TEXT NOT NULL,              -- argon2/bcrypt hash, never plaintext
+    password       TEXT NOT NULL,              -- never plaintext
     display_name   TEXT,
     avatar_url     TEXT,
-    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
     is_active      BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
-    last_login_at  TIMESTAMPTZ
+    is_staff       BOOLEAN NOT NULL DEFAULT FALSE,
+    is_superuser   BOOLEAN NOT NULL DEFAULT FALSE,
+    last_login     TIMESTAMPTZ,
 );
 
 -- replaces the old linked_accounts TEXT column
@@ -206,14 +197,6 @@ CREATE TABLE app.linked_accounts (
     created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (user_id, provider),
     UNIQUE (provider, provider_user_id)
-);
-
-CREATE TABLE app.sessions (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id     UUID NOT NULL REFERENCES app.users(id) ON DELETE CASCADE,
-    token_hash  TEXT NOT NULL UNIQUE,
-    expires_at  TIMESTAMPTZ NOT NULL,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE app.playlists (
@@ -231,5 +214,4 @@ CREATE TABLE app.playlist_songs (
     PRIMARY KEY (playlist_id, song_id)
 );
 
-CREATE INDEX ON app.sessions (user_id);
 CREATE INDEX ON app.playlists (user_id);
