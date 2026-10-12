@@ -28,8 +28,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <Navbar />
-        {/* <Main_page /> */}
-        <Login_popup />
+        <Main_page />
+        {/* <Login_popup /> */}
         <main> {children} </main></body>
     </html>
   );
