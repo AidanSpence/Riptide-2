@@ -16,8 +16,8 @@
   --color-primary: #3B82F6;
   --color-muted: #94A3B8;
   --color-text: #E5E7EB;
-  --border-thin: #94a3b829, solid, 1px;
-  --border-thick: #94a3b829, solid, 3px;
+  --border-thin: #94a3b829 solid 1px;
+  --border-thick: #94a3b829 solid 3px;
 
 
 [data-theme="dark"] {
@@ -34,6 +34,7 @@
   --font-lar: 3vmin;
   --font-med: 2vmin;
   --font-sml: 1.4vmin;
+  --font-xsml: 1vmin;
 
 }
 

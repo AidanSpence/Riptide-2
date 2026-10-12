@@ -55,7 +55,7 @@
     display: flex;
     flex:1;
     flex-direction: column;
-    overflow-y: scroll;
+    overflow-y: hidden;
     height: 100%;
     gap:1%;
 
@@ -63,6 +63,7 @@
 
 .left_chat_box_scrolling{
     display: flex;
+    align-items: center;
     flex:1;
     flex-direction: column;
     overflow-y: scroll;
@@ -73,14 +74,15 @@
 }
 
 
-
-
-.left_chats::-webkit-scrollbar {
-    display: none;
+.left_chat_box_scrolling::-webkit-scrollbar {
+  display: none;
 }
+
+
 .left_chat_title
 {
     font-size: var(--font-med);
+    padding: 1%;
 }
 .left_linked_playlists
 {
@@ -95,11 +97,13 @@
 }
 .left_playlist_title{
     font-size: var(--font-med);
+    padding: 1%;
 }
 
 .left_linked_playlists_scrolling{
     display: flex;
     flex:1.5;
+    align-items: center;
     flex-direction: column;
     overflow-y: scroll;
     height: 100%;
@@ -109,12 +113,61 @@
 }
 
 
+.left_profile_container{
+    flex:0.3;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-items: center;
+    padding: 1%;
+    gap: 5%;
+    margin: auto;
+    border-top: var(--border-thick)
+}
 
 
+.left_profile_icon_bg{
+    display: grid;
+    place-items: center;
+    height: 5vmin;
+    width: 5vmin;
+    aspect-ratio: 1;
+    /* sizing */
+    height: 5vmin;
+    width: 5vmin;
+    aspect-ratio: 1;
+    margin: 1%;
+    /* border */
+    border: var(--border-thin);
+
+    border-radius: var(--corner-rad-small);
+
+    /* bg */
+    background: var(--color-primary);
+}
 
 
+.left_profile_icon_text{
+    font-size: clamp(0.2rem, 1vw, 10rem);
+    color: var(--color-text);
+}
+.left_profile_info_box{
+    display: flex;
+    height: fit-content;
+    width: 100%;
+    flex-direction: column;
+    align-items: start;
+
+}
 
 
+.left_profile_name{
+    font-size: var(--font-sml);
+}
+
+.left_profile_service_state{
+    font-size: var(--font-xsml);
+}
 
 
 

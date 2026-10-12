@@ -34,7 +34,13 @@ export default function main_page() {
 
 
         </div>
-
+        <div className="left_profile_container">
+          <div className="left_profile_icon_bg"><div className="left_profile_icon_text">JD</div></div>
+          <div className="left_profile_info_box">
+            <div className="left_profile_name">John Doe hermouncuysus the 4thbhhdasddsdddd ddddd ddddddddddddddddddddd ddddddddjdbfhsf king ofddddddddddd ddddddddjdbfhsf king ofddddddddddd ddddddddjdbfhsf king ofddddddddddd ddddddddjdbfhsf king ofdddddddddddddddddddjdbfhsf king of</div>
+            <div className="left_profile_service_state">Service - Spotify Connected</div>
+          </div>
+        </div>
       </div>
 
       <div className="center_box">
