@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+
+
+/* Button variables */
+
+
+    /* cursor: pointer;
+    box-shadow: 0 0.5% 0 var(--color-primary);
+    transition: transform 0.05s ease, box-shadow 0.05s ease; */
+
 :root {
   /* pallet */
   --color-background: #0B1020;
@@ -22,7 +31,7 @@
   --corner-rad-small: 2vmin;
 
   /* font sizing */
-  --font-lar: 2vmin;
+  --font-lar: 3vmin;
   --font-med: 2vmin;
   --font-sml: 1.4vmin;
 
@@ -48,4 +57,18 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.mainpagebutton {
+  background: green;
+  cursor: pointer;
+  box-shadow: 0 0.5% 0 var(--color-primary);
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
 
+
+.mainpagebutton:active {
+  background: green;
+  transform: translateY(4px); /* Moves button down */
+  cursor: pointer;
+  box-shadow: 0 0.5% 0 var(--color-primary);
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
+}

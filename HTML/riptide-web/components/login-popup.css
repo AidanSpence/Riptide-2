@@ -17,7 +17,11 @@
 .login_main{
     margin: 10px;
     display: flex;
+    position: absolute;
+    inset: 0;
     flex-direction: column;
+    justify-self: center;
+    align-self: center;
     width: 85vmin;
     aspect-ratio: 4 / 3;
     border: var(--border-thick);
@@ -69,7 +73,7 @@
 }
 .title_riptide_login{
     color: var(--color-text);
-    font-family: 'Times New Roman', Times, serif;
+    font-family:var(--font-geist-sans);
     font-size: 5vmin;
     padding: 2vmin;
 }
@@ -90,18 +94,20 @@
     flex-direction: column;
     overflow: hidden;
     align-items:center;
-    justify-content:space-between;
+    justify-content:center;
     width: 100%;
     height: 100%;
 }
 
 .login_title_left{
+    font-family:var(--font-geist-sans);
     padding: 1%;
-    font-size: var(--font-med);
+    font-size: var(--font-lar);
 }
 
 /* username */
 .username_box{
+    margin-bottom:5%;
     display: flex;
     flex-direction: column;
     align-self: center;
@@ -112,18 +118,22 @@
 .username_text{
     color: var(--color-text);
     font-size: var(--font-sml);
+    font-family:var(--font-geist-sans);
 }
 
 .username_input{
+    padding:3%;
     height: 100%;
     aspect-ratio: 7/1;
     border-radius: var(--corner-rad-small);
+    border: var(--border-thick);
     background-color: var(--color-background);
 }
 
 
 /* password */
 .password_box{
+    margin-bottom:10%;
     display: flex;
     flex-direction: column;
     align-self: center;
@@ -134,11 +144,14 @@
 .password_text{
     color: var(--color-text);
     font-size: var(--font-sml);
+    font-family:var(--font-geist-sans);
 }
 
 .password_input{
+    padding:3%;
     height: 100%;
     aspect-ratio: 7/1;
+    border: var(--border-thick);
     border-radius: var(--corner-rad-small);
     background-color: var(--color-background);
 }
@@ -157,10 +170,22 @@
     border-radius: var(--corner-rad-small);
     background-color: var(--color-primary);
     border: var(--border-thick);
+    cursor: pointer;
+    box-shadow: 0 0.5% 0 var(--color-primary);
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
 }
 
+.login_button_box:active {
+  transform: translateY(4px); /* Moves button down */
+  box-shadow: 0 1px 0 #158b4f; /* Shrinks shadow to look pressed */
+}
 .login_button{
     color:var(--color-text);
     font-size: var(--font-med);
+    font-family:var(--font-geist-sans);
+
+
 
 }
+
+

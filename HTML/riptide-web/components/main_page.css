@@ -1,0 +1,48 @@
+
+.page_layout {
+  /* display formatting */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  flex-direction: row;
+  aspect-ratio: 3;
+  flex-grow: 1;
+
+
+  /* background and sizing */
+  background: transparent;
+  width: 100%;
+  height: 100%;
+
+
+  /* Border - bottom only */
+  border: var(--border-thick);
+  border-top: none;
+  border-left: none;
+  border-right: none;
+
+
+  /* box sizing and aspect ratios */
+  justify-content: center;
+  align-content: center;
+}
+
+.left_box{
+    display: flex;
+    border: var(--border-thick);
+    height: 100%;
+    width: 100%;
+}
+.center_box{
+    display: flex;
+    border: var(--border-thick);
+    height: 100%;
+    width: 100%;
+}
+.right_box{
+    display: flex;
+    border: var(--border-thick);
+    height: 100%;
+    width: 100%;
+}
