@@ -7,6 +7,8 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from psycopg import sql
+from django.conf import settings
+from psycopg.conninfo import make_conninfo
 
 RENAME = {
     'Song': 'title', 'Artist': 'artists', 'BPM': 'bpm', 'Camelot': 'camelot',
@@ -178,6 +180,15 @@ class Cleaning:
         df.to_csv("clean_"+ self.file, index=False)
         return "clean_"+ self.file
 
+
+def django_dsn() -> str:
+    db = settings.DATABASES["default"]
+    return make_conninfo(
+        dbname=db["NAME"], user=db["USER"], password=db["PASSWORD"],
+        host=db["HOST"], port=db["PORT"],
+        sslmode=db.get("OPTIONS", {}).get("sslmode", "prefer"),
+    )
+
 class SongUploader:
 
     LOCK_ID = 664486
@@ -302,9 +313,7 @@ class SongUploader:
     """
 
     def __init__(self, dsn: str = None):
-        self.dsn = dsn or os.environ.get('DATABASE_URL')
-        if not self.dsn:
-            raise RuntimeError("set the DATABASE_URL enviroment variable")
+        self.dsn = dsn or django_dsn()
 
     def read_header(self, path: Path):
         """reads the first line and checks the column names are all matching."""
@@ -355,7 +364,7 @@ class SongUploader:
         with psycopg.connect(self.dsn) as conn:
             with conn.cursor() as cur:
                 # "load in progress" flag
-                cur.execute('SELECT pg_advisory_xact_lock(%s)' (self.LOCK_ID))
+                cur.execute('SELECT pg_advisory_xact_lock(%s)', (self.LOCK_ID,))
                 self.create_staging(cur)
                 self.copy_csv(cur, csv_path, header)
 
@@ -378,37 +387,37 @@ class SongUploader:
 
                 cur.execute(self.ASSIGN_CLUSTERS)
 
-            if revectorized:
-                with psycopg.connect(self.dsn, autocommint=True) as conn:
-                    conn.execute('REINDEX INDEX CONCURRENTLY music.songs_features_hnsw')
+        if revectorized:
+            with psycopg.connect(self.dsn, autocommint=True) as conn:
+                conn.execute('REINDEX INDEX CONCURRENTLY music.songs_features_hnsw')
 
-            return{
-                'rows_in_file': rows_in_file,
-                'inserted': inserted,
-                'skipped': rows_in_file - inserted,
-                'revectorized': revectorized,
-                'clean_csv' : str(csv_path)
-            }
+        return{
+            'rows_in_file': rows_in_file,
+            'inserted': inserted,
+            'skipped': rows_in_file - inserted,
+            'revectorized': revectorized,
+            'clean_csv' : str(csv_path)
+        }
 
     def rebuild_vectors(self) -> None:
         """Standardization stats and every song's vector recalculated
         
         Should only be run ocassionaly when low usage or libary has doubled"""
         with psycopg.connect(self.dsn) as conn:
-            conn.execute('SELECT pg_advisory_xact_lock(%s)', (self.LOCK_ID))
+            conn.execute('SELECT pg_advisory_xact_lock(%s)', (self.LOCK_ID,))
             conn.execute('SELECT music.refresh_feature_stats()')
             conn.execute('UPDATE music.songs SET energy = energy')
-        with psycopg.connect(self.dsn, autocommint= True) as conn:
+        with psycopg.connect(self.dsn, autocommint=True) as conn:
             conn.execute('REINDEX INDEX CONCURRENTLY music.songs_features_hnsw')
             
 
-if __name__ == '__main__':
-    # for clean file
-    loader = SongUploader()
-    cleaned = Cleaning('merged.csv').clean()
-    print(loader.load(cleaned, clean=False))
+# if __name__ == '__main__':
+#     # for clean file
+#     loader = SongUploader()
+#     cleaned = Cleaning('merged.csv').clean()
+#     print(loader.load(cleaned, clean=False))
 
 
-    # for unclean file
-    loader = SongUploader()
-    print(loader.load('merged.csv'))
+#     # for unclean file
+#     loader = SongUploader()
+#     print(loader.load('merged.csv'))

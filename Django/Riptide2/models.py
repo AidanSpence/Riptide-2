@@ -1,7 +1,9 @@
 import uuid
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-from django.contrib.postgres.fields import CIEmailField, CICharField
+from .fields import CIEmailField, CICharField
 from django.db import models
+from django.conf import settings
+from pgvector.django import VectorField
 
 
 class UserManager(BaseUserManager):
@@ -33,3 +35,36 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         db_table = "users"
+
+class Song(models.Model):
+    title = models.TextField()
+    bpm = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    camelot = models.CharField(max_length=3, null=True)
+    energy = models.FloatField(null=True)
+    # ...add the other columns you want to read in Django =--------------------------------------------------
+    features = VectorField(dimensions=9, null=True, editable=False)
+    cluster_id = models.IntegerField(null=True)
+
+    class Meta:
+        managed = False # SQL owns this table
+        db_table = 'music"."songs'
+
+
+class Playlist(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    name = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "playlists"
+
+
+class PlaylistSong(models.Model):
+    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE, db_constraint=True)
+    position = models.IntegerField()
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "playlist_songs"
+        constraints = [models.UniqueConstraint(fields=["playlist", "song"], name="uniq_playlist_song")]
