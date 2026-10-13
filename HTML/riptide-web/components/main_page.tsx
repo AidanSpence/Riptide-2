@@ -69,23 +69,23 @@ export default function MainPage() {
       {/* change end */}
 
       <div className="center_box">
-      <div className="center_title_bar"></div>
-      <div className="center_chats_container">
-        <input
-            className='center_chats_input'
-            id="user_chat"
-            name="chat"
-            type="text"
-            autoComplete="off"
-            required
-            >
+        <div className="center_title_bar">
+          <div className="center_playlist_title">Title Placeholder
+            <div className="center_playlist_attached">No playlist Attached</div>
+          </div>
 
-            </input>
+          <div className="center_playlist_privacy">Private</div>
+        </div>
+        <div className="center_chats_container">
+          <input
+              className='center_chats_input'
+              id="user_chat"
+              name="chat"
+              type="text"
+              autoComplete="off"
+              required
+              ></input>
       </div>
-
-
-
-
 
 
 
