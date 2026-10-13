@@ -1,4 +1,4 @@
-Running locally (development)
+# Running locally (development)
 1. From the repository folder, install the Python dependencies:
 	`pip install -r requirements.txt`
 2. Change into the Django folder:
@@ -11,7 +11,7 @@ Port 8000 is blocked on the YB PC. If port 8080 is also unavailable, use another
 	'python manage.py runserver 8081'
 Then open http://localhost:8081.
 
-Running with Docker
+# Running with Docker
 1. Start Docker Desktop and wait for it to finish starting.
 2. From the repository folder (the folder containing compose.yaml), run:
 	`docker compose up --build`
@@ -25,3 +25,43 @@ If port 8080 is unavailable, in PowerShell choose another host port and start Co
 	`$env:PORT=8081; docker compose up --build`
 Then open http://localhost:8081. To use port 8080 again in that PowerShell window, run:
 	Remove-Item Env:PORT
+
+# PostgreSQL
+
+## Start it in the background with:
+
+```sh
+docker compose up --pull always -d
+```
+
+## To view database logs:
+
+```sh
+docker compose logs web
+docker compose logs db
+```
+
+## View service status:
+```sh
+docker compose ps
+```
+
+## Stop the services:
+```sh
+docker compose down
+```
+
+## To load new music into database
+not clean data
+```sh
+docker compose exec web python manage.py load_songs data/<file>.csv
+```
+clean data
+```sh
+docker compose exec web python manage.py load_songs data/<file>_clean.csv --no-clean
+```
+
+## Cluster database
+```sh
+docker compose exec web python manage.py build_clusters --k <num>
+```

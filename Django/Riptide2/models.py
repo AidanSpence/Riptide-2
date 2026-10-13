@@ -41,7 +41,6 @@ class Song(models.Model):
     bpm = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     camelot = models.CharField(max_length=3, null=True)
     energy = models.FloatField(null=True)
-    # ...add the other columns you want to read in Django =--------------------------------------------------
     features = VectorField(dimensions=9, null=True, editable=False)
     cluster_id = models.IntegerField(null=True)
 
@@ -68,3 +67,27 @@ class PlaylistSong(models.Model):
     class Meta:
         db_table = "playlist_songs"
         constraints = [models.UniqueConstraint(fields=["playlist", "song"], name="uniq_playlist_song")]
+
+
+class LinkedAccount(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    provider = models.TextField()
+    provider_user_id = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "linked_accounts"
+        constraints = [
+            models.UniqueConstraint(fields=["user", "provider"], name="uniq_user_provider"),
+            models.UniqueConstraint(fields=["provider", "provider_user_id"], name="uniq_provider_account"),
+        ]
+
+
+class UserChat(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    name = models.TextField()
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "user_chats"

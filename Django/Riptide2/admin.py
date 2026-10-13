@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Song
+from .models import User, Song, Playlist, PlaylistSong
 
 
 @admin.register(Song)
@@ -8,9 +8,9 @@ class SongAdmin(admin.ModelAdmin):
     list_display = ("title", "bpm", "camelot", "energy", "cluster_id")
     search_fields = ("title",)
     list_per_page = 50
-    show_full_result_count = False   # skips a slow COUNT(*) on ~20k rows
+    show_full_result_count = False
 
-    # the SQL owns this table, so make it view-only
+    # stops Django from editing as data is form postgre
     def has_add_permission(self, request):
         return False
 
