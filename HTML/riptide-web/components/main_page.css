@@ -1,31 +1,34 @@
 
 .page_layout {
-  /* display formatting */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  overflow: hidden;
-  flex-direction: row;
-  aspect-ratio: 3;
-  flex-grow: 1;
+    /* display formatting */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+    flex-direction: row;
+    aspect-ratio: 3;
+    flex-grow: 1;
 
 
-  /* background and sizing */
-  background: transparent;
-  width: 100%;
-  height: 100%;
+    /* background and sizing */
+    background: radial-gradient(circle,
+    color-mix(in srgb, var(--color-primary) 9%, transparent),
+    color-mix(in srgb, var(--color-surface) 3%, transparent)
+        );
+    width: 100%;
+    height: 100%;
 
 
-  /* Border - bottom only */
-  border: var(--border-thick);
-  border-top: none;
-  border-left: none;
-  border-right: none;
+    /* Border - bottom only */
+    border: var(--border-thick);
+    border-top: none;
+    border-left: none;
+    border-right: none;
 
 
-  /* box sizing and aspect ratios */
-  justify-content: center;
-  align-content: center;
+    /* box sizing and aspect ratios */
+    justify-content: center;
+    align-content: center;
 }
 
 
@@ -44,7 +47,8 @@
 {
     border: var(--border-thick);
     border-radius: var(--corner-rad-small);
-    min-height:10vmin;
+    min-height:8vmin;
+    max-height: 8vmin;
     width:95%;
 }
 
@@ -68,7 +72,7 @@
     flex-direction: column;
     overflow-y: scroll;
     height: 100%;
-    gap:1%;
+    gap:4%;
     /* hide all the scrollbars */
     scrollbar-width: none;
 }
@@ -107,7 +111,7 @@
     flex-direction: column;
     overflow-y: scroll;
     height: 100%;
-    gap:1%;
+    gap:3%;
     /* hide all the scrollbars */
     scrollbar-width: none;
 }
