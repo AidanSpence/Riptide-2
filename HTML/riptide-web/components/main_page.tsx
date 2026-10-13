@@ -73,17 +73,17 @@ export default function MainPage() {
       <div className="center_chats_container">
         <input
             className='center_chats_input'
-            id="login-username"
-            name="username"
+            id="user_chat"
+            name="chat"
             type="text"
-            autoComplete="username"
+            autoComplete="off"
             required
             >
 
             </input>
       </div>
 
-      
+
 
 
 
