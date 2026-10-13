@@ -1,5 +1,11 @@
 
 .page_layout {
+
+    --left-drawer-width: 18%;
+    --right-drawer-width: 22%;
+    position: relative;
+
+
     /* display formatting */
     display: flex;
     align-items: center;
@@ -36,11 +42,110 @@
 .left_container{
     display: flex;
     flex-direction: column;
-    /* ratio 1 */
-    flex:1;
-    border: var(--border-thick);
+    box-sizing: border-box;
+    position: relative;
+    z-index: 10;
+    flex: 0 0 0;
+    min-width: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transition: flex-basis 300ms ease, visibility 0s linear 300ms;
+    border: none;
     height: 100%;
-    width: 100%;
+    width: 0;
+}
+
+
+.left_container.is_open {
+    flex-basis: var(--left-drawer-width);
+    visibility: visible;
+    border: var(--border-thick);
+    transition: flex-basis 300ms ease, visibility 0s;
+}
+
+.center_box {
+    box-sizing: border-box;
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+}
+
+.right_box {
+    box-sizing: border-box;
+    position: relative;
+    flex: 0 0 0;
+    min-width: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transition: flex-basis 300ms ease, visibility 0s linear 300ms;
+    width: 0;
+    z-index: 10;
+}
+
+.right_box.is_open {
+    flex-basis: var(--right-drawer-width);
+    visibility: visible;
+    border: var(--border-thick);
+    transition: flex-basis 300ms ease, visibility 0s;
+}
+
+
+.drawer_toggle {
+    position: absolute;
+    top: 50%;
+    z-index: 5;
+    height: 5vmin;
+    width: 3vmin;
+    transform: translateY(-50%);
+    border: var(--border-thin);
+    border-radius: var(--corner-rad-small);
+    background: var(--color-primary);
+    color: var(--color-text);
+    font-size: var(--font-med);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+}
+
+.left_drawer_toggle {
+    left: -10;
+    transition: left 300ms ease, transform 300ms ease;
+    clip-path: inset(0 0 0 35%);
+    justify-content: end;
+    padding-right: 0.3vmin;
+}
+
+.left_drawer_toggle.is_open {
+    left: var(--left-drawer-width);
+    transform: translate(-25%, -50%);
+}
+
+.right_drawer_toggle {
+    right: -10;
+    transition: right 300ms ease, transform 300ms ease;
+    clip-path: inset(0 35% 0 0);
+    justify-content: start;
+    padding-left: 0.3vmin;
+}
+
+.right_drawer_toggle.is_open {
+    right: var(--right-drawer-width);
+    transform: translate(25%, -50%);
+}
+
+.drawer_toggle:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .left_container,
+    .right_box,
+    .left_drawer_toggle,
+    .right_drawer_toggle {
+        transition: none;
+    }
 }
 
 .left_box_sizing
@@ -102,6 +207,7 @@
 .left_playlist_title{
     font-size: var(--font-med);
     padding: 1%;
+    overflow: hidden;
 }
 
 .left_linked_playlists_scrolling{
@@ -179,18 +285,18 @@
 .center_box{
     display: flex;
     /* ratio 3 */
-    flex:3.5;
+    flex:1 1 0;
     border: var(--border-thick);
     height: 100%;
-    width: 100%;
+    width: auto;
 }
 
 /* right box (current playlist*/
 .right_box{
     display: flex;
     /* ratio 2 */
-    flex:1.3;
-    border: var(--border-thick);
+    flex:0 0 0;
+    border: none;
     height: 100%;
-    width: 100%;
+    width: 0;
 }

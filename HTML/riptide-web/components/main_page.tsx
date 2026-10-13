@@ -1,9 +1,33 @@
-import "./main_page.css";
+'use client';
 
-export default function main_page() {
+import "./main_page.css";
+import { useState } from "react";
+
+export default function MainPage() {
+  /* This change will let each side panel expand and collapse independently. */
+  const [leftOpen, setLeftOpen] = useState(true);
+  const [rightOpen, setRightOpen] = useState(true);
+  /* change end */
+
   return(
     <div className="page_layout">
-      <div className="left_container">
+
+      <button
+        className={`drawer_toggle left_drawer_toggle${leftOpen ? " is_open" : ""}`}
+        type="button"
+        aria-label={leftOpen ? "Close chats panel" : "Open chats panel"}
+        aria-controls="left-drawer"
+        aria-expanded={leftOpen}
+        onClick={() => setLeftOpen((open) => !open)}
+      >
+        {leftOpen ? "<" : ">"}
+      </button>
+      <div
+        className={`left_container${leftOpen ? " is_open" : ""}`}
+        id="left-drawer"
+        aria-hidden={!leftOpen}
+        inert={!leftOpen}
+      >
         <div className="left_chats">
           <div className="left_chat_title">Chats:</div>
           <div className="left_chat_box_scrolling">
@@ -42,29 +66,53 @@ export default function main_page() {
           </div>
         </div>
       </div>
+      {/* change end */}
 
       <div className="center_box">
-      center box
+      <div className="center_title_bar"></div>
+      <div className="center_chats_container">
+        <input
+            className='center_chats_input'
+            id="login-username"
+            name="username"
+            type="text"
+            autoComplete="username"
+            required
+            >
+
+            </input>
+      </div>
+
+      
+
+
+
+
 
       </div>
 
-      <div className="right_box">
+
+
+      <button
+        className={`drawer_toggle right_drawer_toggle${rightOpen ? " is_open" : ""}`}
+        type="button"
+        aria-label={rightOpen ? "Close playlist panel" : "Open playlist panel"}
+        aria-controls="right-drawer"
+        aria-expanded={rightOpen}
+        onClick={() => setRightOpen((open) => !open)}
+      >
+        {rightOpen ? ">" : "<"}
+      </button>
+      <div
+        className={`right_box${rightOpen ? " is_open" : ""}`}
+        id="right-drawer"
+        aria-hidden={!rightOpen}
+        inert={!rightOpen}
+      >
       right box
 
       </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
+      {/* change end */}
 
     </div>
   )
