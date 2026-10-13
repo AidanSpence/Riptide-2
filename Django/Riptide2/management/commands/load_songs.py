@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 from Riptide2.classes import SongUploader
 
 class Command(BaseCommand):
-    """Load songs from a CSV into DB"""
+    help = "Load songs from a CSV into DB" # Visible with 'python manage.py help <command>'
 
     def add_arguments(self, parser):
         parser.add_argument("csv_path", help="Path to CSV file")

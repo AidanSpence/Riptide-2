@@ -2,3 +2,41 @@ docker compose exec web python manage.py migrate
 
 docker compose exec web python manage.py load_songs data/merged.csv
 docker compose exec web python manage.py load_songs data/clean_merged.csv --no-clean
+
+
+
+Start the system with:
+
+   docker compose up --pull always
+
+
+ Start it in the background with:
+
+   docker compose up --pull always -d
+
+
+ View service status:
+
+   docker compose ps
+
+
+ View logs:
+
+   docker compose logs web
+   docker compose logs db
+
+
+ Run Django commands:
+
+   docker compose exec web python manage.py migrate
+   docker compose exec web python manage.py createsuperuser
+
+
+ Stop the services:
+
+   docker compose down
+
+
+ docker compose down stops and removes the containers but keeps the django_pgdata volume. To delete the database data as well, use this destructive command:
+
+   docker compose down -v

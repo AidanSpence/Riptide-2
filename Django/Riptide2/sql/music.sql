@@ -1,5 +1,5 @@
-CREATE EXTENSION IF NOT EXISTS vector;
-CREATE EXTENSION IF NOT EXISTS citext;
+CREATE EXTENSION IF NOT EXISTS vector SCHEMA public;
+CREATE EXTENSION IF NOT EXISTS citext SCHEMA public;
 
 CREATE SCHEMA IF NOT EXISTS music;
 CREATE SCHEMA IF NOT EXISTS app;
@@ -27,7 +27,7 @@ CREATE TABLE music.albums (
     UNIQUE NULLS NOT DISTINCT (title, release_year)
 );
 
--- k-means clusters (filled by the offline Python job)
+-- k-means clusters (filled by build_clusters.py)
 CREATE TABLE music.clusters (
     id        INT PRIMARY KEY,
     centroid  vector(9) NOT NULL,
@@ -148,7 +148,8 @@ LANGUAGE sql AS $$
 $$;
 
 CREATE FUNCTION music.build_features() RETURNS trigger
-LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql
+SET search_path = public, music AS $$
 BEGIN
     IF NEW.energy IS NULL OR NEW.danceability IS NULL OR NEW.acousticness IS NULL
        OR NEW.instrumentalness IS NULL OR NEW.valence IS NULL

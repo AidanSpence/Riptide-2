@@ -155,6 +155,13 @@ class Cleaning:
         df['release_year'] = d.map(lambda t: t[2]).astype('Int64')
         df = df.drop(columns='album_date')
 
+        missing = (
+            df['title'].isna() | (df['title'].astype('string').str.strip() == '') |
+            df['artists'].isna() | (df['artists'].astype('string').str.strip() == '')
+        )
+        print(f"Dropping {int(missing.sum())} rows missing title or artist")
+        df = df[~missing].reset_index(drop=True)
+
         df["artists"] = df['artists'].map(self.split_artists)
         comma_names = sorted({a for cell in df['artists'].dropna()
                               for a in cell.split('|') if "," in a})
@@ -163,7 +170,12 @@ class Cleaning:
             for n in comma_names:
                 print(" ", n)
         df['genres'] = df['genres'].map(self.split_genres)
-        df['isrc'] = df['isrc'].str.strip().str.upper()
+        df['isrc'] = (df['isrc'].astype('string').str.upper()
+                    .str.replace(r'[^A-Z0-9]', '', regex=True))
+        bad = df['isrc'].notna() & (df['isrc'].str.len() != 12)
+        if bad.any():
+            print(f"isrc: {int(bad.sum())} invalid values, e.g. {df.loc[bad, 'isrc'].head(5).tolist()}")
+            df.loc[bad, 'isrc'] = None
         df["spotify_track_id"] = df["spotify_track_id"].str.strip()
 
         NUMERIC = ['energy', 'danceability', 'acousticness', 'instrumentalness',
@@ -176,7 +188,6 @@ class Cleaning:
             if bad.any():
                 print(f"{c}: {bad.sum()} non-numeric values, e.g. {raw[bad].unique()[:5].tolist()}")
             df[c] = num
-            df.loc[df['bpm'] <= 0, 'bpm'] = None
 
         for c in ['energy', 'danceability', 'acousticness', 'instrumentalness',
                   'valence', 'speechiness', 'liveness', 'popularity']:

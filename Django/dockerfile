@@ -13,4 +13,6 @@ COPY . .
 
 EXPOSE 8000
 
+CMD ["python", "manage.py", "load_songs", "data/merged.csv"]
+
 CMD ["python", "manage.py", "runserver", "8000"]
