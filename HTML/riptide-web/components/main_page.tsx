@@ -2,6 +2,8 @@
 
 import "./main_page.css";
 import { useState } from "react";
+import Image from 'next/image'
+
 
 export default function MainPage() {
   /* This change will let each side panel expand and collapse independently. */
@@ -71,21 +73,27 @@ export default function MainPage() {
       <div className="center_box">
         <div className="center_title_bar">
           <div className="center_playlist_title">Title Placeholder
-            <div className="center_playlist_attached">No playlist Attached</div>
+            <div className="center_playlist_attached_title">No playlist Attached</div>
           </div>
 
-          <div className="center_playlist_privacy">Private</div>
+          <div className="center_playlist_privacy_title">Private</div>
         </div>
         <div className="center_chats_container">
-          <input
-              className='center_chats_input'
-              id="user_chat"
-              name="chat"
-              type="text"
-              autoComplete="off"
-              required
-              ></input>
+          {/* className="box1 center_box_sizing_user/center_box_sizing_system */}
+              <div className="box1 center_box_sizing_user">Sure, here is an autmoasndhsdasjdjisoj</div>
+              <div className="box1 center_box_sizing_system">Sure, here is an autmoasndhsdasjdjisoj</div>
       </div>
+      <div className='center_chats_input_box'>
+        <input
+      className='center_chats_input_clickable'
+      id="user_chat"
+      name="chat"
+      type="text"
+      autoComplete="off"
+      required
+      ></input><button className="center_chats_send_message"><Image className="center_send_button_image" src="send.svg" width={30} height={30} alt="send button"></Image></button></div>
+
+
 
 
 
