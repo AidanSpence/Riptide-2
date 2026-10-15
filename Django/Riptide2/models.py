@@ -24,7 +24,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = CIEmailField(unique=True)
     username = CICharField(max_length=150, unique=True)
-    display_name = models.TextField(blank=True, null=True)
     avatar_url = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

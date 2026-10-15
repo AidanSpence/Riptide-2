@@ -23,12 +23,12 @@ class SongAdmin(admin.ModelAdmin):
 @admin.register(User)
 class UserAdmin(UserAdmin):
     ordering = ("email",)
-    list_display = ("email", "username", "display_name", "is_staff", "is_active")
-    search_fields = ("email", "username", "display_name")
+    list_display = ("email", "username", "is_staff", "is_active")
+    search_fields = ("email", "username")
 
     fieldsets = (
         (None, {"fields": ("email", "password")}),
-        ("Profile", {"fields": ("username", "display_name", "avatar_url")}),
+        ("Profile", {"fields": ("username", "avatar_url")}),
         ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser",
                                     "groups", "user_permissions")}),
         ("Dates", {"fields": ("last_login",)}),
