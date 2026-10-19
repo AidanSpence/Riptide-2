@@ -39,6 +39,7 @@
 }
 
 
+/* buttons for opening and closing the side panels */
 .drawer_toggle {
     position: absolute;
     top: 50%;
@@ -70,6 +71,7 @@
     transform: translate(-25%, -50%);
 }
 
+/* left panel with chats, playlists, and profile */
 /* left box (change chats) */
 .left_box{
     display: flex;
@@ -236,6 +238,7 @@
 
 
 
+/* main chat area */
 /* Center box  (chat window)*/
 .center_box{
     display: flex;
@@ -376,6 +379,7 @@
 
 /* Right draw */
 
+/* right panel containing the playlists */
 .right_drawer_toggle {
     right: -10;
     transition: right 300ms ease, transform 300ms ease;
@@ -450,7 +454,7 @@
     border-radius: var(--corner-rad-small);
 }
 
-/* title for the playlists */
+/* title for the playlist */
 .right_playlist_title_box {
     background-color: var(--color-primary);
     flex: 0 0 auto;

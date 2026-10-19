@@ -6,14 +6,14 @@ import Image from 'next/image'
 
 
 export default function MainPage() {
-  /* This change will let each side panel expand and collapse independently. */
+  /* Track whether each side panel is open. */
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
-  /* change end */
 
   return(
     <div className="page_layout">
 
+      {/* Left panel with chats, playlists, and profile. */}
       <button
         className={`drawer_toggle left_drawer_toggle${leftOpen ? " is_open" : ""}`}
         type="button"
@@ -68,8 +68,8 @@ export default function MainPage() {
           </div>
         </div>
       </div>
-      {/* change end */}
 
+      {/* Main chat area. */}
       <div className="center_box">
         <div className="center_title_bar">
           <div className="center_playlist_title">Title Placeholder
@@ -101,6 +101,7 @@ export default function MainPage() {
 
 
 
+      {/* Right panel with the user's playlists. */}
       <button
         className={`drawer_toggle right_drawer_toggle${rightOpen ? " is_open" : ""}`}
         type="button"
