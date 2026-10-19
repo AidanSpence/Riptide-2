@@ -35,21 +35,42 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = "users"
 
+class Artist(models.Model):
+    name = models.TextField(unique=True)
+
+    class Meta:
+        managed = False
+        db_table = 'music"."artists'
+
+    def __str__(self):
+        return self.name
+
 class Song(models.Model):
     title = models.TextField()
+    artists = models.ManyToManyField(Artist, through="SongArtist", related_name="songs")
     bpm = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     camelot = models.CharField(max_length=3, null=True)
     energy = models.FloatField(null=True)
     features = VectorField(dimensions=9, null=True, editable=False)
+    duration_s = models.IntegerField(null=True)
     cluster_id = models.IntegerField(null=True)
 
     class Meta:
         managed = False # SQL owns this table
         db_table = 'music"."songs'
 
+class SongArtist(models.Model):
+    song = models.ForeignKey(Song, on_delete=models.DO_NOTHING, db_column="song_id", primary_key=True)
+    artist = models.ForeignKey(Artist, on_delete=models.DO_NOTHING, db_column="artist_id")
+    position = models.SmallIntegerField(default=0)
+
+    class Meta:
+        managed = False
+        db_table = 'music"."song_artists'
+
 
 class Playlist(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 

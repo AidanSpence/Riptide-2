@@ -10,11 +10,12 @@ class GPT4ALLProvider:
     def stream(self, messages, system=None):
         msgs = ([{"role": "system", "content": system}] if system else []) + messages
         resp = self.client.chat.completions.create(
-            model=self.model, messages=msgs, stream=True, max_tokens=512
+            model=self.model,
+            messages=msgs,
+            max_tokens=512,
         )
-        for chunk in resp:
-            if chunk.choices and chunk.choices[0].delta.content:
-                yield chunk.choices[0].delta.content
+        print("\n[DEBUG]", resp)
+        yield resp.choices[0].message.content or ""
 
 class BedrockProvider:
     def __init__(self):
@@ -25,7 +26,7 @@ class BedrockProvider:
         def stream(self, messages, system=None):
             kwargs = {
                 "modelId": self.model_id,
-                "messages": [{"role": m["role"], "content" [{"text": m["content"]}]} for m in messages],
+                "messages": [{"role": m["role"], "content": [{"text": m["content"]}]} for m in messages],
                 "inferenceConfig": {"maxTokens": 512},
             }
             if system:
