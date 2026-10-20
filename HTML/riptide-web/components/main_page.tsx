@@ -85,8 +85,8 @@ center_box_sizing_user - (message is from the user)
 center_box_sizing_system - (message is from the system)
 */}
 
-              <div className="box1 center_box_sizing_user">Sure, here is an autmoasndhsdasjdjisoj</div>
-              <div className="box1 center_box_sizing_system">Sure, here is an autmoasndhsdasjdjisoj</div>
+              {/* <div className="box1 center_box_sizing_user">Sure, here is an autmoasndhsdasjdjisoj</div>
+              <div className="box1 center_box_sizing_system">Sure, here is an autmoasndhsdasjdjisoj</div> */}
       </div>
       <div className='center_chats_input_box'>
         <input
@@ -130,8 +130,10 @@ center_box_sizing_system - (message is from the system)
 {/*
 
 all playlists should be created in javascript and placed
-into the right_playlist_layout parent, the order should go:
+into the right_all_playlists_container parent, the order should go:
 
+
+"right_playlist_layout" - (creates the box)
 "right_playlist_title_box" - (should contain the title of the playlist)
 "right_playlist_song_list" - (grid container for all the songs, should be empty)
 "right_playlist_song_box (box*)" - (contains the information for 1 song, box* is a leftover
@@ -143,219 +145,12 @@ all elements can be of any type or length including blank but preferably have co
 */}
 
     <div className="playlist_top_bar">Your Playlists</div>
+
     <div className="right_all_playlists_container">
-      <div className="right_playlist_layout">
-
-        <div className="right_playlist_title_box">Road Trip</div>
-        <div className="right_playlist_song_list">
-          <div className="right_playlist_song_box box1">
-            <div className="right_playlist_song_title">Midnight City</div>
-            <div className="right_playlist_song_artist">M83</div>
-            <div className="right_playlist_song_length">4:03</div>
-          </div>
-          <div className="right_playlist_song_box box2">
-            <div className="right_playlist_song_title">Dreams12312312321321321</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac12312312312321</div>
-            <div className="right_playlist_song_length">4:171232312312</div>
-          </div>
-          <div className="right_playlist_song_box box3">
-            <div className="right_playlist_song_title">Go Your Own Way</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac</div>
-            <div className="right_playlist_song_length">3:43</div>
-          </div>
-          <div className="right_playlist_song_box box4">
-            <div className="right_playlist_song_title">Nightcall</div>
-            <div className="right_playlist_song_artist">Kavinsky</div>
-            <div className="right_playlist_song_length">4:18</div>
-            <div className="right_playlist_song_title">Midnight City</div>
-            <div className="right_playlist_song_artist">M83</div>
-            <div className="right_playlist_song_length">4:03</div>
-          </div>
-          <div className="right_playlist_song_box box2">
-            <div className="right_playlist_song_title">Dreams12312312321321321</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac12312312312321</div>
-            <div className="right_playlist_song_length">4:171232312312</div>
-          </div>
-          <div className="right_playlist_song_box box3">
-            <div className="right_playlist_song_title">Go Your Own Way</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac</div>
-            <div className="right_playlist_song_length">3:43</div>
-          </div>
-          <div className="right_playlist_song_box box4">
-            <div className="right_playlist_song_title">Nightcall</div>
-            <div className="right_playlist_song_artist">Kavinsky</div>
-            <div className="right_playlist_song_length">4:18</div>
-
-            <div className="right_playlist_song_title">Midnight City</div>
-            <div className="right_playlist_song_artist">M83</div>
-            <div className="right_playlist_song_length">4:03</div>
-          </div>
-          <div className="right_playlist_song_box box2">
-            <div className="right_playlist_song_title">Dreams12312312321321321</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac12312312312321</div>
-            <div className="right_playlist_song_length">4:171232312312</div>
-          </div>
-          <div className="right_playlist_song_box box3">
-            <div className="right_playlist_song_title">Go Your Own Way</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac</div>
-            <div className="right_playlist_song_length">3:43</div>
-          </div>
-          <div className="right_playlist_song_box box4">
-            <div className="right_playlist_song_title">Nightcall</div>
-            <div className="right_playlist_song_artist">Kavinsky</div>
-            <div className="right_playlist_song_length">4:18</div>
-            <div className="right_playlist_song_title">Midnight City</div>
-            <div className="right_playlist_song_artist">M83</div>
-            <div className="right_playlist_song_length">4:03</div>
-          </div>
-          <div className="right_playlist_song_box box2">
-            <div className="right_playlist_song_title">Dreams12312312321321321</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac12312312312321</div>
-            <div className="right_playlist_song_length">4:171232312312</div>
-          </div>
-          <div className="right_playlist_song_box box3">
-            <div className="right_playlist_song_title">Go Your Own Way</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac</div>
-            <div className="right_playlist_song_length">3:43</div>
-          </div>
-          <div className="right_playlist_song_box box4">
-            <div className="right_playlist_song_title">Nightcall</div>
-            <div className="right_playlist_song_artist">Kavinsky</div>
-            <div className="right_playlist_song_length">4:18</div>
-            <div className="right_playlist_song_title">Midnight City</div>
-            <div className="right_playlist_song_artist">M83</div>
-            <div className="right_playlist_song_length">4:03</div>
-          </div>
-          <div className="right_playlist_song_box box2">
-            <div className="right_playlist_song_title">Dreams12312312321321321</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac12312312312321</div>
-            <div className="right_playlist_song_length">4:171232312312</div>
-          </div>
-          <div className="right_playlist_song_box box3">
-            <div className="right_playlist_song_title">Go Your Own Way</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac</div>
-            <div className="right_playlist_song_length">3:43</div>
-          </div>
-          <div className="right_playlist_song_box box4">
-            <div className="right_playlist_song_title">Nightcall</div>
-            <div className="right_playlist_song_artist">Kavinsky</div>
-            <div className="right_playlist_song_length">4:18</div>
-            <div className="right_playlist_song_title">Midnight City</div>
-            <div className="right_playlist_song_artist">M83</div>
-            <div className="right_playlist_song_length">4:03</div>
-          </div>
-          <div className="right_playlist_song_box box2">
-            <div className="right_playlist_song_title">Dreams12312312321321321</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac12312312312321</div>
-            <div className="right_playlist_song_length">4:171232312312</div>
-          </div>
-          <div className="right_playlist_song_box box3">
-            <div className="right_playlist_song_title">Go Your Own Way</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac</div>
-            <div className="right_playlist_song_length">3:43</div>
-          </div>
-          <div className="right_playlist_song_box box4">
-            <div className="right_playlist_song_title">Nightcall</div>
-            <div className="right_playlist_song_artist">Kavinsky</div>
-            <div className="right_playlist_song_length">4:18</div>
-            <div className="right_playlist_song_title">Midnight City</div>
-            <div className="right_playlist_song_artist">M83</div>
-            <div className="right_playlist_song_length">4:03</div>
-          </div>
-          <div className="right_playlist_song_box box2">
-            <div className="right_playlist_song_title">Dreams12312312321321321</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac12312312312321</div>
-            <div className="right_playlist_song_length">4:171232312312</div>
-          </div>
-          <div className="right_playlist_song_box box3">
-            <div className="right_playlist_song_title">Go Your Own Way</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac</div>
-            <div className="right_playlist_song_length">3:43</div>
-          </div>
-          <div className="right_playlist_song_box box4">
-            <div className="right_playlist_song_title">Nightcall</div>
-            <div className="right_playlist_song_artist">Kavinsky</div>
-            <div className="right_playlist_song_length">4:18</div>
-            <div className="right_playlist_song_title">Midnight City</div>
-            <div className="right_playlist_song_artist">M83</div>
-            <div className="right_playlist_song_length">4:03</div>
-          </div>
-          <div className="right_playlist_song_box box2">
-            <div className="right_playlist_song_title">Dreams12312312321321321</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac12312312312321</div>
-            <div className="right_playlist_song_length">4:171232312312</div>
-          </div>
-          <div className="right_playlist_song_box box3">
-            <div className="right_playlist_song_title">Go Your Own Way</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac</div>
-            <div className="right_playlist_song_length">3:43</div>
-          </div>
-          <div className="right_playlist_song_box box4">
-            <div className="right_playlist_song_title">Nightcall</div>
-            <div className="right_playlist_song_artist">Kavinsky</div>
-            <div className="right_playlist_song_length">4:18</div>
-            <div className="right_playlist_song_title">Midnight City</div>
-            <div className="right_playlist_song_artist">M83</div>
-            <div className="right_playlist_song_length">4:03</div>
-          </div>
-          <div className="right_playlist_song_box box2">
-            <div className="right_playlist_song_title">Dreams12312312321321321</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac12312312312321</div>
-            <div className="right_playlist_song_length">4:171232312312</div>
-          </div>
-          <div className="right_playlist_song_box box3">
-            <div className="right_playlist_song_title">Go Your Own Way</div>
-            <div className="right_playlist_song_artist">Fleetwood Mac</div>
-            <div className="right_playlist_song_length">3:43</div>
-          </div>
-          <div className="right_playlist_song_box box4">
-            <div className="right_playlist_song_title">Nightcall</div>
-            <div className="right_playlist_song_artist">Kavinsky</div>
-            <div className="right_playlist_song_length">4:18</div>
-          </div>
-
-
-
-
-        </div>
-      </div>
-      <div className="right_playlist_layout">
-        <div className="right_playlist_title_box">Sunday Morning</div>
-        <div className="right_playlist_song_list">
-          <div className="right_playlist_song_box box6">
-            <div className="right_playlist_song_title">Banana Pancakes</div>
-            <div className="right_playlist_song_artist">Jack Johnson</div>
-            <div className="right_playlist_song_length">3:12</div>
-          </div>
-          <div className="right_playlist_song_box box7">
-            <div className="right_playlist_song_title">Put Your Records On</div>
-            <div className="right_playlist_song_artist">Corinne Bailey Rae</div>
-            <div className="right_playlist_song_length">3:35</div>
-          </div>
-          <div className="right_playlist_song_box box8">
-            <div className="right_playlist_song_title">Better Together</div>
-            <div className="right_playlist_song_artist">Jack Johnson</div>
-            <div className="right_playlist_song_length">3:28</div>
-          </div>
-          <div className="right_playlist_song_box box9">
-            <div className="right_playlist_song_title">Sunday Morning</div>
-            <div className="right_playlist_song_artist">Maroon 5</div>
-            <div className="right_playlist_song_length">4:03</div>
-          </div>
-          <div className="right_playlist_song_box box10">
-            <div className="right_playlist_song_title">Lovely Day</div>
-            <div className="right_playlist_song_artist">Bill Withers</div>
-            <div className="right_playlist_song_length">4:15</div>
-          </div>
-        </div>
-      </div>
+    {/* playlists goes here */}
     </div>
 
-
-
-      </div>
-      {/* change end */}
-
-    </div>
+  </div>
+</div>
   )
 }
