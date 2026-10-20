@@ -167,6 +167,11 @@ python manage.py load_songs data/<file>.csv
 python manage.py load_songs data/<file>_clean.csv --no-clean
 ```
 
+### Chat Window
+```bash
+python manage.py chat_window
+```
+
 ### Clustering
 
 ```bash
@@ -176,7 +181,7 @@ python manage.py build_clusters --k <num_clusters>
 ### Docker
 
 ```bash
-docker compose up --build
+docker compose up --build -d
 docker compose down
 docker compose logs -f
 docker compose ps

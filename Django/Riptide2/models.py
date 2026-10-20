@@ -60,7 +60,7 @@ class Song(models.Model):
         db_table = 'music"."songs'
 
 class SongArtist(models.Model):
-    song = models.ForeignKey(Song, on_delete=models.DO_NOTHING, db_column="song_id", primary_key=True)
+    song = models.OneToOneField(Song, on_delete=models.DO_NOTHING, db_column="song_id", primary_key=True)
     artist = models.ForeignKey(Artist, on_delete=models.DO_NOTHING, db_column="artist_id")
     position = models.SmallIntegerField(default=0)
 

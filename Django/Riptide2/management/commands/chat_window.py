@@ -25,6 +25,8 @@ class Command(BaseCommand):
                 break
             if user == "/reset":
                 history.clear()
+                if hasattr(provider, "reset"):
+                    provider.reset()
                 print("[history cleared]")
                 continue
 
