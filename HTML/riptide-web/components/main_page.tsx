@@ -4,15 +4,14 @@ import "./main_page.css";
 import { useState } from "react";
 import Image from 'next/image'
 
-
 export default function MainPage() {
   /* Track whether each side panel is open. */
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
 
   return(
-    <div className="page_layout">
 
+    <div className="page_layout">
       {/* Left panel with chats, playlists, and profile. */}
       <button
         className={`drawer_toggle left_drawer_toggle${leftOpen ? " is_open" : ""}`}

@@ -88,13 +88,31 @@
 
 /* Nav Profile */
 
+
+
+.button_border{
+  display: flex;
+  width: 6.36%;
+  aspect-ratio: 1;
+    /* button */
+    cursor: pointer;
+    box-shadow: 0 0.5% 0 var(--color-primary);
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+  }
+
+.button_border:active{
+  transform: translateY(4px);
+}
+
+
+
+
 .nav_profile_border{
   /* sizing */
   display: flex;
-  justify-items: auto;
-  align-items: auto;
-  width: 6.36%;
+  width: 100%;
   aspect-ratio: 1;
+
 
   /* border */
   border: var(--border-thin);
@@ -103,7 +121,15 @@
 
   /* bg */
   background: var(--color-primary);
+
 }
+
+
+
+
+
+
+
 .nav_profile{
   display:inline;
   align-self: center;

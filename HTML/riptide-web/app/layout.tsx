@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
-import Login_popup from "@/components/login-popup";
 import Main_page from "@/components/main_page";
 
 const geistSans = Geist({
@@ -29,7 +28,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <Navbar />
         <Main_page />
-        {/* <Login_popup /> */}
         <main> {children} </main></body>
     </html>
   );
