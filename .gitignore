@@ -1,1 +1,5 @@
 /.venv
+Django\Riptide2\management\__pycache__
+Django\config\__pycache__
+Django\Riptide2\__pycache__
+__pycache__
