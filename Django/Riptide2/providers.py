@@ -1,35 +1,34 @@
 import os, json
 from django.conf import settings
 
-class GPT4AllLocalProvider:
-    def __init__(self):
-        from gpt4all import GPT4All
-        self.model = GPT4All(
-        os.getenv("GPT4ALL_MODEL_FILE", "Meta-Llama-3-8B-Instruct.Q4_0.gguf"),
-        n_ctx=8192, # max_tokens
-        device="gpu",
-        )
-        self.system = None
-        self._ctx = None
 
-    def _start(self, system):
-        self.reset()
-        self.system = system
-        self._ctx = self.model.chat_session(system_prompt=system)
-        self._ctx.__enter__()
-        print("n_ctx:", self.model.model.n_ctx if hasattr(self.model.model, "n_ctx") else "unknown")
-        print("system in session:", len(self.model.current_chat_session[0]["content"]), "chars")
-
-    def reset(self):
-        if self._ctx:
-            self._ctx.__exit__(None, None, None)
-            self._ctx = None
+class OllamaProvider:
+    URL = "http://localhost:11434/api/chat"
+    MODEL = "llama3.1:8b"
 
     def stream(self, messages, system=None):
-        if self._ctx is None or len(messages) == 1:
-            self._start(system)
-        for token in self.model.generate(messages[-1]["content"], max_tokens=1500, streaming=True):
-            yield token
+        import json, requests
+        msgs = ([{"role": "system", "content": system}] if system else []) + messages
+        with requests.post(
+            self.URL,
+            json={
+                "model": self.MODEL,
+                "messages": msgs,
+                "stream": True,
+                "options": {"num_ctx": 8192, "num_predict": 512},
+            },
+            stream=True,
+            timeout=300,
+        ) as r:
+            r.raise_for_status()
+            for line in r.iter_lines():
+                if not line:
+                    continue
+                data = json.loads(line)
+                if "message" in data:
+                    yield data["message"].get("content", "")
+                if data.get("done"):
+                    break
 
 class BedrockProvider:
     def __init__(self):
@@ -52,7 +51,4 @@ class BedrockProvider:
 
 
 def get_provider():
-    p = os.getenv("LLM_PROVIDER", "gpt4all_local")
-    if p == "bedrock":
-        return BedrockProvider()
-    return GPT4AllLocalProvider()
+    return OllamaProvider()

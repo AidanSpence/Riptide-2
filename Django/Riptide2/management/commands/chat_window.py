@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from Riptide2.providers import get_provider
-from Riptide2.views import SYSTEM_PROMPT
+from Riptide2.system import SYSTEM_PROMPT
 
 
 class Command(BaseCommand):
