@@ -1,48 +1,512 @@
 
 .page_layout {
-  /* display formatting */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  overflow: hidden;
-  flex-direction: row;
-  aspect-ratio: 3;
-  flex-grow: 1;
+
+    /* box width */
+    --left-drawer-width: 18%;
+    --right-drawer-width: 22%;
+    position: relative;
 
 
-  /* background and sizing */
-  background: transparent;
-  width: 100%;
-  height: 100%;
+    /* display formatting */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+    flex-direction: row;
+    aspect-ratio: 3;
+    flex-grow: 1;
 
 
-  /* Border - bottom only */
-  border: var(--border-thick);
-  border-top: none;
-  border-left: none;
-  border-right: none;
+    /* background and sizing */
+    background: radial-gradient(circle,
+    color-mix(in srgb, var(--color-primary) 9%, transparent),
+    color-mix(in srgb, var(--color-surface) 3%, transparent)
+        );
+    width: 100%;
+    height: 100%;
 
 
-  /* box sizing and aspect ratios */
-  justify-content: center;
-  align-content: center;
+    /* Border - bottom only */
+    border: var(--border-thick);
+    border-top: none;
+    border-left: none;
+    border-right: none;
+
+
+    /* box sizing and aspect ratios */
+    justify-content: center;
+    align-content: center;
 }
 
+
+.drawer_toggle {
+    position: absolute;
+    top: 50%;
+    z-index: 5;
+    height: 5vmin;
+    width: 3vmin;
+    transform: translateY(-50%);
+    border: var(--border-thin);
+    border-radius: var(--corner-rad-small);
+    background: var(--color-primary);
+    color: var(--color-text);
+    font-size: var(--font-med);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+}
+
+.left_drawer_toggle {
+    left: -10;
+    transition: left 300ms ease, transform 300ms ease;
+    clip-path: inset(0 0 0 35%);
+    justify-content: end;
+    padding-right: 0.3vmin;
+}
+
+.left_drawer_toggle.is_open {
+    left: var(--left-drawer-width);
+    transform: translate(-25%, -50%);
+}
+
+/* left box (change chats) */
 .left_box{
     display: flex;
-    border: var(--border-thick);
+    flex-direction: column;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 10;
+    flex: 0 0 0;
+    min-width: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transition: flex-basis 300ms ease, visibility 0s linear 300ms;
+    border: none;
     height: 100%;
-    width: 100%;
+    width: 0;
+
 }
+
+
+.left_box.is_open {
+    flex-basis: var(--left-drawer-width);
+    visibility: visible;
+    border-right: var(--border-thick);
+    transition: flex-basis 300ms ease, visibility 0s;
+
+    /* Put padding here or else it doesn't close properly */
+    padding: 0.25%;
+
+}
+
+.left_chats
+{
+    display: flex;
+    flex:1;
+    flex-direction: column;
+    overflow-y: hidden;
+    height: 100%;
+    gap:1%;
+
+}
+
+.left_chat_title
+{
+    font-size: var(--font-med);
+    padding: 1%;
+}
+
+.left_chat_box_scrolling{
+    display: flex;
+    align-items: center;
+    flex:1;
+    flex-direction: column;
+    overflow-y: scroll;
+    height: 100%;
+    gap:4%;
+    /* hide all the scrollbars */
+    scrollbar-width: none;
+}
+
+
+.left_chat_box_scrolling::-webkit-scrollbar {
+    display: none;
+}
+
+
+.left_box_sizing
+{
+    border: var(--border-thick);
+    border-radius: var(--corner-rad-small);
+    min-height:8vmin;
+    max-height: 8vmin;
+    width:95%;
+}
+.left_linked_playlists
+{
+    display: flex;
+    flex:1.6;
+    flex-direction: column;
+    overflow-y: scroll;
+    height: 100%;
+    gap:1%;
+    /* hide all the scrollbars */
+    scrollbar-width: none;
+}
+.left_playlist_title{
+    font-size: var(--font-med);
+    padding: 1%;
+    overflow: hidden;
+}
+
+.left_linked_playlists_scrolling{
+    display: flex;
+    flex:1.5;
+    align-items: center;
+    flex-direction: column;
+    overflow-y: scroll;
+    height: 100%;
+    gap:3%;
+    /* hide all the scrollbars */
+    scrollbar-width: none;
+}
+
+
+.left_profile_container{
+    flex:0.3;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-items: center;
+    padding: 1%;
+    gap: 5%;
+    margin: auto;
+    border-top: var(--border-thick)
+}
+
+
+.left_profile_icon_bg{
+    display: grid;
+    place-items: center;
+    height: 5vmin;
+    width: 5vmin;
+    aspect-ratio: 1;
+    /* sizing */
+    height: 5vmin;
+    width: 5vmin;
+    aspect-ratio: 1;
+    margin: 1%;
+    /* border */
+    border: var(--border-thin);
+
+    border-radius: var(--corner-rad-small);
+
+    /* bg */
+    background: var(--color-primary);
+}
+
+
+.left_profile_icon_text{
+    font-size: clamp(0.2rem, 1vw, 10rem);
+    color: var(--color-text);
+}
+.left_profile_info_box{
+    display: flex;
+    height: fit-content;
+    width: 100%;
+    flex-direction: column;
+    align-items: start;
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+
+.left_profile_name{
+    font-size: var(--font-sml);
+    width:100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+.left_profile_service_state{
+    font-size: var(--font-xsml);
+}
+
+
+
+/* Center box  (chat window)*/
 .center_box{
     display: flex;
+    flex-direction: column;
+    /* ratio 3 */
+    box-sizing: border-box;
+    flex:1 1 0;
+    min-width: 0;
     border: var(--border-thick);
     height: 100%;
-    width: 100%;
+    width: auto;
 }
+
+.center_title_bar{
+    display: flex;
+    align-items: center;
+    padding-left: 1%;
+    height: auto;
+    width: 100%;
+    border-bottom: var(--border-thin);
+    overflow: hidden;
+    flex: 1;
+}
+
+.center_playlist_title{
+    flex-direction: column;
+    max-width: 20.5vmin;
+    font-size: var(--font-med);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+.center_playlist_attached_title{
+    width: max-content;
+    white-space: nowrap;
+    max-height: fit-content;
+    background-color: var(--color-highight-nointeract);
+    border-radius: var(--corner-rad-small);
+    padding-top: 0.2%;
+    padding-bottom: 0.2%;
+    padding-left: 3%;
+    padding-right: 3%;
+    font-size: clamp(1rem, var(--font-sml),);
+    border: var(--border-thin-highlight)
+}
+.center_playlist_privacy_title{
+    width: max-content;
+    white-space: nowrap;
+    height: fit-content;
+    background-color: var(--color-highight-nointeract);
+    border-radius: var(--corner-rad-small);
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+    font-size: var(--font-sml);
+    border: var(--border-thin-highlight)
+}
+
+.center_chats_container{
+    display: flex;
+    flex-direction: column;
+    gap: 2%;
+    width: auto;
+    height: auto;
+    flex: 9;
+}
+
+
+.center_box_sizing_user
+{
+    align-self: flex-end;
+    justify-self: center;
+    height: fit-content;
+    width: fit-content;
+    max-width: 50%;
+    padding: 2%;
+    margin:1%;
+    display: inline;
+    border: var(--border-med-highlight);
+    border-radius: var(--corner-rad-small);
+    color:var(--color-text);
+    font-size: 2vmin;
+    overflow: hidden;
+    overflow-wrap: break-word;
+}
+
+
+
+.center_box_sizing_system
+{
+    align-self: flex-start;
+    justify-self: center;
+    height: fit-content;
+    width: fit-content;
+    background-color: var(--color-primary);
+    max-width: 50%;
+    padding: 2%;
+    margin:1%;
+    display: inline;
+    border: var(--border-med-highlight);
+    border-radius: var(--corner-rad-small);
+    color:var(--color-text);
+    font-size: 2vmin;
+    overflow: hidden;
+    overflow-wrap: break-word;
+}
+
+
+.center_chats_input_box{
+    display: flex;
+    align-self: center;
+    justify-self: center;
+    border: var(--border-thick);
+    border-radius: var(--corner-rad-small);
+    border: 3%;
+    margin: 1%;
+    height: auto;
+    width: 60%;
+    flex: 1;
+}
+.center_chats_input_clickable{
+    width: 100%;
+    height: 100%;
+    padding: 1%;
+    border-radius: var(--corner-rad-small);
+}
+.center_chats_send_message{
+    height: 60%;
+    aspect-ratio: 1;
+    justify-items: center;
+    align-self: center;
+    align-items: center;
+    border-radius: var(--corner-rad-small);
+    cursor: pointer;
+}
+
+.center_send_button_image{
+    width: 100%;
+    height: 100%;
+}
+
+/* Right draw */
+
+.right_drawer_toggle {
+    right: -10;
+    transition: right 300ms ease, transform 300ms ease;
+    clip-path: inset(0 35% 0 0);
+    justify-content: start;
+    padding-left: 0.3vmin;
+}
+
+.right_drawer_toggle.is_open {
+    right: var(--right-drawer-width);
+    transform: translate(25%, -50%);
+}
+
+/* right box (current playlist*/
 .right_box{
     display: flex;
-    border: var(--border-thick);
+    /* ratio 2 */
+    box-sizing: border-box;
+    position: relative;
+    flex:0 0 0;
+    min-width: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transition: flex-basis 300ms ease, visibility 0s linear 300ms;
+    border: none;
     height: 100%;
-    width: 100%;
+    width: 0;
+    z-index: 10;
+
+}
+
+.right_box.is_open {
+    flex-basis: var(--right-drawer-width);
+    visibility: visible;
+    border-left: var(--border-thick);
+    transition: flex-basis 300ms ease, visibility 0s;
+
+    /* still put padding here or else it doesn't close properly */
+    padding: 0.25%;
+}
+
+.right_box {
+    flex-direction: column;
+    gap: 1%;
+}
+
+.playlist_top_bar {
+    flex: 0 0 auto;
+    padding: 1%;
+    border-bottom: var(--border-thin);
+    font-size: var(--font-med);
+}
+
+.right_all_playlists_container {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    gap: 3%;
+    overflow-y: auto;
+    scrollbar-width: auto;
+}
+
+
+.right_playlist_layout {
+    display: flex;
+    flex: 0 0 48%;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    border: var(--border-thin);
+    border-radius: var(--corner-rad-small);
+}
+
+/* title for the playlists */
+.right_playlist_title_box {
+    background-color: var(--color-primary);
+    flex: 0 0 auto;
+    padding: 2%;
+    overflow: hidden;
+    border-bottom: var(--border-thin);
+    font-size: var(--font-med);
+    font-weight: bold;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* contains all the individual songs */
+.right_playlist_song_list {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.right_playlist_song_box {
+    display: grid;
+    flex: 0 0 auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 5%;
+    padding: 2%;
+    border-bottom: var(--border-thin);
+    font-size: var(--font-sml);
+}
+
+.right_playlist_song_title,
+.right_playlist_song_artist {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.right_playlist_song_length {
+    white-space: nowrap;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .left_box,
+    .right_box,
+    .left_drawer_toggle,
+    .right_drawer_toggle {
+        transition: none;
+    }
 }

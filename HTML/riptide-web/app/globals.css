@@ -16,9 +16,12 @@
   --color-primary: #3B82F6;
   --color-muted: #94A3B8;
   --color-text: #E5E7EB;
-  --border-thin: #94a3b829, solid, 1px;
-  --border-thick: #94a3b829, solid, 3px;
-
+  --color-highight-nointeract: green;
+  --border-thin: #94a3b829 solid 1px;
+  --border-thick: #94a3b829 solid 3px;
+  --border-thin-highlight: rgba(255, 255, 255, 0.3) solid 1px;
+  --border-med-highlight: rgba(255, 255, 255, 0.3) solid 2px;
+  --border-thick-highlight: rgba(255, 255, 255, 0.3) solid 3px;
 
 [data-theme="dark"] {
     --bg-color: #121212;
@@ -34,6 +37,7 @@
   --font-lar: 3vmin;
   --font-med: 2vmin;
   --font-sml: 1.4vmin;
+  --font-xsml: 1vmin;
 
 }
 
@@ -50,11 +54,11 @@
     --foreground: var(--color-primary);
   }
 }
-
+/* Sets default stuff, currently being used to set the text color and font family */
 body {
   background: var(--background);
   color: var(--color-text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .mainpagebutton {
