@@ -200,4 +200,57 @@
     color:var(--color-text);
     font-size: var(--font-med);
     font-family:var(--font-geist-sans);
+    cursor: pointer;
+}
+
+
+
+
+
+
+/* Register */
+/*  Need to do the following classes based on the ones above.
+left_register
+register_title_left
+new_username_box
+new_username_text
+new_username_input
+new_password_box
+new_password_text
+new_password_input
+confirm_new_password_box
+confirm_password_text
+confirm_password_input
+register_button_box
+register_button */
+
+
+
+
+
+
+
+
+
+
+
+
+
+.register_button_box{
+    display: flex;
+    width: max-content;
+    height: max-content;
+
+    padding-top: 3%;
+}
+
+.register_button{
+    width: max-content;
+    height: max-content;
+    cursor: pointer;
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
+
+.register_button:active {
+    transform: translateY(4px);
 }

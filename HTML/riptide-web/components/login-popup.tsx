@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import "./login-popup.css";
+import { useState } from 'react'
 
 
 // defines a type for the button
@@ -10,8 +11,23 @@ type LoginPopupProps = {
     onClose: () => void;
 };
 
+
+
 export default function Login_popup({ isActive, onClose }: LoginPopupProps)
 {
+    const [isRegister, setIsRegister] = useState(false);
+
+    function showRegister() {
+    setIsRegister(true);
+    }
+
+    function showLogin() {
+    setIsRegister(false);
+    }
+
+
+
+
     return(
     <div
         id="login-dialog"
@@ -21,6 +37,7 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
         aria-labelledby="login-title"
         aria-hidden={!isActive}
     >
+
         {/* top bar */}
         <div className='title_bar'>
             <Image className="logo_login" src="riptide-logo.svg" alt="alt" width={30} height={30} loading="eager" />
@@ -32,40 +49,100 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
 
 
     <div className='left_right_container_login'>
-        <div className='left_login'>
-        <div id="login-title" className='login_title_left'>Sign into Riptide</div>
-        {/* Username box */}
-        <div className='username_box'>
-            <div className='username_text'>Username:</div>
-            <input
-            className='username_input'
-            id="login-username"
-            name="username"
-            type="text"
-            autoComplete="username"
-            required
-            ></input>
+        {/* Left LOGIN */}
+        <div className='left_login'
+        style={{ display: isRegister ? "none" : "flex" }}>
+            <div id="login-title" className='login_title_left'>Sign into Riptide</div>
+            {/* Username box */}
+            <div className='username_box'>
+                <div className='username_text'>Username:</div>
+                <input
+                className='username_input'
+                id="login-username"
+                name="username"
+                type="text"
+                autoComplete="username"
+                required
+                ></input>
+            </div>
+            {/* Password box */}
+
+            <div className='password_box'>
+                <div className='password_text'>Password:</div>
+                <input
+                className='password_input'
+                id="login-username"
+                name="username"
+                type="text"
+                autoComplete="username"
+                required
+                ></input>
+            </div>
+            {/* add onClick={apiLogin} */}
+            <div className='login_button_box'>
+                <button className='login_button' type='submit'>Login</button>
+            </div>
+
+            <div className='register_button_box'>
+                <button className='register_button' type='button' onClick={showRegister}>Register</button>
+            </div>
         </div>
-        {/* Password box */}
 
-        <div className='password_box'>
-            <div className='password_text'>Password:</div>
-            <input
-            className='password_input'
-            id="login-username"
-            name="username"
-            type="text"
-            autoComplete="username"
-            required
-            ></input>
+
+
+
+
+        {/* Left REGISTER */}
+        <div className='left_register'
+            style={{ display: isRegister ? "flex" : "none" }}
+            >
+
+            <div id="register-title" className='register_title_left'>Sign into Riptide</div>
+            {/* Username box */}
+            <div className='new_username_box'>
+                <div className='new_username_text'>Username:</div>
+                <input
+                className='new_username_input'
+                id="new_login-username"
+                name="new_username"
+                type="text"
+                autoComplete="new_username"
+                required
+                ></input>
+            </div>
+            {/* Password box */}
+
+            <div className='new_password_box'>
+                <div className='new_password_text'>New Password:</div>
+                <input
+                className='new_password_input'
+                id="new_login_password"
+                name="new_password"
+                type="text"
+                autoComplete="new_password"
+                required
+                ></input>
+            </div>
+            <div className='confirm_new_password_box'>
+                <div className='confirm_password_text'>Confirm Password:</div>
+                <input
+                className='confirm_password_input'
+                id="confirm_login-password"
+                name="confirm_password"
+                type="text"
+                autoComplete="confirm_password"
+                required
+                ></input>
+            </div>
+            {/* add onClick={apiLogin} */}
+            <div className='register_button_box'>
+                <button className='register_button' type='submit'>register</button>
+            </div>
+
+            <div className='register_button_box'>
+                <button className='register_button' type='button' onClick={showLogin}>Register</button>
+            </div>
         </div>
-
-        <div className='login_button_box'><button className='login_button' type='submit'>Login</button></div>
-
-
-        </div>
-
-
 
 
 

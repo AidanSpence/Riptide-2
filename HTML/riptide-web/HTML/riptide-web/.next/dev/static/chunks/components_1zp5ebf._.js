@@ -8,11 +8,22 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/image.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
 'use client';
 ;
 ;
 ;
 function Login_popup({ isActive, onClose }) {
+    _s();
+    const [isRegister, setIsRegister] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    function showRegister() {
+        setIsRegister(true);
+    }
+    function showLogin() {
+        setIsRegister(false);
+    }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         id: "login-dialog",
         className: `login_main${isActive ? ' is_active' : ''}`,
@@ -33,7 +44,7 @@ function Login_popup({ isActive, onClose }) {
                         loading: "eager"
                     }, void 0, false, {
                         fileName: "[project]/components/login-popup.tsx",
-                        lineNumber: 26,
+                        lineNumber: 43,
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -50,18 +61,18 @@ function Login_popup({ isActive, onClose }) {
                             loading: "eager"
                         }, void 0, false, {
                             fileName: "[project]/components/login-popup.tsx",
-                            lineNumber: 28,
+                            lineNumber: 45,
                             columnNumber: 17
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/login-popup.tsx",
-                        lineNumber: 27,
+                        lineNumber: 44,
                         columnNumber: 13
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/login-popup.tsx",
-                lineNumber: 25,
+                lineNumber: 42,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -69,6 +80,9 @@ function Login_popup({ isActive, onClose }) {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "left_login",
+                        style: {
+                            display: isRegister ? "none" : "flex"
+                        },
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 id: "login-title",
@@ -76,8 +90,8 @@ function Login_popup({ isActive, onClose }) {
                                 children: "Sign into Riptide"
                             }, void 0, false, {
                                 fileName: "[project]/components/login-popup.tsx",
-                                lineNumber: 36,
-                                columnNumber: 9
+                                lineNumber: 55,
+                                columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "username_box",
@@ -87,8 +101,8 @@ function Login_popup({ isActive, onClose }) {
                                         children: "Username:"
                                     }, void 0, false, {
                                         fileName: "[project]/components/login-popup.tsx",
-                                        lineNumber: 39,
-                                        columnNumber: 13
+                                        lineNumber: 58,
+                                        columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                         className: "username_input",
@@ -99,14 +113,14 @@ function Login_popup({ isActive, onClose }) {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/components/login-popup.tsx",
-                                        lineNumber: 40,
-                                        columnNumber: 13
+                                        lineNumber: 59,
+                                        columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/login-popup.tsx",
-                                lineNumber: 38,
-                                columnNumber: 9
+                                lineNumber: 57,
+                                columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "password_box",
@@ -116,8 +130,8 @@ function Login_popup({ isActive, onClose }) {
                                         children: "Password:"
                                     }, void 0, false, {
                                         fileName: "[project]/components/login-popup.tsx",
-                                        lineNumber: 52,
-                                        columnNumber: 13
+                                        lineNumber: 71,
+                                        columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                         className: "password_input",
@@ -128,14 +142,14 @@ function Login_popup({ isActive, onClose }) {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/components/login-popup.tsx",
-                                        lineNumber: 53,
-                                        columnNumber: 13
+                                        lineNumber: 72,
+                                        columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/login-popup.tsx",
-                                lineNumber: 51,
-                                columnNumber: 9
+                                lineNumber: 70,
+                                columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "login_button_box",
@@ -145,18 +159,176 @@ function Login_popup({ isActive, onClose }) {
                                     children: "Login"
                                 }, void 0, false, {
                                     fileName: "[project]/components/login-popup.tsx",
-                                    lineNumber: 63,
-                                    columnNumber: 43
+                                    lineNumber: 83,
+                                    columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/login-popup.tsx",
-                                lineNumber: 63,
-                                columnNumber: 9
+                                lineNumber: 82,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "register_button_box",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    className: "register_button",
+                                    type: "button",
+                                    onClick: showRegister,
+                                    children: "Register"
+                                }, void 0, false, {
+                                    fileName: "[project]/components/login-popup.tsx",
+                                    lineNumber: 87,
+                                    columnNumber: 17
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/components/login-popup.tsx",
+                                lineNumber: 86,
+                                columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/login-popup.tsx",
-                        lineNumber: 35,
+                        lineNumber: 53,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "left_register",
+                        style: {
+                            display: isRegister ? "flex" : "none"
+                        },
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                id: "register-title",
+                                className: "register_title_left",
+                                children: "Sign into Riptide"
+                            }, void 0, false, {
+                                fileName: "[project]/components/login-popup.tsx",
+                                lineNumber: 100,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "new_username_box",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "new_username_text",
+                                        children: "Username:"
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/login-popup.tsx",
+                                        lineNumber: 103,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                        className: "new_username_input",
+                                        id: "new_login-username",
+                                        name: "new_username",
+                                        type: "text",
+                                        autoComplete: "new_username",
+                                        required: true
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/login-popup.tsx",
+                                        lineNumber: 104,
+                                        columnNumber: 17
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/components/login-popup.tsx",
+                                lineNumber: 102,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "new_password_box",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "new_password_text",
+                                        children: "New Password:"
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/login-popup.tsx",
+                                        lineNumber: 116,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                        className: "new_password_input",
+                                        id: "new_login_password",
+                                        name: "new_password",
+                                        type: "text",
+                                        autoComplete: "new_password",
+                                        required: true
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/login-popup.tsx",
+                                        lineNumber: 117,
+                                        columnNumber: 17
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/components/login-popup.tsx",
+                                lineNumber: 115,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "confirm_new_password_box",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "confirm_password_text",
+                                        children: "Confirm Password:"
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/login-popup.tsx",
+                                        lineNumber: 127,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                        className: "confirm_password_input",
+                                        id: "confirm_login-password",
+                                        name: "confirm_password",
+                                        type: "text",
+                                        autoComplete: "confirm_password",
+                                        required: true
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/login-popup.tsx",
+                                        lineNumber: 128,
+                                        columnNumber: 17
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/components/login-popup.tsx",
+                                lineNumber: 126,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "register_button_box",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    className: "register_button",
+                                    type: "submit",
+                                    children: "register"
+                                }, void 0, false, {
+                                    fileName: "[project]/components/login-popup.tsx",
+                                    lineNumber: 139,
+                                    columnNumber: 17
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/components/login-popup.tsx",
+                                lineNumber: 138,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "register_button_box",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    className: "register_button",
+                                    type: "button",
+                                    onClick: showLogin,
+                                    children: "Register"
+                                }, void 0, false, {
+                                    fileName: "[project]/components/login-popup.tsx",
+                                    lineNumber: 143,
+                                    columnNumber: 17
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/components/login-popup.tsx",
+                                lineNumber: 142,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/components/login-popup.tsx",
+                        lineNumber: 96,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -167,7 +339,7 @@ function Login_popup({ isActive, onClose }) {
                                 children: "Riptide"
                             }, void 0, false, {
                                 fileName: "[project]/components/login-popup.tsx",
-                                lineNumber: 74,
+                                lineNumber: 151,
                                 columnNumber: 9
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -180,28 +352,29 @@ function Login_popup({ isActive, onClose }) {
                                 unoptimized: true
                             }, void 0, false, {
                                 fileName: "[project]/components/login-popup.tsx",
-                                lineNumber: 75,
+                                lineNumber: 152,
                                 columnNumber: 9
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/login-popup.tsx",
-                        lineNumber: 73,
+                        lineNumber: 150,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/login-popup.tsx",
-                lineNumber: 34,
+                lineNumber: 51,
                 columnNumber: 5
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/login-popup.tsx",
-        lineNumber: 16,
+        lineNumber: 32,
         columnNumber: 5
     }, this);
 }
+_s(Login_popup, "23rMvWE3z/htVkZKoPfASxlJpf4=");
 _c = Login_popup;
 var _c;
 __turbopack_context__.k.register(_c, "Login_popup");

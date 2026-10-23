@@ -1441,6 +1441,25 @@ body {
   color: var(--color-text);
   font-size: var(--font-med);
   font-family: var(--font-geist-sans);
+  cursor: pointer;
+}
+
+.register_button_box {
+  width: max-content;
+  height: max-content;
+  padding-top: 3%;
+  display: flex;
+}
+
+.register_button {
+  cursor: pointer;
+  width: max-content;
+  height: max-content;
+  transition: transform 50ms, box-shadow 50ms;
+}
+
+.register_button:active {
+  transform: translateY(4px);
 }
 
 /* [project]/components/main_page.css [app-client] (css) */
