@@ -51,4 +51,14 @@ class BedrockProvider:
 
 
 def get_provider():
-    return OllamaProvider()
+    provider_name = os.getenv("LLM_PROVIDER", "ollama").lower()
+
+    if provider_name == "ollama":
+        return OllamaProvider()
+
+    if provider_name == "bedrock":
+        return BedrockProvider()
+
+    raise ValueError(
+        f"Unsupported LLM provider: {provider_name}"
+    )
