@@ -8,7 +8,7 @@ import { useState } from 'react'
 
 export default function Navbar() {
     // defines the state of the popup
-    const [loginActive, setLoginActive] = useState(true);
+    const [loginActive, setLoginActive] = useState(false);
     return(
 
         <nav className="navbar">
