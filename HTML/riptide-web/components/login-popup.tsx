@@ -71,10 +71,10 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
                 <div className='password_text'>Password:</div>
                 <input
                 className='password_input'
-                id="login-username"
-                name="username"
+                id="login-password"
+                name="password"
                 type="text"
-                autoComplete="username"
+                autoComplete="password"
                 required
                 ></input>
             </div>
@@ -97,7 +97,7 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
             style={{ display: isRegister ? "flex" : "none" }}
             >
 
-            <div id="register-title" className='register_title_left'>Sign into Riptide</div>
+            <div id="register-title" className='register_title_left'>Register your account</div>
             {/* Username box */}
             <div className='new_username_box'>
                 <div className='new_username_text'>Username:</div>
@@ -135,12 +135,12 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
                 ></input>
             </div>
             {/* add onClick={apiLogin} */}
-            <div className='register_button_box'>
-                <button className='register_button' type='submit'>register</button>
+            <div className='register_submit_button_box'>
+                <button className='register_submit_button' type='submit'>Register</button>
             </div>
 
-            <div className='register_button_box'>
-                <button className='register_button' type='button' onClick={showLogin}>Register</button>
+            <div className='return_login_button_box'>
+                <button className='return_login_button' type='button' onClick={showLogin}>Back To Login</button>
             </div>
         </div>
 
