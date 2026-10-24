@@ -10,8 +10,9 @@ def retrieve_candidates(ai_result, candidate_limit=500):
     )
 
     # convert to pgvector format
+    target_vector = build_target_vector(ai_result)
     target_vector = (
-        "[" + ",".join(str(float(x)) for x in target) + "]"
+        "[" + ",".join(str(float(x)) for x in target_vector) + "]"
     )
 
     years = search.get("release_years", {})
@@ -24,6 +25,8 @@ def retrieve_candidates(ai_result, candidate_limit=500):
     ]
 
     allow_explicit = constraints.get("explicit_content")
+    if allow_explicit is None:
+        allow_explicit = True
 
     sql = """
         SELECT

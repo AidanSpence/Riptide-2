@@ -261,4 +261,95 @@ def energy_progression(playlist_settings: dict) -> str:
     return "none"
 
 def build_playlist(candidates: list[dict], ai_data: dict, *, seed: int | None = None) -> list[dict]:
-    pass
+    """
+    Build a playlist from database candidates and validated AI JSON.
+    Returns song dictionaries, ordered as the final playlist.
+    """
+    search = ai_data.get("search", {})
+    constraints = ai_data.get("constraints", {})
+    settings = ai_data.get("playlist", {})
+
+    track_count = settings.get("track_count", 30)
+    if isinstance(track_count, bool) or not isinstance(track_count, int):
+        track_count = 30
+    track_count = max(1, min(track_count, 100)) # ensures number is greater than 1 but less than 100
+
+    artist_limit = settings.get("artist_repetition_limit", 5)
+    if isinstance(artist_limit, bool) or not isinstance(artist_limit, int):
+        artist_limit = 5
+    artist_limit = max(1, artist_limit) # ensures number is greater than 1
+
+    audio_features = search.get("audio_features", {})
+
+    rng = random.Random(seed)
+    scored_candidates = []
+
+    seen_ids = set()
+
+    for song in candidates:
+        # removes any songs blocked by rules
+        if not matches_hard_constraints(song, constraints):
+            continue
+
+        song_id = song.get("id")
+        if song_id is not None:
+            if song_id in seen_ids:
+                continue
+            seen_ids.add(song_id)
+
+        score = score_song(song, audio_features, settings)
+        scored_candidates.append((score, rng.random, song))
+
+        # Apply genre preferences as ranking bonuses
+        preferred_genres = normalise_names(search.get("genres", []))
+        included_artists = normalise_names(search.get("include_artists", []))
+
+        if preferred_genres or included_artists:
+            adjusted_candidates = []
+
+            for score, tie_breaker, song in scored_candidates:
+                genres = song_genres(song)
+                artists = song_artists(song)
+
+                if preferred_genres and genres & preferred_genres:
+                    score += 0.10
+
+                if included_artists and artists & included_artists:
+                    score += 0.15
+
+                adjusted_candidates.append((score, tie_breaker, song))
+
+            scored_candidates = adjusted_candidates
+
+        # Highest scoring candidates first, seeded randomness breaks any ties
+        scored_candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
+
+        selected = []
+        artist_counts = {}
+
+        for _, _, song in scored_candidates:
+            if len(selected) >= track_count:
+                break
+
+            artists = song_artists(song)
+
+            if any(artist_counts.get(artist, 0) >= artist_limit
+                   for artist in artists):
+                continue
+
+            selected.append(song)
+
+            for artist in artists:
+                artist_counts[artist] = artist_counts.get(artist, 0) + 1
+
+        progression = energy_progression(settings)
+
+        if progression in {"ascending", "descending"}:
+            selected.sort(key=lambda song: (
+                number(song.get("energy"))
+                if number(song.get("energy")) is not None
+                else -1
+            ),
+            reverse=(progression == "descending"),)
+
+        return selected

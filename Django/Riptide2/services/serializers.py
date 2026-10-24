@@ -27,12 +27,24 @@ class AudioFeatureSerializer(serializers.Serializer):
         max_value=1,
     )
 
+class LoudnessSerializer(serializers.Serializer):
+    target = serializers.FloatField(required=False)
+    min = serializers.FloatField(required=False)
+    max = serializers.FloatField(required=False)
+    weight = serializers.FloatField(required=False, min_value=0)
+    confidence = serializers.FloatField(
+        required=False, min_value=0, max_value=1
+    )
+
 
 class SearchSerializer(serializers.Serializer):
     audio_features = serializers.DictField(
         child=AudioFeatureSerializer(),
         required=False,
     )
+
+    loudness_db = LoudnessSerializer(required=False)
+
     genres = serializers.ListField(
         child=serializers.CharField(),
         required=False,
@@ -53,14 +65,18 @@ class ConstraintsSerializer(serializers.Serializer):
     explicit_content = serializers.BooleanField(
         required=False,
         default=False,
-        allow_null=False,
+        allow_null=True,
     )
     excluded_genres = serializers.ListField(
         child=serializers.CharField(),
         required=False,
         default=list,
     )
-    language = serializers.CharField(required=False)
+    language = serializers.ListField(
+    child=serializers.CharField(),
+    required=False,
+    default=list,
+    )
 
 
 class PlaylistSerializer(serializers.Serializer):
