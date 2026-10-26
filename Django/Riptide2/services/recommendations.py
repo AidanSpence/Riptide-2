@@ -1,4 +1,3 @@
-
 import json
 from rest_framework.exceptions import ValidationError
 from Riptide2.services.serializers import RecommendationRequestSerializer

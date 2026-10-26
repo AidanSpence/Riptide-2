@@ -15,7 +15,7 @@ FEATURE_ORDER = [
 ]
 
 def build_target_vector(audio_features):
-    with connection.cursor as cur:
+    with connection.cursor() as cur:
         cur.execute("""SELECT name, mean, stddev, weight
         "FROM music.feature_stats
         ORDER BY idx""")
