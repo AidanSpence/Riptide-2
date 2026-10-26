@@ -73,7 +73,7 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
                 className='password_input'
                 id="login-password"
                 name="password"
-                type="text"
+                type="password"
                 autoComplete="password"
                 required
                 ></input>
@@ -118,7 +118,7 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
                 className='new_password_input'
                 id="new_login_password"
                 name="new_password"
-                type="text"
+                type="Password"
                 autoComplete="new_password"
                 required
                 ></input>
@@ -129,7 +129,7 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
                 className='confirm_password_input'
                 id="confirm_login-password"
                 name="confirm_password"
-                type="text"
+                type="Password"
                 autoComplete="confirm_password"
                 required
                 ></input>

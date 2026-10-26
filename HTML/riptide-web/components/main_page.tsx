@@ -1,14 +1,111 @@
 'use client';
 
 import "./main_page.css";
-import { useState } from "react";
+import React, { useState } from "react";
 import Image from 'next/image'
 
 export default function MainPage() {
-  /* Track whether each side panel is open. */
-  const [leftOpen, setLeftOpen] = useState(true);
-  const [rightOpen, setRightOpen] = useState(true);
 
+
+  // declared variables
+  // setstate for left box, open = true
+  const [leftOpen, setLeftOpen] = useState(true);
+  // setstate for right box, open = true
+  const [rightOpen, setRightOpen] = useState(true);
+  // this is basically an array with all of the users/systems message, anything in here is displayed
+  const [messageText, setMessageText] = useState<message[]>([]);
+  // whatever the messagebox has in it, is this variable
+  const [tempMessageText, setTempMessageText] = useState<string>("");
+  // this enforces the sendlimit, false is unlocked, true is locked
+  const [sendLimit, setSendLimit] = useState<boolean>(false)
+
+  // sets the message limit to 3
+  let messagelimit: number =  3;
+
+
+
+
+
+
+
+// debug system messages, call from send button
+function addDebugMessage() {
+  const testMessage: message = {
+    // im making it +2 because otherwise it has the same id (bad, fix later)
+    id: String(messageText.length + 2), 
+    text: "This is a debug response",
+    sender: "system"
+  };
+  // more or less appends to array
+  setMessageText(previous => [...previous, testMessage]);
+}
+  // message limit message, sets limit internally to true, and
+  // if django returns limit reached, run this and it should lockout interface
+function setLimitMessage() {
+  const limitMessage: message = {
+    // im making it +2 because otherwise it has the same id (bad, fix later)
+    id: String(messageText.length + 2), 
+    text: "Send limit reached, create a new chat to continue",
+    sender: "system"
+  }; 
+  // more or less appends to array
+  setMessageText(previous => [...previous, limitMessage]);
+  setSendLimit(true);
+}
+
+
+
+
+
+
+
+  type message = {
+  id: string;
+  text: string;
+  sender: "system" | "user";
+  };
+
+  // updates the temp variables each time the input field changes
+  // which can then be sent to the proper setMessageText field 
+  function tempChatInput(event: React.ChangeEvent<HTMLInputElement>){
+
+    setTempMessageText(event.currentTarget.value)
+    // DEBUG
+    // const inputID = event.currentTarget.id
+    // const inputText = event.currentTarget.value
+    // const sender = "user"
+    // console.log(inputID)
+    // console.log(inputText)
+    // console.log(sender)
+  };
+
+  function saveChatInput(){
+    if (tempMessageText.trim() === "") return;
+    // return the length of messages with the "user" tag
+    const userMessageCount = messageText.filter( (msg) => msg.sender === "user").length;
+    // enforces send limit, if its true do nothing
+      if (sendLimit === true) {return false;}
+      // if sendlimit isn't set yet, but messagelimit reached, addlimitmessage, which sets the limit to true
+      if (userMessageCount >= messagelimit) {setLimitMessage(); return false;}
+
+      // create new message
+      const newMessage: message = {
+        id: String(messageText.length + 1),
+        text: tempMessageText,
+        sender: "user"
+      };
+        //  this adds the newmessage it to the array to be sent to postgres
+        setMessageText(previous => [...previous, newMessage]);
+      // Clear the input box
+      setTempMessageText("");
+      // debug
+      addDebugMessage()
+      console.log(newMessage)
+}
+
+
+  
+  // Page stuff
   return(
 
     <div className="page_layout">
@@ -78,30 +175,51 @@ export default function MainPage() {
           <div className="center_playlist_privacy_title">Private</div>
         </div>
         <div className="center_chats_container">
-
-{/* Create all boxes for chatting here in the container center_chats_container.
-center_box_sizing_user - (message is from the user)
-center_box_sizing_system - (message is from the system)
-*/}
+          {/* display the stored messages, use map, check values are correct, display. */}
+          {messageText.map((msg) => (
+            <div
+              key={msg.id}
+              className={
+                msg.sender === "user"
+                  ? "center_box_sizing_user"
+                  : "center_box_sizing_system"
+              }
+            >
+              {msg.text}
+            </div>
+          ))}
+                {/* Create all boxes for chatting here in the container center_chats_container.
+                center_box_sizing_user - (message is from the user)
+                center_box_sizing_system - (message is from the system)
+                */}
 
               {/* <div className="box1 center_box_sizing_user">Sure, here is an autmoasndhsdasjdjisoj</div>
               <div className="box1 center_box_sizing_system">Sure, here is an autmoasndhsdasjdjisoj</div> */}
+        </div>
+        <div className='center_chats_input_box'>
+            <input
+          className='center_chats_input_clickable'
+          id="user_chat"
+          name="chat"
+          type="text"
+          autoComplete="off"
+          // update the temp variable everytime an input happens
+          value={tempMessageText}
+          onChange={tempChatInput}
+          required
+          ></input>
+          {/* For debugging system messages, add (() => {saveChatInput; addTestMessage} into the onclick */}
+          <button className="center_chats_send_message" onClick={saveChatInput}>
+            <Image className="center_send_button_image" src="send.svg" width={30} height={30} alt="send button"></Image>
+          </button>
+        </div>
       </div>
-      <div className='center_chats_input_box'>
-        <input
-      className='center_chats_input_clickable'
-      id="user_chat"
-      name="chat"
-      type="text"
-      autoComplete="off"
-      required
-      ></input><button className="center_chats_send_message"><Image className="center_send_button_image" src="send.svg" width={30} height={30} alt="send button"></Image></button></div>
 
 
 
 
 
-      </div>
+    
 
 
 
@@ -151,5 +269,4 @@ all elements can be of any type or length including blank but preferably have co
 
   </div>
 </div>
-  )
-}
+)}

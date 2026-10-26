@@ -57,6 +57,10 @@
 
 }
 
+
+/* --------------- left box (change chats) --------------- */
+
+
 .left_drawer_toggle {
     left: -10;
     transition: left 300ms ease, transform 300ms ease;
@@ -70,7 +74,6 @@
     transform: translate(-25%, -50%);
 }
 
-/* left box (change chats) */
 .left_box{
     display: flex;
     flex-direction: column;
@@ -236,7 +239,7 @@
 
 
 
-/* Center box  (chat window)*/
+/* --------------- Center box  (chat window)--------------- */
 .center_box{
     display: flex;
     flex-direction: column;
@@ -296,21 +299,22 @@
     border: var(--border-thin-highlight)
 }
 
-.center_chats_container{
+.center_chats_container {
     display: flex;
     flex-direction: column;
-    gap: 2%;
-    width: auto;
-    height: auto;
     flex: 9;
+    min-height: 0;
+    min-width: 0;
+    overflow-y: auto;
+    gap: 2%;
+    scrollbar-width: none;
 }
-
 
 .center_box_sizing_user
 {
     align-self: flex-end;
     justify-self: center;
-    height: fit-content;
+    min-height: fit-content;
     width: fit-content;
     max-width: 50%;
     padding: 2%;
@@ -322,6 +326,7 @@
     font-size: 2vmin;
     overflow: hidden;
     overflow-wrap: break-word;
+    flex-shrink: 0;
 }
 
 
@@ -343,6 +348,7 @@
     font-size: 2vmin;
     overflow: hidden;
     overflow-wrap: break-word;
+    flex-shrink: 0;
 }
 
 
@@ -379,7 +385,7 @@
     height: 100%;
 }
 
-/* Right draw */
+/* --------------- Right draw --------------- */
 
 .right_drawer_toggle {
     right: -10;
