@@ -1,55 +1,25 @@
-const API = process.env.NEXT_PUBLIC_API_URL!;
+const API_URL = 'http://127.0.0.1:9000';
 
-export async function signup(body: { email: string; username: string; password: string }) {
-  const r = await fetch(`${API}/api/signup/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!r.ok) throw await r.json();
-  return r.json();
-}
 
-export async function login(email: string, password: string) {
-  const r = await fetch(`${API}/api/login/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  if (!r.ok) throw await r.json();
-  const { access, refresh } = await r.json();
-  sessionStorage.setItem("access", access);
-  sessionStorage.setItem("refresh", refresh);
-}
+/**
+ * Does a basic fetch, returns data.
+ *
+ * @param url_endpoint - The api endpoint. "/api/chats".
+ * @returns retrieved data
+ * @throws {new Error} HTTP error.
+ */
+export async function fetchData(url_endpoint:string) {
+  try {
+    const response = await fetch(API_URL + url_endpoint);
 
-export function logout() {
-  sessionStorage.removeItem("access");
-  sessionStorage.removeItem("refresh");
-}
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-async function refreshAccess() {
-  const r = await fetch(`${API}/api/token/refresh/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh: sessionStorage.getItem("refresh") }),
-  });
-  if (!r.ok) {
-    logout();
-    throw new Error("Session expired");
+    const data = await response.json();
+    console.log(data);
+    return data
+  } catch (error) {
+    console.error('Fetch failed:', error);
   }
-  sessionStorage.setItem("access", (await r.json()).access);
-}
-
-export async function authFetch(path: string, init: RequestInit = {}) {
-  const go = () =>
-    fetch(`${API}${path}`, {
-      ...init,
-      headers: { ...init.headers, Authorization: `Bearer ${sessionStorage.getItem("access")}` },
-    });
-  let r = await go();
-  if (r.status === 401) {
-    await refreshAccess();
-    r = await go();
-  }
-  return r;
 }

@@ -3,6 +3,8 @@
 import "./main_page.css";
 import React, { useState } from "react";
 import Image from 'next/image'
+import {fetchData} from "../lib/api"
+
 
 export default function MainPage() {
 
@@ -12,15 +14,15 @@ export default function MainPage() {
   const [leftOpen, setLeftOpen] = useState(true);
   // setstate for right box, open = true
   const [rightOpen, setRightOpen] = useState(true);
-  // this is basically an array with all of the users/systems message, anything in here is displayed
+  // this is an array with all of the users/systems message, anything in here is displayed
   const [messageText, setMessageText] = useState<message[]>([]);
-  // whatever the messagebox has in it, is this variable
+  // constantly updates this variable to the contents of the message textarea
   const [tempMessageText, setTempMessageText] = useState<string>("");
   // this enforces the sendlimit, false is unlocked, true is locked
   const [sendLimit, setSendLimit] = useState<boolean>(false)
 
   // sets the message limit to 3
-  let messagelimit: number =  3;
+  const messagelimit: number =  3;
 
 
 
@@ -32,7 +34,7 @@ export default function MainPage() {
 function addDebugMessage() {
   const testMessage: message = {
     // im making it +2 because otherwise it has the same id (bad, fix later)
-    id: String(messageText.length + 2), 
+    id: String(messageText.length + 2),
     text: "This is a debug response",
     sender: "system"
   };
@@ -44,10 +46,10 @@ function addDebugMessage() {
 function setLimitMessage() {
   const limitMessage: message = {
     // im making it +2 because otherwise it has the same id (bad, fix later)
-    id: String(messageText.length + 2), 
+    id: String(messageText.length + 2),
     text: "Send limit reached, create a new chat to continue",
     sender: "system"
-  }; 
+  };
   // more or less appends to array
   setMessageText(previous => [...previous, limitMessage]);
   setSendLimit(true);
@@ -66,7 +68,7 @@ function setLimitMessage() {
   };
 
   // updates the temp variables each time the input field changes
-  // which can then be sent to the proper setMessageText field 
+  // which can then be sent to the proper setMessageText field
   function tempChatInput(event: React.ChangeEvent<HTMLInputElement>){
 
     setTempMessageText(event.currentTarget.value)
@@ -104,7 +106,27 @@ function setLimitMessage() {
 }
 
 
-  
+//  test blcok
+const [test, tesetset] = useState<boolean>(true)
+async function djangotest(){
+  const endpointtest : string = "/api/test/";
+  let cheese = await fetchData(endpointtest);
+
+  try {
+    const testmsg : message = {id:String(1), text:cheese, sender:"system"}
+    setMessageText(previous => [...previous, testmsg])
+    tesetset(false)
+  } catch (error) {
+    console.error("Failed to fetch cheese data:", error);
+  }
+}
+
+djangotest();
+
+//  test blcok end
+
+
+
   // Page stuff
   return(
 
@@ -160,7 +182,7 @@ function setLimitMessage() {
           <div className="left_profile_icon_bg"><div className="left_profile_icon_text">JD</div></div>
           <div className="left_profile_info_box">
             <div className="left_profile_name">John Doe</div>
-            <div className="left_profile_service_state">Service - Spotify Connected</div>
+            <div className="left_profile_service_state">Service - Spotify Connectedsdfguiopoigfghj</div>
           </div>
         </div>
       </div>
@@ -219,7 +241,7 @@ function setLimitMessage() {
 
 
 
-    
+
 
 
 

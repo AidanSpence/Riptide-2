@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from Riptide2 import api, views
+from django.http import JsonResponse
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -10,6 +11,7 @@ urlpatterns = [
     path("api/chat/", views.chat),
     path("api/token/refresh/", TokenRefreshView.as_view()),
     path("api/me/", api.me),
+    path("api/test/", lambda request: JsonResponse({"message": "hello"})),
 ]
 
 
