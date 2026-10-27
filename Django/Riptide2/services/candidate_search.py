@@ -10,7 +10,7 @@ def retrieve_candidates(ai_result, candidate_limit=500):
     )
 
     # convert to pgvector format
-    target_vector = build_target_vector(ai_result)
+    target_vector = build_target_vector(target)
     target_vector = (
         "[" + ",".join(str(float(x)) for x in target_vector) + "]"
     )
@@ -44,9 +44,9 @@ def retrieve_candidates(ai_result, candidate_limit=500):
             ON al.id = s.album_id
         WHERE
             s.features IS NOT NULL
-            AND (%s IS NULL or %s = TRUE OR s.explicit = FALSE)
-            AND (%s IS NULL OR al.release_year >= %s)
-            AND (%s IS NULL OR al.release_year <= %s)
+            AND (%s::boolean = TRUE OR s.explicit = FALSE)
+            AND (%s::int IS NULL OR al.release_year >= %s::int)
+            AND (%s::int IS NULL OR al.release_year <= %s::int)
             AND NOT EXISTS (
                 SELECT 1
                 FROM music.song_artists AS sa
@@ -61,7 +61,7 @@ def retrieve_candidates(ai_result, candidate_limit=500):
 
     params = [
         target_vector,
-        allow_explicit, allow_explicit,
+        allow_explicit,
         min_year, min_year,
         max_year, max_year,
         excluded_artists,

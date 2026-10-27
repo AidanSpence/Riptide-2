@@ -1,49 +1,47 @@
 from rest_framework import serializers
 
 
-class AudioFeatureSerializer(serializers.Serializer):
-    target = serializers.FloatField(
-        required=False,
-        min_value=0,
-        max_value=1,
-    )
-    min = serializers.FloatField(
-        required=False,
-        min_value=0,
-        max_value=1,
-    )
-    max = serializers.FloatField(
-        required=False,
-        min_value=0,
-        max_value=1,
-    )
-    weight = serializers.FloatField(
-        required=False,
-        min_value=0,
-    )
-    confidence = serializers.FloatField(
-        required=False,
-        min_value=0,
-        max_value=1,
-    )
+class NullableFloat(serializers.FloatField):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("allow_null", True)
+        super().__init__(**kwargs)
 
-class LoudnessSerializer(serializers.Serializer):
-    target = serializers.FloatField(required=False)
-    min = serializers.FloatField(required=False)
-    max = serializers.FloatField(required=False)
-    weight = serializers.FloatField(required=False, min_value=0)
-    confidence = serializers.FloatField(
-        required=False, min_value=0, max_value=1
-    )
+
+def _feature_serializer(name, lo=None, hi=None):
+    """Build a serializer for one feature with the given target/min/max bounds."""
+    bounds = {"min_value": lo, "max_value": hi}
+    return type(name, (serializers.Serializer,), {
+        "target": NullableFloat(**bounds),
+        "min": NullableFloat(**bounds),
+        "max": NullableFloat(**bounds),
+        "weight": NullableFloat(min_value=0),
+        "confidence": NullableFloat(min_value=0, max_value=1),
+    })
+
+
+UnitFeatureSerializer = _feature_serializer("UnitFeatureSerializer", 0, 1)
+BpmFeatureSerializer = _feature_serializer("BpmFeatureSerializer", 30, 300)
+LoudnessFeatureSerializer = _feature_serializer("LoudnessFeatureSerializer", -60, 5)
+
+
+class AudioFeaturesSerializer(serializers.Serializer):
+    energy = UnitFeatureSerializer(required=False)
+    danceability = UnitFeatureSerializer(required=False)
+    acousticness = UnitFeatureSerializer(required=False)
+    instrumentalness = UnitFeatureSerializer(required=False)
+    valence = UnitFeatureSerializer(required=False)
+    speechiness = UnitFeatureSerializer(required=False)
+    liveness = UnitFeatureSerializer(required=False)
+    bpm = BpmFeatureSerializer(required=False)
+    loudness_db = LoudnessFeatureSerializer(required=False)
 
 
 class SearchSerializer(serializers.Serializer):
     audio_features = serializers.DictField(
-        child=AudioFeatureSerializer(),
+        child=AudioFeaturesSerializer(),
         required=False,
     )
-
-    loudness_db = LoudnessSerializer(required=False)
 
     genres = serializers.ListField(
         child=serializers.CharField(),
@@ -64,7 +62,7 @@ class SearchSerializer(serializers.Serializer):
 class ConstraintsSerializer(serializers.Serializer):
     explicit_content = serializers.BooleanField(
         required=False,
-        default=False,
+        default=True,
         allow_null=True,
     )
     excluded_genres = serializers.ListField(

@@ -8,5 +8,5 @@ def create_playlist(ai_data):
         candidates=candidates,
         ai_data=ai_data,
     )
-
+    print(playlist)
     return playlist
