@@ -115,11 +115,11 @@ def song_feature_score(song: dict, audio_features: dict) -> float | None:
         weighted_total += score * weight
         total_weight += weight
 
-        # If no usable features exist, returns None
-        if total_weight == 0:
-            return None
+    # If no usable features exist, returns None
+    if total_weight == 0:
+        return None
 
-        return weighted_total / total_weight
+    return weighted_total / total_weight
 
 def similarity_score(song: dict) -> float | None:
     """Convert pgvector cosine distance into a 0-1 similarity score"""
@@ -129,9 +129,9 @@ def similarity_score(song: dict) -> float | None:
         return None
 
     # flips 0 cosine distance into 1 similarity as shorter distance means closer value
-    return clamp(0.1 - distance)
+    return clamp(1.0 - distance)
 
-def popularity_score(song: dict) -> float | None:
+def func_popularity_score(song: dict) -> float | None:
     """Convert database pop (0-100) to 0-1 score"""
     popularity = number(song.get("popularity"))
 
@@ -166,19 +166,14 @@ def song_genres(song: dict) -> set[str]:
 def matches_hard_constraints(song: dict, constraints: dict) -> bool:
     """apply checks before selection"""
 
-    allow_explicit = constraints.get("explicit_content")
-
-    if allow_explicit is False and song.get("explicit") is not False:
-        return False
-
     excluded_artists = normalise_names(
-        constraints.get("exclude_artists", [])
+        constraints.get("excluded_artists", [])
     )
     if song_artists(song) & excluded_artists:
         return False
 
     excluded_genres = normalise_names(
-        constraints.get("exclude_genres", [])
+        constraints.get("excluded_genres", [])
     )
     if song_genres(song) & excluded_genres:
         return False
@@ -221,7 +216,7 @@ def score_song(song: dict, audio_features: dict, playlist_settings: dict) -> flo
         match_score = 0.5
 
     # Familiarity vs discovery: lower popularity is favoured as discovery increases
-    popularity = popularity_score(song)
+    popularity = func_popularity_score(song)
     if popularity is not None:
         discovery = discovery_weight(playlist_settings)
         popularity_score = (
@@ -298,49 +293,40 @@ def build_playlist(candidates: list[dict], ai_data: dict, *, seed: int | None = 
             seen_ids.add(song_id)
 
         score = score_song(song, audio_features, settings)
-        scored_candidates.append((score, rng.random, song))
 
-        # Apply genre preferences as ranking bonuses
-        preferred_genres = normalise_names(search.get("genres", []))
-        included_artists = normalise_names(search.get("include_artists", []))
+        # ranking bonuses
+        if preferred_genres and genres & preferred_genres:
+            score += 0.10
+        if included_artists and artists & included_artists:
+            score += 0.15
+        
+        scored_candidates.append((score, rng.random(), song))
 
-        if preferred_genres or included_artists:
-            adjusted_candidates = []
+        # Apply genre preferences as 
+    preferred_genres = normalise_names(search.get("genres", []))
+    included_artists = normalise_names(search.get("include_artists", []))
 
-            for score, tie_breaker, song in scored_candidates:
-                genres = song_genres(song)
-                artists = song_artists(song)
+    
+    # Highest scoring candidates first, seeded randomness breaks any ties
+    scored_candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
 
-                if preferred_genres and genres & preferred_genres:
-                    score += 0.10
+    selected = []
+    artist_counts = {}
 
-                if included_artists and artists & included_artists:
-                    score += 0.15
+    for _, _, song in scored_candidates:
+        if len(selected) >= track_count:
+            break
 
-                adjusted_candidates.append((score, tie_breaker, song))
+        artists = song_artists(song)
 
-            scored_candidates = adjusted_candidates
+        if any(artist_counts.get(artist, 0) >= artist_limit
+                for artist in artists):
+            continue
 
-        # Highest scoring candidates first, seeded randomness breaks any ties
-        scored_candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
+        selected.append(song)
 
-        selected = []
-        artist_counts = {}
-
-        for _, _, song in scored_candidates:
-            if len(selected) >= track_count:
-                break
-
-            artists = song_artists(song)
-
-            if any(artist_counts.get(artist, 0) >= artist_limit
-                   for artist in artists):
-                continue
-
-            selected.append(song)
-
-            for artist in artists:
-                artist_counts[artist] = artist_counts.get(artist, 0) + 1
+        for artist in artists:
+            artist_counts[artist] = artist_counts.get(artist, 0) + 1
 
         progression = energy_progression(settings)
 
