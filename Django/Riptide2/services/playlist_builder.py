@@ -275,10 +275,11 @@ def build_playlist(candidates: list[dict], ai_data: dict, *, seed: int | None = 
     artist_limit = max(1, artist_limit) # ensures number is greater than 1
 
     audio_features = search.get("audio_features", {})
+    preferred_genres = normalise_names(search.get("genres", []))
+    included_artists = normalise_names(search.get("include_artists", []))
 
     rng = random.Random(seed)
     scored_candidates = []
-
     seen_ids = set()
 
     for song in candidates:
@@ -295,16 +296,12 @@ def build_playlist(candidates: list[dict], ai_data: dict, *, seed: int | None = 
         score = score_song(song, audio_features, settings)
 
         # ranking bonuses
-        if preferred_genres and genres & preferred_genres:
+        if preferred_genres and song_genres(song) & preferred_genres:
             score += 0.10
-        if included_artists and artists & included_artists:
+        if included_artists and song_artists(song) & included_artists:
             score += 0.15
         
         scored_candidates.append((score, rng.random(), song))
-
-        # Apply genre preferences as 
-    preferred_genres = normalise_names(search.get("genres", []))
-    included_artists = normalise_names(search.get("include_artists", []))
 
     
     # Highest scoring candidates first, seeded randomness breaks any ties
@@ -328,14 +325,14 @@ def build_playlist(candidates: list[dict], ai_data: dict, *, seed: int | None = 
         for artist in artists:
             artist_counts[artist] = artist_counts.get(artist, 0) + 1
 
-        progression = energy_progression(settings)
+    progression = energy_progression(settings)
 
-        if progression in {"ascending", "descending"}:
-            selected.sort(key=lambda song: (
-                number(song.get("energy"))
-                if number(song.get("energy")) is not None
-                else -1
-            ),
-            reverse=(progression == "descending"),)
+    if progression in {"ascending", "descending"}:
+        selected.sort(key=lambda song: (
+            number(song.get("energy"))
+            if number(song.get("energy")) is not None
+            else -1
+        ),
+        reverse=(progression == "descending"),)
 
-        return selected
+    return selected

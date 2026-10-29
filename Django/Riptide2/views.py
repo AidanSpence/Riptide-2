@@ -41,6 +41,27 @@ def me(request):
     return Response({"id": str(u.id), "email": u.email,
                      "username": u.username})
 
+@api_view(["GET"])
+def export(request):
+    pass
+
+#  if press export
+# 	track for spotify_track_id in user_playlist
+# 		track_urls.append("spotify:track:" + track)
+
+
+# new_playlist = sp.user_playlist_create(
+#     user=user_id, 
+#     name=title, 
+#     public=False, 
+#     description=description
+# )
+
+# sp.playlist_add_items(playlist_id=playlist_id, items=track_urls)
+
+
+
+
 @csrf_exempt
 def chat(request):
     if request.method != "POST":

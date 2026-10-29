@@ -7,8 +7,6 @@ def retrieve_candidates(ai_result, candidate_limit=500):
 
     features = search.get("audio_features", {})
     vector = build_target_vector(features)
-    print("FEATURES:", features)
-    print("VECTOR:", vector)
 
     use_vector = any(abs(x) > 1e-12 for x in vector)
 
@@ -38,7 +36,8 @@ def retrieve_candidates(ai_result, candidate_limit=500):
         SELECT
             s.id, s.title, s.bpm, s.energy, s.danceability, s.acousticness,
             s.instrumentalness, s.valence, s.speechiness, s.liveness,
-            s.loudness_db, s.popularity, s.explicit, s.cluster_id,
+            s.loudness_db, s.popularity, s.explicit, s.cluster_id, 
+            duration_s, spotify_track_id,
             {distance_sql} AS distance,
             al.release_year,
             ARRAY(

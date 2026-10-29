@@ -72,7 +72,9 @@ the user's text
 "discovery": 0.5,
 "energy_progression": "none",
 "artist_repetition_limit": 2,
-"harmonic_compatibility": false
+"harmonic_compatibility": false,
+"title": "playlist name",
+"message": "a message to output about the playlist"
 },
 "constraints": {
 "required_features": [],
@@ -248,7 +250,9 @@ Request: "Make me a playlist for driving at night. I want atmospheric, slightly 
 "discovery": 0.75,
 "energy_progression": "steady",
 "artist_repetition_limit": 2,
-"harmonic_compatibility": false
+"harmonic_compatibility": false,
+"title": "Atmospheric Night Driving",
+"message": "Here is your Night driving playlist"
 },
 "constraints": {
 "required_features": ["steady_tempo"],
@@ -294,7 +298,9 @@ Request: "30 high-energy tracks for a run, around 160 bpm, nothing explicit, no 
 "discovery": 0.2,
 "energy_progression": "steady",
 "artist_repetition_limit": 2,
-"harmonic_compatibility": false
+"harmonic_compatibility": false,
+"title": "running in the 2010s",
+"message": "Here is your 2010s running playlist"
 },
 "constraints": {
 "required_features": ["steady_tempo"],
