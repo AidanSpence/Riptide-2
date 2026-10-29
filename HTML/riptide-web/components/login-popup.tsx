@@ -16,7 +16,7 @@ type LoginPopupProps = {
 export default function Login_popup({ isActive, onClose }: LoginPopupProps)
 {
     const [isRegister, setIsRegister] = useState(false);
-    const [email, setEmail] = useState<string>("");
+    const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [confirmPassword, setConfirmPassword] = useState<string>("");
 
@@ -28,23 +28,34 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
     setIsRegister(false);
     }
 
-    function sendRegister(event : React.SubmitEvent<HTMLFormElement>){
-    event.preventDefault();
-    register(email, password, confirmPassword)}
+    async function sendRegister(event : React.SubmitEvent<HTMLFormElement>){
+        if (password === confirmPassword)
+        {
+        event.preventDefault();
+        register(username, password)}
+        }
 
-    function sendLogin(event : React.SubmitEvent<HTMLFormElement>){
-    event.preventDefault();
-    // debug
-    console.log(email, password)
+    async function sendLogin(event: React.SubmitEvent<HTMLFormElement>) {
+        event.preventDefault();
 
-    const status = login(email, password)}
-    // if the returned status is not a 2xx code, show an error
-    if ((String(status)[0]) != '2')
-    {
-        // Add error code here
+        try {
+            const tokens = await login(username, password);
+
+            const accessToken = tokens.access;
+            const refreshToken = tokens.refresh;
+
+            // TODO: Handle authenticated session
+            console.log(accessToken)
+            console.log(refreshToken)
+
+            console.log("Login successful");
+
+        } catch (error) {
+            console.error("Login failed:", error);
+        }
     }
 
-}
+
 
     return(
     <div
@@ -83,11 +94,11 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
                     <div className='username_text'>Email:</div>
                     <input
                     className='username_input'
-                    id="login-username"
+                    id="username"
                     name="username"
                     type="text"
                     autoComplete="username"
-                    onChange={(event) => setEmail(event.currentTarget.value)}
+                    onChange={(event) => setUsername(event.currentTarget.value)}
                     required
                     ></input>
                 </div>
@@ -97,7 +108,7 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
                     <div className='password_text'>Password:</div>
                     <input
                     className='password_input'
-                    id="login-password"
+                    id="password"
                     name="password"
                     type="password"
                     onChange={(event) => setPassword(event.currentTarget.value)}
@@ -118,59 +129,79 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
 
 
 
-
-        {/* Left REGISTER */}
-        <div className='left_register'
-            style={{ display: isRegister ? "flex" : "none" }}
+        <form onSubmit={sendRegister}>
+            {/* Left REGISTER */}
+            <div className='left_register'
+                style={{ display: isRegister ? "flex" : "none" }}
             >
 
-            <div id="register-title" className='register_title_left'>Register your account</div>
-            {/* Username box */}
-            <div className='new_username_box'>
-                <div className='new_username_text'>Username:</div>
-                <input
-                className='new_username_input'
-                id="new_login-username"
-                name="new_username"
-                type="text"
-                autoComplete="new_username"
-                required
-                ></input>
-            </div>
-            {/* Password box */}
+                <div id="register-title" className='register_title_left'>Register your account</div>
 
-            <div className='new_password_box'>
-                <div className='new_password_text'>New Password:</div>
-                <input
-                className='new_password_input'
-                id="new_login_password"
-                name="new_password"
-                type="Password"
-                autoComplete="new_password"
-                required
-                ></input>
-            </div>
-            <div className='confirm_new_password_box'>
-                <div className='confirm_password_text'>Confirm Password:</div>
-                <input
-                className='confirm_password_input'
-                id="confirm_login-password"
-                name="confirm_password"
-                type="Password"
-                autoComplete="confirm_password"
-                required
-                ></input>
-            </div>
-            {/* add onClick={apiLogin} */}
-            <div className='register_submit_button_box'>
-                <button className='register_submit_button' type='submit'>Register</button>
-            </div>
+                {/* Username box */}
+                <div className='new_username_box'>
+                    <div className='new_username_text'>Username:</div>
+                    <input
+                        className='new_username_input'
+                        id="username"
+                        name="username"
+                        type="text"
+                        autoComplete="username"
+                        value={username}
+                        onChange={(event) => setUsername(event.currentTarget.value)}
+                        required
+                    />
+                </div>
 
-            <div className='return_login_button_box'>
-                <button className='return_login_button' type='button' onClick={showLogin}>Back To Login</button>
-            </div>
-        </div>
+                {/* Password box */}
+                <div className='new_password_box'>
+                    <div className='new_password_text'>New Password:</div>
+                    <input
+                        className='new_password_input'
+                        id="password"
+                        name="password"
+                        type="password"
+                        autoComplete="new-password"
+                        value={password}
+                        onChange={(event) => setPassword(event.currentTarget.value)}
+                        required
+                    />
+                </div>
 
+                {/* Confirm password box */}
+                <div className='confirm_new_password_box'>
+                    <div className='confirm_password_text'>Confirm Password:</div>
+                    <input
+                        className='confirm_password_input'
+                        id="confirm_password"
+                        name="confirm_password"
+                        type="password"
+                        autoComplete="new-password"
+                        value={confirmPassword}
+                        onChange={(event) => setConfirmPassword(event.currentTarget.value)}
+                        required
+                    />
+                </div>
+
+                {/* Register button */}
+                <div className='register_submit_button_box'>
+                    <button className='register_submit_button' type='submit'>
+                        Register
+                    </button>
+                </div>
+
+                {/* Return to login */}
+                <div className='return_login_button_box'>
+                    <button
+                        className='return_login_button'
+                        type='button'
+                        onClick={showLogin}
+                    >
+                        Back To Login
+                    </button>
+                </div>
+
+            </div>
+        </form>
 
 
         {/* right */}

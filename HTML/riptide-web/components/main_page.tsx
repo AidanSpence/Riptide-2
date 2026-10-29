@@ -101,8 +101,8 @@ function setLimitMessage() {
       // Clear the input box
       setTempMessageText("");
       // debug
-      addDebugMessage()
-      console.log(newMessage)
+      // addDebugMessage()
+      // console.log(newMessage)
 }
 
 
@@ -123,21 +123,21 @@ function setLimitMessage() {
 
 // djangotest();
 
-const [test, testset] = useState<boolean>(true)
-async function djangotest2() {
-  const endpointtest : string = "/api/test/";
-  const cheese : message = await fetchData(endpointtest);
-  if (test == true){
-    try {
-      const testmsg : message = cheese
-      setMessageText(previous => [...previous, testmsg])
-      testset(false)
-    }
-    catch (error){console.error("Failed to fetch data:", error);}
-    testset(false)
-  }
-}
-djangotest2()
+// const [test, testset] = useState<boolean>(true)
+// async function djangotest2() {
+//   const endpointtest : string = "/api/test/";
+//   const cheese : message = await fetchData(endpointtest);
+//   if (test == true){
+//     try {
+//       const testmsg : message = cheese
+//       setMessageText(previous => [...previous, testmsg])
+//       testset(false)
+//     }
+//     catch (error){console.error("Failed to fetch data:", error);}
+//     testset(false)
+//   }
+// }
+
 //  test blcok end
 
 
@@ -212,7 +212,12 @@ djangotest2()
           <div className="center_playlist_privacy_title">Private</div>
         </div>
         <div className="center_chats_container">
-          {/* display the stored messages, use map, check values are correct, display. */}
+                
+                
+          {/* Create all boxes for chatting here in the container center_chats_container.
+          center_box_sizing_user - (message is from the user)
+          center_box_sizing_system - (message is from the system)
+          Display the store messages, use map, check values are correct, display. */}
           {messageText.map((msg) => (
             <div
               key={msg.id}
@@ -225,13 +230,7 @@ djangotest2()
               {msg.text}
             </div>
           ))}
-                {/* Create all boxes for chatting here in the container center_chats_container.
-                center_box_sizing_user - (message is from the user)
-                center_box_sizing_system - (message is from the system)
-                */}
 
-              {/* <div className="box1 center_box_sizing_user">Sure, here is an autmoasndhsdasjdjisoj</div>
-              <div className="box1 center_box_sizing_system">Sure, here is an autmoasndhsdasjdjisoj</div> */}
         </div>
         <div className='center_chats_input_box'>
             <input

@@ -1,6 +1,14 @@
 const API_URL = 'http://127.0.0.1:9000';
-const LOGIN_ENDPOINT = '/api/login'
-const REGISTER_ENDPOINT = '/api/register'
+const LOGIN_ENDPOINT = '/api/login/'
+const REGISTER_ENDPOINT = '/api/signup/'
+
+type LoginResponse = {
+  access: string;
+  refresh: string;
+};
+type RegisterResponse = {
+  message: string;
+};
 
 /**
  * Does a basic fetch, returns data.
@@ -24,55 +32,82 @@ export async function fetchData(url_endpoint:string) {
     console.error('Fetch failed:', error);
   }
 }
-export async function login( email:string, password:string) {
-  try {
-    const toSend = {email, password}
-    const response = await fetch(API_URL + LOGIN_ENDPOINT,
-      {
-        method: 'POST',
-        headers:{
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(toSend)
-      }
-    );
 
-    if (!response.ok) {
-      console.log('response.status:', response.status)
-    return response.status
-    }
 
-    const data = await response.json();
-    console.log(data);
-    return data
-  } catch (error) {
-    console.error('Fetch failed:', error);
+
+export async function login(
+  username: string,
+  password: string
+): Promise<LoginResponse> {
+  const toSend = { username, password };
+
+  const response = await fetch(API_URL + LOGIN_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(toSend)
+  });
+  if (!response.ok) {
+    throw new Error(`Login failed: ${response.status}`);
   }
+
+  const data: LoginResponse = await response.json();
+
+  return data;
+}
+export async function register(
+  username: string,
+  password: string,
+): Promise<RegisterResponse> {
+  const toSend = { username, password };
+
+  const response = await fetch(API_URL + REGISTER_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(toSend)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.log("Registration errors:", errorData);
+    throw new Error(`Registration failed: ${response.status}`);
+  }
+
+  // const data: RegisterResponse = await response.json();
+  console.log("HTTP status:", response.status);
+  console.log("Content-Type:", response.headers.get("content-type"));
+
+  const body = await response.text();
+  console.log("Response:", body.substring(0, 500));
+
+  const data: RegisterResponse = JSON.parse(body);
+  return data;
 }
 
-/** Change the url endpoint to a constant permenant one later */
-export async function register(email:string, password:string, password_confirm:string) {
-  try {
-    const toSend = {email, password, password_confirm}
-    const response = await fetch(API_URL + REGISTER_ENDPOINT,
-      {
-        method: 'POST',
-        headers:{
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(toSend)
-      }
-    );
+// export async function register(
+//   username: string,
+//   password: string,
+// ): Promise<RegisterResponse> {
+//   const toSend = { username, password };
 
-    if (!response.ok) {
-      console.log('response.status:', response.status)
-    return response.status
-    }
+//   const response = await fetch(API_URL + REGISTER_ENDPOINT, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json"
+//     },
+//     body: JSON.stringify(toSend)
+//   });
 
-    const data = await response.json();
-    console.log(data);
-    return data
-  } catch (error) {
-    console.error('Fetch failed:', error);
-  }
-}
+//   if (!response.ok) {
+//     const errorData = await response.json();
+//     console.log("Registration errors:", errorData);
+//     throw new Error(`Registration failed: ${response.status}`);
+//   }
+
+//   const data: RegisterResponse = await response.json();
+
+//   return data;
+// }
