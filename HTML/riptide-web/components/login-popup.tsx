@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import "./login-popup.css";
 import { useState } from 'react'
-
+import {login, register} from "../lib/api"
 
 // defines a type for the button
 type LoginPopupProps = {
@@ -16,6 +16,9 @@ type LoginPopupProps = {
 export default function Login_popup({ isActive, onClose }: LoginPopupProps)
 {
     const [isRegister, setIsRegister] = useState(false);
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [confirmPassword, setConfirmPassword] = useState<string>("");
 
     function showRegister() {
     setIsRegister(true);
@@ -25,8 +28,23 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
     setIsRegister(false);
     }
 
+    function sendRegister(event : React.SubmitEvent<HTMLFormElement>){
+    event.preventDefault();
+    register(email, password, confirmPassword)}
 
+    function sendLogin(event : React.SubmitEvent<HTMLFormElement>){
+    event.preventDefault();
+    // debug
+    console.log(email, password)
 
+    const status = login(email, password)}
+    // if the returned status is not a 2xx code, show an error
+    if ((String(status)[0]) != '2')
+    {
+        // Add error code here
+    }
+
+}
 
     return(
     <div
@@ -48,46 +66,55 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
         {/* left */}
 
 
+
+
+
+
+
+
     <div className='left_right_container_login'>
-        {/* Left LOGIN */}
-        <div className='left_login'
-        style={{ display: isRegister ? "none" : "flex" }}>
-            <div id="login-title" className='login_title_left'>Sign into Riptide</div>
-            {/* Username box */}
-            <div className='username_box'>
-                <div className='username_text'>Username:</div>
-                <input
-                className='username_input'
-                id="login-username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                required
-                ></input>
-            </div>
-            {/* Password box */}
+        <form onSubmit={sendLogin}>
+            {/* Left LOGIN */}
+            <div className='left_login'
+            style={{ display: isRegister ? "none" : "flex" }}>
+                <div id="login-title" className='login_title_left'>Sign into Riptide</div>
+                {/* Username box */}
+                <div className='username_box'>
+                    <div className='username_text'>Email:</div>
+                    <input
+                    className='username_input'
+                    id="login-username"
+                    name="username"
+                    type="text"
+                    autoComplete="username"
+                    onChange={(event) => setEmail(event.currentTarget.value)}
+                    required
+                    ></input>
+                </div>
+                {/* Password box */}
 
-            <div className='password_box'>
-                <div className='password_text'>Password:</div>
-                <input
-                className='password_input'
-                id="login-password"
-                name="password"
-                type="password"
-                autoComplete="password"
-                required
-                ></input>
-            </div>
-            {/* add onClick={apiLogin} */}
-            <div className='login_button_box'>
-                <button className='login_button' type='submit'>Login</button>
-            </div>
+                <div className='password_box'>
+                    <div className='password_text'>Password:</div>
+                    <input
+                    className='password_input'
+                    id="login-password"
+                    name="password"
+                    type="password"
+                    onChange={(event) => setPassword(event.currentTarget.value)}
+                    autoComplete="password"
+                    required
+                    ></input>
+                </div>
+                {/* add onClick={apiLogin} */}
+                <div className='login_button_box'>
+                    <button className='login_button' type='submit'>Login</button>
+                </div>
 
-            <div className='register_button_box'>
-                <button className='register_button' type='button' onClick={showRegister}>Register</button>
+                <div className='register_button_box'>
+                    <button className='register_button' type='button' onClick={showRegister}>Register</button>
+                </div>
             </div>
-        </div>
-
+        </form>
 
 
 

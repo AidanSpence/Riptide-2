@@ -107,22 +107,37 @@ function setLimitMessage() {
 
 
 //  test blcok
-const [test, tesetset] = useState<boolean>(true)
-async function djangotest(){
-  const endpointtest : string = "/api/test/";
-  let cheese = await fetchData(endpointtest);
+// const [test, tesetset] = useState<boolean>(true)
+// async function djangotest(){
+//   const endpointtest : string = "/api/test/";
+//   let cheese = await fetchData(endpointtest);
 
-  try {
-    const testmsg : message = {id:String(1), text:cheese, sender:"system"}
-    setMessageText(previous => [...previous, testmsg])
-    tesetset(false)
-  } catch (error) {
-    console.error("Failed to fetch cheese data:", error);
+//   try {
+//     const testmsg : message = {id:String(1), text:cheese, sender:"system"}
+//     setMessageText(previous => [...previous, testmsg])
+//     tesetset(false)
+//   } catch (error) {
+//     console.error("Failed to fetch cheese data:", error);
+//   }
+// }
+
+// djangotest();
+
+const [test, testset] = useState<boolean>(true)
+async function djangotest2() {
+  const endpointtest : string = "/api/test/";
+  const cheese : message = await fetchData(endpointtest);
+  if (test == true){
+    try {
+      const testmsg : message = cheese
+      setMessageText(previous => [...previous, testmsg])
+      testset(false)
+    }
+    catch (error){console.error("Failed to fetch data:", error);}
+    testset(false)
   }
 }
-
-djangotest();
-
+djangotest2()
 //  test blcok end
 
 

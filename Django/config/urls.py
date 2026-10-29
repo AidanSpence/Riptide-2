@@ -11,7 +11,7 @@ urlpatterns = [
     path("api/chat/", views.chat),
     path("api/token/refresh/", TokenRefreshView.as_view()),
     path("api/me/", api.me),
-    path("api/test/", lambda request: JsonResponse({"message": "hello"})),
+    path("api/test/", lambda request: JsonResponse({"text": "hello", "id": "1", "sender": "system"})),
 ]
 
 
