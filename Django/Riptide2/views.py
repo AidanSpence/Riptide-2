@@ -1,4 +1,6 @@
 import json
+import spotipy as sp
+from spotipy.oauth2 import SpotifyOAuth
 from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -43,21 +45,19 @@ def me(request):
 
 @api_view(["GET"])
 def export(request):
-    pass
-
-#  if press export
-# 	track for spotify_track_id in user_playlist
-# 		track_urls.append("spotify:track:" + track)
-
-
-# new_playlist = sp.user_playlist_create(
-#     user=user_id, 
-#     name=title, 
-#     public=False, 
-#     description=description
-# )
-
-# sp.playlist_add_items(playlist_id=playlist_id, items=track_urls)
+    user_playlist = request.user_playlist
+    track_uris = []
+    track_ids = [t["spotify_track_id"] for t in user_playlist["tracks"]]
+    for id in track_ids:
+        track_uris.append("spotify:track:" + id)
+    new_playlist = sp.user_playlist_create(
+        user=sp.current_user()["id"], 
+        name=user_playlist["title"],
+        public=False,
+        description=user_playlist["message"]
+        )
+    playlist_id = new_playlist["id"]
+    sp.playlist_add_items(playlist_id=playlist_id, items=track_uris)
 
 
 
