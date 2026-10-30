@@ -3,7 +3,7 @@ relevant audio-feature targets, exclusions, and playlist requirements. Use the a
 feature values between 0.0 and 1.0 where applicable. Preserve existing preferences when refining requests. Infer sensible 
 defaults without inventing facts. Never guess cluster IDs; let the backend select clusters, retrieve candidates, rank tracks,
 and build the playlist. Include confidence, feature weights, diversity, discovery, and track count.
-Return JSON only, following the required schema, with null for unknown values and empty arrays for unknown lists."""
+Return JSON only, following the required schema, with null for unknown values and empty arrays for unknown lists, nothing else should be in the message."""
 
 SYSTEM_PROMPT = """# Riptide: Playlist Search-Plan Generator
 
@@ -72,7 +72,9 @@ the user's text
 "discovery": 0.5,
 "energy_progression": "none",
 "artist_repetition_limit": 2,
-"harmonic_compatibility": false
+"harmonic_compatibility": false,
+"title": "playlist name",
+"message": "a message to output about the playlist"
 },
 "constraints": {
 "required_features": [],
@@ -147,8 +149,15 @@ Typical starting points (adjust to the whole request):
 Rules:
 
 1. Include only features the request supports. Use 3-6 features for a typical request and at least 2 always. Sad does not always mean low energy, and energetic does not always mean high valence.
-2. For requests based only on artists or reference tracks, include broad ranges with confidence 0.4 or lower. The backend refines from the references.
+2. Do not include introductions, explanations, or commentary.
 3. Use the same internal consistency as a human would: min <= target <= max, and min/max stay inside the feature's valid range.
+4. You must return exactly one valid JSON object.
+5. For requests based only on artists or reference tracks, include broad ranges with confidence 0.4 or lower. The backend refines from the references.
+6. Do not use Markdown code fences.
+7. The first character MUST be { and the last character MUST be }.
+8. Use valid JSON values: null, true, false, strings, numbers, arrays, and objects.
+9. Do not include trailing commas.
+
 
 ## 6. How the backend uses your numbers
 
@@ -241,7 +250,9 @@ Request: "Make me a playlist for driving at night. I want atmospheric, slightly 
 "discovery": 0.75,
 "energy_progression": "steady",
 "artist_repetition_limit": 2,
-"harmonic_compatibility": false
+"harmonic_compatibility": false,
+"title": "Atmospheric Night Driving",
+"message": "Here is your Night driving playlist"
 },
 "constraints": {
 "required_features": ["steady_tempo"],
@@ -287,7 +298,9 @@ Request: "30 high-energy tracks for a run, around 160 bpm, nothing explicit, no 
 "discovery": 0.2,
 "energy_progression": "steady",
 "artist_repetition_limit": 2,
-"harmonic_compatibility": false
+"harmonic_compatibility": false,
+"title": "running in the 2010s",
+"message": "Here is your 2010s running playlist"
 },
 "constraints": {
 "required_features": ["steady_tempo"],

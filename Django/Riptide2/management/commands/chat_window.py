@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 from Riptide2.providers import get_provider
 from Riptide2.system import SYSTEM_PROMPT
+from Riptide2.services.recommendations import analyse_music_request
+from Riptide2.services.playlist_creator import create_playlist
 
 
 class Command(BaseCommand):
@@ -37,6 +39,7 @@ class Command(BaseCommand):
                 for token in provider.stream(history, system=SYSTEM_PROMPT):
                     print(token, end="", flush=True)
                     reply += token
+                    
             except Exception as e:
                 print(f"\n[error: {e}]")
                 history.pop()  # keep user/assistant turns alternating
@@ -44,3 +47,6 @@ class Command(BaseCommand):
 
             print("\n")
             history.append({"role": "assistant", "content": reply})
+            ai_msg = analyse_music_request(reply)
+            print(create_playlist(ai_data=ai_msg))
+

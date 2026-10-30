@@ -170,6 +170,7 @@ python manage.py load_songs data/<file>_clean.csv --no-clean
 ### Chat Window
 ```bash
 python manage.py chat_window
+docker compose run --rm web python manage.py chat_window
 ```
 
 ### Clustering

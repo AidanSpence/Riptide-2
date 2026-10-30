@@ -3,7 +3,7 @@ from django.conf import settings
 
 
 class OllamaProvider:
-    URL = "http://localhost:11434/api/chat"
+    URL = os.environ.get("OLLAMA_URL", "http://localhost:11434/api/chat")
     MODEL = "llama3.1:8b"
 
     def stream(self, messages, system=None):
@@ -15,7 +15,8 @@ class OllamaProvider:
                 "model": self.MODEL,
                 "messages": msgs,
                 "stream": True,
-                "options": {"num_ctx": 8192, "num_predict": 512},
+                "format": "json",
+                "options": {"num_ctx": 8192, "num_predict": 2048},
             },
             stream=True,
             timeout=300,
@@ -51,4 +52,14 @@ class BedrockProvider:
 
 
 def get_provider():
-    return OllamaProvider()
+    provider_name = os.getenv("LLM_PROVIDER", "ollama").lower()
+
+    if provider_name == "ollama":
+        return OllamaProvider()
+
+    if provider_name == "bedrock":
+        return BedrockProvider()
+
+    raise ValueError(
+        f"Unsupported LLM provider: {provider_name}"
+    )

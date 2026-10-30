@@ -1,5 +1,4 @@
 import math
-from pgvector.django import vector
 from django.db import connection
 
 FEATURE_ORDER = [
@@ -15,10 +14,12 @@ FEATURE_ORDER = [
 ]
 
 def build_target_vector(audio_features):
-    with connection.cursor as cur:
-        cur.execute("""SELECT name, mean, stddev, weight
-        "FROM music.feature_stats
-        ORDER BY idx""")
+    with connection.cursor() as cur:
+        cur.execute("""
+            SELECT name, mean, stddev, weight
+            FROM music.feature_stats
+            ORDER BY idx
+        """)
         stats = {
             name: (mean, stddev, weight)
             for name, mean, stddev, weight
@@ -30,12 +31,11 @@ def build_target_vector(audio_features):
     for name in FEATURE_ORDER:
         mean, stddev, weight = stats[name]
         preference = audio_features.get(name)
+        value = preference.get("target") if preference else None
 
-        if preference is None:
+        if value is None:
             target.append(0.0)
             continue
-
-        value = preference["target"]
 
         if name in {
             "energy", "danceability", "acousticness",
@@ -52,4 +52,4 @@ def build_target_vector(audio_features):
         standardized = (value - mean) / stddev
         target.append(standardized * weight)
 
-    return vector(target)
+    return target
