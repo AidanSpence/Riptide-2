@@ -1,12 +1,23 @@
 'use client';
 
 import "./main_page.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from 'next/image'
-import {fetchData} from "../lib/api"
+import {
+  listChats,
+  createChat,
+  getChat,
+  sendChatMessage,
+  ChatApiError,
+  type ChatSummary,
+  type ChatMessageData
+} from "../lib/api";
 
-
-export default function MainPage() {
+export default function MainPage({
+  accessToken
+}: {
+  accessToken: string | null;
+}) {
 
 
   // declared variables
@@ -19,8 +30,15 @@ export default function MainPage() {
   // constantly updates this variable to the contents of the message textarea
   const [tempMessageText, setTempMessageText] = useState<string>("");
   // this enforces the sendlimit, false is unlocked, true is locked
-  const [sendLimit, setSendLimit] = useState<boolean>(false)
+  const [sendLimit, setSendLimit] = useState<boolean>(false);
 
+  const [chats, setChats] = useState<ChatSummary[]>([]);
+
+  const [currentChatId, setCurrentChatId] = useState<number | null>(null);
+
+  const [isSending, setIsSending] = useState<boolean>(false);
+
+  const [chatError, setChatError] = useState<string>("");
   // sets the message limit to 3
   const messagelimit: number =  3;
 
@@ -30,17 +48,9 @@ export default function MainPage() {
 
 
 
-// debug system messages, call from send button
-function addDebugMessage() {
-  const testMessage: message = {
-    // im making it +2 because otherwise it has the same id (bad, fix later)
-    id: String(messageText.length + 2),
-    text: "This is a debug response",
-    sender: "system"
-  };
-  // more or less appends to array
-  setMessageText(previous => [...previous, testMessage]);
-}
+
+
+
   // message limit message, sets limit internally to true, and
   // if django returns limit reached, run this and it should lockout interface
 function setLimitMessage() {
@@ -59,7 +69,13 @@ function setLimitMessage() {
 
 
 
-
+function toClientMessage(data: ChatMessageData): message {
+  return {
+    id: String(data.id),
+    text: data.text,
+    sender: data.sender
+  };
+}
 
   type message = {
   id: string;
@@ -103,45 +119,65 @@ function setLimitMessage() {
       // debug
       // addDebugMessage()
       // console.log(newMessage)
+    }
+
+
+  async function startNewChat() {
+    if (!accessToken || isSending) return;
+
+    try {
+      const chat = await createChat(accessToken);
+
+      // Add the new chat to the sidebar array
+      setChats(previous => [chat, ...previous]);
+
+      // Select the newly created chat
+      setCurrentChatId(chat.id);
+
+      // Clear previous chat messages and input
+      setMessageText([]);
+      setTempMessageText("");
+
+      // Unlock messaging for the new chat
+      setSendLimit(false);
+      setChatError("");
+
+    } catch (error) {
+      console.error("Failed to create chat:", error);
+      setChatError("Unable to create conversation.");
+    }
+  }
+
+
+  async function openChat(chatId: number) {
+    if (!accessToken || isSending) return;
+
+    try {
+      const chat = await getChat(accessToken, chatId);
+
+      // Select this conversation
+      setCurrentChatId(chat.id);
+
+      // Load its messages into the existing array
+      setMessageText(
+        chat.messages.map(toClientMessage)
+      );
+
+      // Apply Django's message limit
+      setSendLimit(chat.remaining_messages === 0);
+
+      setChatError("");
+      setTempMessageText("");
+
+    } catch (error) {
+      console.error("Failed to load chat:", error);
+      setChatError("Unable to load conversation.");
+    }
+  }
+
+
+
 }
-
-
-//  test blcok
-// const [test, tesetset] = useState<boolean>(true)
-// async function djangotest(){
-//   const endpointtest : string = "/api/test/";
-//   let cheese = await fetchData(endpointtest);
-
-//   try {
-//     const testmsg : message = {id:String(1), text:cheese, sender:"system"}
-//     setMessageText(previous => [...previous, testmsg])
-//     tesetset(false)
-//   } catch (error) {
-//     console.error("Failed to fetch cheese data:", error);
-//   }
-// }
-
-// djangotest();
-
-// const [test, testset] = useState<boolean>(true)
-// async function djangotest2() {
-//   const endpointtest : string = "/api/test/";
-//   const cheese : message = await fetchData(endpointtest);
-//   if (test == true){
-//     try {
-//       const testmsg : message = cheese
-//       setMessageText(previous => [...previous, testmsg])
-//       testset(false)
-//     }
-//     catch (error){console.error("Failed to fetch data:", error);}
-//     testset(false)
-//   }
-// }
-
-//  test blcok end
-
-
-
   // Page stuff
   return(
 
@@ -165,10 +201,25 @@ function setLimitMessage() {
       >
         <div className="left_chats">
           <div className="left_chat_title">Chats:</div>
+          <button
+            type="button"
+            onClick={startNewChat}
+            disabled={!accessToken || isSending}
+          >
+            New Chat
+          </button>
           <div className="left_chat_box_scrolling">
-            <div className="left_box_sizing left_chat_box_1"></div>
-            <div className="left_box_sizing left_chat_box_1"></div>
-            <div className="left_box_sizing left_chat_box_1"></div>
+            {chats.map(chat => (
+              <button
+                key={chat.id}
+                type="button"
+                className="left_box_sizing left_chat_box_1"
+                onClick={() => openChat(chat.id)}
+                disabled={isSending}
+              >
+                {chat.name}
+              </button>
+            ))}
           </div>
 
 
@@ -178,17 +229,7 @@ function setLimitMessage() {
         <div className="left_linked_playlists">
           <div className="left_playlist_title">Your linked service playlists:</div>
           <div className="left_linked_playlists_scrolling">
-          <div className="left_box_sizing left_playlist_box_1"></div>
-          <div className="left_box_sizing left_playlist_box_1"></div>
-          <div className="left_box_sizing left_playlist_box_1"></div>
-          <div className="left_box_sizing left_playlist_box_1"></div>
-          <div className="left_box_sizing left_playlist_box_1"></div>
-          <div className="left_box_sizing left_playlist_box_1"></div>
-          <div className="left_box_sizing left_playlist_box_1"></div>
-          <div className="left_box_sizing left_playlist_box_1"></div>
-          <div className="left_box_sizing left_playlist_box_1"></div>
-          <div className="left_box_sizing left_playlist_box_1"></div>
-          <div className="left_box_sizing left_playlist_box_1"></div>
+            <div className="left_box_sizing left_playlist_box_1"></div>
           </div>
 
 

@@ -106,10 +106,35 @@ class LinkedAccount(models.Model):
 
 
 class UserChat(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="chats"
+    )
     name = models.TextField()
-    content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "user_chats"
+
+
+class ChatMessage(models.Model):
+    class Sender(models.TextChoices):
+        USER = "user", "User"
+        SYSTEM = "system", "System"
+
+    chat = models.ForeignKey(
+        UserChat,
+        on_delete=models.CASCADE,
+        related_name="messages"
+    )
+    sender = models.CharField(
+        max_length=10,
+        choices=Sender.choices
+    )
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "chat_messages"
+        ordering = ["created_at", "id"]

@@ -116,10 +116,11 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
                     required
                     ></input>
                 </div>
-                {/* add onClick={apiLogin} */}
-                <div className='login_button_box'>
-                    <button className='login_button' type='submit'>Login</button>
-                </div>
+
+                {/* Login button */}
+                <button className="login_button" type="submit">
+                    Login
+                </button>
 
                 <div className='register_button_box'>
                     <button className='register_button' type='button' onClick={showRegister}>Register</button>
@@ -183,11 +184,9 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
                 </div>
 
                 {/* Register button */}
-                <div className='register_submit_button_box'>
-                    <button className='register_submit_button' type='submit'>
-                        Register
-                    </button>
-                </div>
+                <button className="register_submit_button" type="submit">
+                    Register
+                </button>
 
                 {/* Return to login */}
                 <div className='return_login_button_box'>

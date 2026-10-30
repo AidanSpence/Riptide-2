@@ -478,6 +478,30 @@
   padding: 3%;
 }
 
+.login_button_box {
+  border-radius: var(--corner-rad-small);
+  background-color: var(--color-primary);
+  border: var(--border-thick);
+  cursor: pointer;
+  width: 50%;
+  height: 10%;
+  box-shadow: 0 0.5% 0 var(--color-primary);
+  place-content: center;
+  transition: transform 50ms, box-shadow 50ms;
+  display: flex;
+}
+
+.login_button_box:active {
+  transform: translateY(4px);
+}
+
+.login_button {
+  color: var(--color-text);
+  font-size: var(--font-med);
+  font-family: var(--font-geist-sans);
+  cursor: pointer;
+}
+
 .left_register {
   flex-direction: column;
   justify-content: center;
@@ -566,53 +590,47 @@
   padding: 3%;
 }
 
-.login_button_box {
+.login_button {
   border-radius: var(--corner-rad-small);
   background-color: var(--color-primary);
   border: var(--border-thick);
-  cursor: pointer;
   width: 50%;
   height: 10%;
-  box-shadow: 0 0.5% 0 var(--color-primary);
-  place-content: center;
-  transition: transform 50ms, box-shadow 50ms;
-  display: flex;
-}
-
-.login_button_box:active {
-  transform: translateY(4px);
-}
-
-.login_button {
   color: var(--color-text);
   font-size: var(--font-med);
   font-family: var(--font-geist-sans);
   cursor: pointer;
+  box-shadow: 0 0.5% 0 var(--color-primary);
+  justify-content: center;
+  align-items: center;
+  transition: transform 50ms, box-shadow 50ms;
+  display: flex;
 }
 
-.register_submit_button_box {
+.login_button:active {
+  transform: translateY(4px);
+}
+
+.register_submit_button {
   border-radius: var(--corner-rad-small);
   background-color: var(--color-primary);
   border: var(--border-thick);
-  cursor: pointer;
   width: 50%;
   height: 10%;
+  color: var(--color-text);
+  font-size: var(--font-med);
+  font-family: var(--font-geist-sans);
+  cursor: pointer;
   box-shadow: 0 0.5% 0 var(--color-primary);
-  place-content: center;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 5%;
   transition: transform 50ms, box-shadow 50ms;
   display: flex;
 }
 
-.register_submit_button_box:active {
+.register_submit_button:active {
   transform: translateY(4px);
-}
-
-.register_submit_button {
-  color: var(--color-text);
-  font-size: var(--font-med);
-  font-family: var(--font-geist-sans);
-  cursor: pointer;
 }
 
 .register_button_box {
