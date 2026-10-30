@@ -1,5 +1,5 @@
-from Riptide2.providers import get_provider
-from Riptide2.system import SYSTEM_PROMPT
+from Django.Riptide2.services.providers import get_provider
+from Django.Riptide2.services.system import SYSTEM_PROMPT
 
 
 def generate_ai_response(messages):

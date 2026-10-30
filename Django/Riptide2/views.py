@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from django.http import StreamingHttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.password_validation import validate_password
-from .providers import get_provider
-from Riptide2.system import SYSTEM_PROMPT
+from .services.providers import get_provider
+from Riptide2.services.system import SYSTEM_PROMPT
 from .models import User
 
 
@@ -43,7 +43,7 @@ def me(request):
     return Response({"id": str(u.id), "email": u.email,
                      "username": u.username})
 
-@api_view(["GET"])
+@login_required
 def export(request):
     user_playlist = request.user_playlist
     track_uris = []
@@ -54,7 +54,7 @@ def export(request):
         user=sp.current_user()["id"], 
         name=user_playlist["title"],
         public=False,
-        description=user_playlist["message"]
+        description=user_playlist["description"]
         )
     playlist_id = new_playlist["id"]
     sp.playlist_add_items(playlist_id=playlist_id, items=track_uris)

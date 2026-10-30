@@ -111,6 +111,13 @@ LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
 
 
+# Spotify Authentication
+
+SPOTIFY_CLIENT_ID = os.environ["SPOTIFY_CLIENT_ID"]
+SPOTIFY_CLIENT_SECRET = os.environ["SPOTIFY_CLIENT_SECRET"]
+SPOTIFY_REDIRECT_URI = "http://127.0.0.1:8000/spotify/callback/"
+SPOTIFY_SCOPES = "user-read-private user-read-playback-state user-modify-playback-state"
+
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 

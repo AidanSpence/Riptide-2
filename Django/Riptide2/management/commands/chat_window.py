@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
-from Riptide2.providers import get_provider
-from Riptide2.system import SYSTEM_PROMPT
+from Django.Riptide2.services.providers import get_provider
+from Django.Riptide2.services.system import SYSTEM_PROMPT
 from Riptide2.services.recommendations import analyse_music_request
 from Riptide2.services.playlist_creator import create_playlist
 
