@@ -17,8 +17,9 @@ from .models import ChatMessage, UserChat
 User = get_user_model()
 MESSAGE_LIMIT = 3
 
-
-# account serializers
+# ---------------------------------------------------------------------
+# Account serializers
+# ---------------------------------------------------------------------
 class SignupSerializer(serializers.ModelSerializer):
     """check account details before signup."""
 
@@ -36,8 +37,9 @@ class SignupSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
-
-# chat serializers
+# ---------------------------------------------------------------------
+# Chat serializers
+# ---------------------------------------------------------------------
 class UserChatSerializer(serializers.ModelSerializer):
     """read and create chat records."""
 
@@ -63,8 +65,9 @@ class ChatInputSerializer(serializers.Serializer):
 
     text = serializers.CharField(max_length=4000, allow_blank=False, trim_whitespace=True)
 
-
-# account endpoints
+# ---------------------------------------------------------------------
+# Account endpoints
+# ---------------------------------------------------------------------
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def signup(request):
@@ -82,8 +85,9 @@ def me(request):
     user = request.user
     return Response({"id": str(user.id), "email": user.email, "username": user.username})
 
-
-# saved chat endpoints
+# ---------------------------------------------------------------------
+# Saved chat endpoints
+# ---------------------------------------------------------------------
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 def chats(request):
@@ -142,8 +146,9 @@ def chat_send_message(request, chat_id):
         "remaining_messages": MESSAGE_LIMIT - count - 1,
     }, status=status.HTTP_201_CREATED)
 
-
-# streamed ai response
+# ---------------------------------------------------------------------
+# Streamed ai response
+# ---------------------------------------------------------------------
 @csrf_exempt
 def chat(request):
     """stream a provider response as server sent events."""
