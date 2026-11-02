@@ -1,5 +1,3 @@
-"""account and chat api endpoints."""
-
 import json
 
 from django.contrib.auth import get_user_model

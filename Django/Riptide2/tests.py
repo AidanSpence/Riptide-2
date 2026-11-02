@@ -1,5 +1,3 @@
-"""basic checks for account and chat api endpoints."""
-
 from django.test import SimpleTestCase
 from django.urls import resolve
 

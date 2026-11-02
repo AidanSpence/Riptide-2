@@ -1,5 +1,3 @@
-"""spotify browser views."""
-
 import spotipy as sp
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest
