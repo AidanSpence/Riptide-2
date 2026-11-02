@@ -135,10 +135,10 @@ function Login_popup({ isActive, onClose }) {
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                         className: "password_input",
-                                        id: "login-username",
-                                        name: "username",
-                                        type: "text",
-                                        autoComplete: "username",
+                                        id: "login-password",
+                                        name: "password",
+                                        type: "password",
+                                        autoComplete: "password",
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/components/login-popup.tsx",
@@ -199,7 +199,7 @@ function Login_popup({ isActive, onClose }) {
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 id: "register-title",
                                 className: "register_title_left",
-                                children: "Sign into Riptide"
+                                children: "Register your account"
                             }, void 0, false, {
                                 fileName: "[project]/components/login-popup.tsx",
                                 lineNumber: 100,
@@ -249,7 +249,7 @@ function Login_popup({ isActive, onClose }) {
                                         className: "new_password_input",
                                         id: "new_login_password",
                                         name: "new_password",
-                                        type: "text",
+                                        type: "Password",
                                         autoComplete: "new_password",
                                         required: true
                                     }, void 0, false, {
@@ -278,7 +278,7 @@ function Login_popup({ isActive, onClose }) {
                                         className: "confirm_password_input",
                                         id: "confirm_login-password",
                                         name: "confirm_password",
-                                        type: "text",
+                                        type: "Password",
                                         autoComplete: "confirm_password",
                                         required: true
                                     }, void 0, false, {
@@ -293,11 +293,11 @@ function Login_popup({ isActive, onClose }) {
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "register_button_box",
+                                className: "register_submit_button_box",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                    className: "register_button",
+                                    className: "register_submit_button",
                                     type: "submit",
-                                    children: "register"
+                                    children: "Register"
                                 }, void 0, false, {
                                     fileName: "[project]/components/login-popup.tsx",
                                     lineNumber: 139,
@@ -309,12 +309,12 @@ function Login_popup({ isActive, onClose }) {
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "register_button_box",
+                                className: "return_login_button_box",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                    className: "register_button",
+                                    className: "return_login_button",
                                     type: "button",
                                     onClick: showLogin,
-                                    children: "Register"
+                                    children: "Back To Login"
                                 }, void 0, false, {
                                     fileName: "[project]/components/login-popup.tsx",
                                     lineNumber: 143,
@@ -400,8 +400,93 @@ var _s = __turbopack_context__.k.signature();
 ;
 function MainPage() {
     _s();
-    /* Track whether each side panel is open. */ const [leftOpen, setLeftOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
+    // declared variables
+    // setstate for left box, open = true
+    const [leftOpen, setLeftOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
+    // setstate for right box, open = true
     const [rightOpen, setRightOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
+    // this is an array with all of the users/systems message, anything in here is displayed
+    const [messageText, setMessageText] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    // constantly updates this variable to the contents of the message textarea
+    const [tempMessageText, setTempMessageText] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    // this enforces the sendlimit, false is unlocked, true is locked
+    const [sendLimit, setSendLimit] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    // sets the message limit to 3
+    const messagelimit = 3;
+    // debug system messages, call from send button
+    function addDebugMessage() {
+        const testMessage = {
+            // im making it +2 because otherwise it has the same id (bad, fix later)
+            id: String(messageText.length + 2),
+            text: "This is a debug response",
+            sender: "system"
+        };
+        // more or less appends to array
+        setMessageText((previous)=>[
+                ...previous,
+                testMessage
+            ]);
+    }
+    // message limit message, sets limit internally to true, and
+    // if django returns limit reached, run this and it should lockout interface
+    function setLimitMessage() {
+        const limitMessage = {
+            // im making it +2 because otherwise it has the same id (bad, fix later)
+            id: String(messageText.length + 2),
+            text: "Send limit reached, create a new chat to continue",
+            sender: "system"
+        };
+        // more or less appends to array
+        setMessageText((previous)=>[
+                ...previous,
+                limitMessage
+            ]);
+        setSendLimit(true);
+    }
+    // updates the temp variables each time the input field changes
+    // which can then be sent to the proper setMessageText field
+    function tempChatInput(event) {
+        setTempMessageText(event.currentTarget.value);
+    // DEBUG
+    // const inputID = event.currentTarget.id
+    // const inputText = event.currentTarget.value
+    // const sender = "user"
+    // console.log(inputID)
+    // console.log(inputText)
+    // console.log(sender)
+    }
+    ;
+    function saveChatInput() {
+        if (tempMessageText.trim() === "") return;
+        // return the length of messages with the "user" tag
+        const userMessageCount = messageText.filter((msg)=>msg.sender === "user").length;
+        // enforces send limit, if its true do nothing
+        if (sendLimit === true) {
+            return false;
+        }
+        // if sendlimit isn't set yet, but messagelimit reached, addlimitmessage, which sets the limit to true
+        if (userMessageCount >= messagelimit) {
+            setLimitMessage();
+            return false;
+        }
+        // create new message
+        const newMessage = {
+            id: String(messageText.length + 1),
+            text: tempMessageText,
+            sender: "user"
+        };
+        //  this adds the newmessage it to the array to be sent to postgres
+        setMessageText((previous)=>[
+                ...previous,
+                newMessage
+            ]);
+        // Clear the input box
+        setTempMessageText("");
+        // debug
+        addDebugMessage();
+        console.log(newMessage);
+    }
+    // Page stuff
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "page_layout",
         children: [
@@ -415,7 +500,7 @@ function MainPage() {
                 children: leftOpen ? "<" : ">"
             }, void 0, false, {
                 fileName: "[project]/components/main_page.tsx",
-                lineNumber: 16,
+                lineNumber: 113,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -432,7 +517,7 @@ function MainPage() {
                                 children: "Chats:"
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 33,
+                                lineNumber: 130,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -442,33 +527,33 @@ function MainPage() {
                                         className: "left_box_sizing left_chat_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 35,
+                                        lineNumber: 132,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_box_sizing left_chat_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 36,
+                                        lineNumber: 133,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_box_sizing left_chat_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 37,
+                                        lineNumber: 134,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 34,
+                                lineNumber: 131,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 32,
+                        lineNumber: 129,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -479,7 +564,7 @@ function MainPage() {
                                 children: "Your linked service playlists:"
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 45,
+                                lineNumber: 142,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -489,89 +574,89 @@ function MainPage() {
                                         className: "left_box_sizing left_playlist_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 47,
+                                        lineNumber: 144,
                                         columnNumber: 11
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_box_sizing left_playlist_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 48,
+                                        lineNumber: 145,
                                         columnNumber: 11
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_box_sizing left_playlist_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 49,
+                                        lineNumber: 146,
                                         columnNumber: 11
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_box_sizing left_playlist_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 50,
+                                        lineNumber: 147,
                                         columnNumber: 11
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_box_sizing left_playlist_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 51,
+                                        lineNumber: 148,
                                         columnNumber: 11
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_box_sizing left_playlist_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 52,
+                                        lineNumber: 149,
                                         columnNumber: 11
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_box_sizing left_playlist_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 53,
+                                        lineNumber: 150,
                                         columnNumber: 11
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_box_sizing left_playlist_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 54,
+                                        lineNumber: 151,
                                         columnNumber: 11
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_box_sizing left_playlist_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 55,
+                                        lineNumber: 152,
                                         columnNumber: 11
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_box_sizing left_playlist_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 56,
+                                        lineNumber: 153,
                                         columnNumber: 11
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_box_sizing left_playlist_box_1"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 57,
+                                        lineNumber: 154,
                                         columnNumber: 11
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 46,
+                                lineNumber: 143,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 44,
+                        lineNumber: 141,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -584,12 +669,12 @@ function MainPage() {
                                     children: "JD"
                                 }, void 0, false, {
                                     fileName: "[project]/components/main_page.tsx",
-                                    lineNumber: 63,
+                                    lineNumber: 160,
                                     columnNumber: 49
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 63,
+                                lineNumber: 160,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -600,33 +685,33 @@ function MainPage() {
                                         children: "John Doe"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 65,
+                                        lineNumber: 162,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "left_profile_service_state",
-                                        children: "Service - Spotify Connected"
+                                        children: "Service - Spotify Connectedsdfguiopoigfghj"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 66,
+                                        lineNumber: 163,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 64,
+                                lineNumber: 161,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 62,
+                        lineNumber: 159,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/main_page.tsx",
-                lineNumber: 26,
+                lineNumber: 123,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -644,13 +729,13 @@ function MainPage() {
                                         children: "No playlist Attached"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 75,
+                                        lineNumber: 172,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 74,
+                                lineNumber: 171,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -658,20 +743,28 @@ function MainPage() {
                                 children: "Private"
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 78,
+                                lineNumber: 175,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 73,
+                        lineNumber: 170,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "center_chats_container"
+                        className: "center_chats_container",
+                        children: messageText.map((msg)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: msg.sender === "user" ? "center_box_sizing_user" : "center_box_sizing_system",
+                                children: msg.text
+                            }, msg.id, false, {
+                                fileName: "[project]/components/main_page.tsx",
+                                lineNumber: 180,
+                                columnNumber: 13
+                            }, this))
                     }, void 0, false, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 80,
+                        lineNumber: 177,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -683,14 +776,18 @@ function MainPage() {
                                 name: "chat",
                                 type: "text",
                                 autoComplete: "off",
+                                // update the temp variable everytime an input happens
+                                value: tempMessageText,
+                                onChange: tempChatInput,
                                 required: true
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 91,
-                                columnNumber: 9
+                                lineNumber: 200,
+                                columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                 className: "center_chats_send_message",
+                                onClick: saveChatInput,
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                                     className: "center_send_button_image",
                                     src: "send.svg",
@@ -699,24 +796,24 @@ function MainPage() {
                                     alt: "send button"
                                 }, void 0, false, {
                                     fileName: "[project]/components/main_page.tsx",
-                                    lineNumber: 98,
-                                    columnNumber: 62
+                                    lineNumber: 213,
+                                    columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 98,
-                                columnNumber: 16
+                                lineNumber: 212,
+                                columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 90,
-                        columnNumber: 7
+                        lineNumber: 199,
+                        columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/main_page.tsx",
-                lineNumber: 72,
+                lineNumber: 169,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -729,7 +826,7 @@ function MainPage() {
                 children: rightOpen ? ">" : "<"
             }, void 0, false, {
                 fileName: "[project]/components/main_page.tsx",
-                lineNumber: 109,
+                lineNumber: 227,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -743,30 +840,30 @@ function MainPage() {
                         children: "Your Playlists"
                     }, void 0, false, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 146,
+                        lineNumber: 264,
                         columnNumber: 5
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "right_all_playlists_container"
                     }, void 0, false, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 148,
+                        lineNumber: 266,
                         columnNumber: 5
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/main_page.tsx",
-                lineNumber: 119,
+                lineNumber: 237,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/main_page.tsx",
-        lineNumber: 14,
+        lineNumber: 111,
         columnNumber: 5
     }, this);
 }
-_s(MainPage, "n1NS7sycToBvoPxGpQeQ4cd8DC8=");
+_s(MainPage, "D8/UZMemZlCm3InFsXiVlTv7tbo=");
 _c = MainPage;
 var _c;
 __turbopack_context__.k.register(_c, "MainPage");

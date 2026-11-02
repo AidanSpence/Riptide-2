@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'Riptide2'
+    'Riptide2',
 ]
 
 MIDDLEWARE = [
@@ -173,9 +173,9 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
 ).split(",")
 
 REST_FRAMEWORK = {
-    "DEFUALT_AUTHENTICATION_CLASSES": [
+    "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ],
+    ),
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
 }
 

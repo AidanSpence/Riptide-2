@@ -120,6 +120,15 @@
     padding: 1%;
 }
 
+.new_chat_button{
+    border: var(--border-thick);
+    border-radius: var(--corner-rad-small);
+    padding: 1%;
+    margin-bottom: 3%;
+}
+
+
+
 .left_chat_box_scrolling{
     display: flex;
     align-items: center;
@@ -185,7 +194,7 @@
     padding: 1%;
     gap: 5%;
     margin: auto;
-    border-top: var(--border-thick)
+    border-top: var(--border-thin)
 }
 
 
@@ -472,6 +481,42 @@
     font-weight: bold;
     text-overflow: ellipsis;
     white-space: nowrap;
+    /* allow a delete button beside the original playlist title */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2%;
+}
+
+/* keep long playlist names from pushing the delete button out of view */
+.right_playlist_title_text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.right_playlist_delete_button {
+    flex: 0 0 auto;
+    font-size: var(--font-xsml);
+    border: var(--border-thin);
+    border-radius: var(--corner-rad-small);
+    padding: 1% 2%;
+    color: var(--color-text);
+    cursor: pointer;
+}
+
+.right_playlist_delete_button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.right_playlist_status {
+    padding: 2%;
+    font-size: var(--font-xsml);
+    color: var(--color-text);
+    overflow-wrap: anywhere;
 }
 
 /* contains all the individual songs */

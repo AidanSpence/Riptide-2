@@ -8,7 +8,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/signup/", views.signup),
     path("api/login/", TokenObtainPairView.as_view()),   # body: {"email", "password"}
-    path("api/chat/", views.chat),
     path("api/token/refresh/", TokenRefreshView.as_view()),
     path("api/me/", views.me),
     path("api/export", views.export),

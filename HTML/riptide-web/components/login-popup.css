@@ -78,7 +78,11 @@
     width: 100%;
     height: 100%;
 }
-
+.left_right_container_login > form {
+    flex: 0 0 50%;
+    min-width: 0;
+    height: 100%;
+}
 
 
 /* right */
@@ -88,6 +92,8 @@
     background-image: radial-gradient(circle at left top, #3b82f6,#2f6cff,#151b2b,#0b1020);
     width: 100%;
     height: 100%;
+    flex: 0 0 50%;
+    min-width: 0;
 }
 .title_riptide_login{
     color: var(--color-text);
@@ -307,58 +313,83 @@
 /* Login button */
 
 
-.login_button_box{
+.login_button {
     display: flex;
     justify-content: center;
-    align-content: center;
-    height:10%;
+    align-items: center;
+
+    height: 10%;
     width: 50%;
+
     border-radius: var(--corner-rad-small);
     background-color: var(--color-primary);
     border: var(--border-thick);
+
+    color: var(--color-text);
+    font-size: var(--font-med);
+    font-family: var(--font-geist-sans);
+
     cursor: pointer;
     box-shadow: 0 0.5% 0 var(--color-primary);
     transition: transform 0.05s ease, box-shadow 0.05s ease;
 }
 
-.login_button_box:active {
+.login_button:active {
     transform: translateY(4px);
 }
-.login_button{
-    color:var(--color-text);
+
+
+.logout_button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 10%;
+    width: 50%;
+
+    border-radius: var(--corner-rad-small);
+    background-color: var(--color-primary);
+    border: var(--border-thick);
+
+    color: var(--color-text);
     font-size: var(--font-med);
-    font-family:var(--font-geist-sans);
+    font-family: var(--font-geist-sans);
+
     cursor: pointer;
+    box-shadow: 0 0.5% 0 var(--color-primary);
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
+
+.logout_button:active{
+    transform: translateY(4px);
 }
 
 
-
-.register_submit_button_box{
+.register_submit_button {
     margin-bottom: 5%;
     display: flex;
     justify-content: center;
-    align-content: center;
-    height:10%;
+    align-items: center;
+
+    height: 10%;
     width: 50%;
+
     border-radius: var(--corner-rad-small);
     background-color: var(--color-primary);
     border: var(--border-thick);
+
+    color: var(--color-text);
+    font-size: var(--font-med);
+    font-family: var(--font-geist-sans);
+
     cursor: pointer;
     box-shadow: 0 0.5% 0 var(--color-primary);
     transition: transform 0.05s ease, box-shadow 0.05s ease;
 }
 
-.register_submit_button_box:active {
+.register_submit_button:active {
     transform: translateY(4px);
 }
-.register_submit_button{
-    color:var(--color-text);
-    font-size: var(--font-med);
-    font-family:var(--font-geist-sans);
-    cursor: pointer;
-}
-
-
 
 
 
