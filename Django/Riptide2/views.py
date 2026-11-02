@@ -6,12 +6,20 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.http import StreamingHttpResponse, JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.http import HttpResponseBadRequest
+from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.password_validation import validate_password
-from .providers import get_provider
-from Riptide2.system import SYSTEM_PROMPT
+from .services.providers import get_provider
+from Riptide2.services.system import SYSTEM_PROMPT
 from .models import User
+from .services import spotify_auth
 
+# -------------------------
+# Login/Account
+# -------------------------
 
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -43,7 +51,11 @@ def me(request):
     return Response({"id": str(u.id), "email": u.email,
                      "username": u.username})
 
-@api_view(["GET"])
+# -------------------------
+# Spotify
+# -------------------------
+
+@login_required
 def export(request):
     user_playlist = request.user_playlist
     track_uris = []
@@ -54,13 +66,33 @@ def export(request):
         user=sp.current_user()["id"], 
         name=user_playlist["title"],
         public=False,
-        description=user_playlist["message"]
+        description=user_playlist["description"]
         )
     playlist_id = new_playlist["id"]
     sp.playlist_add_items(playlist_id=playlist_id, items=track_uris)
 
 
+@login_required
+def spotify_login(request):
+    state = spotify_auth.generate_state()
+    request.session["spotify_state"] = state
+    return redirect(spotify_auth.build_authorize_url(state))
 
+
+@login_required
+def spotify_callback(request):
+    if request.GET.get("error"):
+        return HttpResponseBadRequest("Spotify authorization was denied.")
+    if request.GET.get("state") != request.session.pop("spotify_state", None):
+        return HttpResponseBadRequest("State mismatch.")
+
+    token_data = spotify_auth.exchange_code_for_tokens(request.GET["code"])
+    spotify_auth.link_account(request.user, token_data)
+    return redirect("home")
+
+# -------------------------
+# Chat
+# -------------------------
 
 @csrf_exempt
 def chat(request):
