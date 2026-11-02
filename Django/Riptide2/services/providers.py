@@ -34,21 +34,28 @@ class OllamaProvider:
 class BedrockProvider:
     def __init__(self):
         import boto3
-        self.client = boto3.client("bedrock-runtime", region_name=os.environ("AWS_REGION", "us-east-1")) # might change
+        self.client = boto3.client(
+            "bedrock-runtime",
+            region_name=os.environ.get("AWS_REGION", "us-east-1"),
+        )
         self.model_id = os.environ["BEDROCK_MODEL_ID"]
 
-        def stream(self, messages, system=None):
-            kwargs = {
-                "modelId": self.model_id,
-                "messages": [{"role": m["role"], "content": [{"text": m["content"]}]} for m in messages],
-                "inferenceConfig": {"maxTokens": 1500}, # max_tokens
-            }
-            if system:
-                kwargs["system"] = [{"text": system}]
-            resp = self.client.converse_stream(**kwargs)
-            for event in resp["stream"]:
-                if "contentBlockDelta" in event:
-                    yield event["contentBlockDelta"]["delta"].get("text", "")
+    def stream(self, messages, system=None):
+        kwargs = {
+            "modelId": self.model_id,
+            "messages": [
+                {"role": m["role"], "content": [{"text": m["content"]}]}
+                for m in messages
+            ],
+            "inferenceConfig": {"maxTokens": 1500},
+        }
+        if system:
+            kwargs["system"] = [{"text": system}]
+
+        resp = self.client.converse_stream(**kwargs)
+        for event in resp["stream"]:
+            if "contentBlockDelta" in event:
+                yield event["contentBlockDelta"]["delta"].get("text", "")
 
 
 def get_provider():

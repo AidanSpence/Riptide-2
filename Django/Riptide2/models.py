@@ -74,23 +74,47 @@ class SongArtist(models.Model):
 
 
 class Playlist(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="playlists",       # was OneToOneField
+    )
+    chat = models.ForeignKey(           # optional: link to the chat that made it
+        "UserChat",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="playlists",
+    )
     name = models.TextField()
+    description = models.TextField(blank=True, default="")
+    message = models.TextField(blank=True, default="")   # the AI's interim message
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)     # changes when a refinement replaces the tracks
+
+    songs = models.ManyToManyField(Song, through="PlaylistSong", related_name="playlists")
 
     class Meta:
         db_table = "playlists"
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "-created_at"])]
+
+    def __str__(self):
+        return self.name
 
 
 class PlaylistSong(models.Model):
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
-    song = models.ForeignKey(Song, on_delete=models.CASCADE, db_constraint=True)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
     position = models.IntegerField()
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "playlist_songs"
-        constraints = [models.UniqueConstraint(fields=["playlist", "song"], name="uniq_playlist_song")]
+        ordering = ["position"]
+        constraints = [
+            models.UniqueConstraint(fields=["playlist", "song"], name="uniq_playlist_song"),
+        ]
 
 
 class LinkedAccount(models.Model):
@@ -106,12 +130,14 @@ class LinkedAccount(models.Model):
             models.UniqueConstraint(fields=["provider", "provider_user_id"], name="uniq_provider_account"),
         ]
 
+
 class SpotifyAccount(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     spotify_user_id = models.CharField(max_length=100)
     access_token = models.TextField()
     refresh_token = models.TextField()
     expires_at = models.DateTimeField()
+
 
 class UserChat(models.Model):
     user = models.ForeignKey(

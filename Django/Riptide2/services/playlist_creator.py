@@ -14,7 +14,7 @@ def summarise(playlist):
         for s in playlist
     ]
 
-def create_playlist(ai_data, user, playlist_id=None):
+def create_playlist(ai_data, user=None, playlist_id=None):
     candidates = retrieve_candidates(ai_data)
     tracks = build_playlist(candidates=candidates, ai_data=ai_data)
 
@@ -26,11 +26,8 @@ def create_playlist(ai_data, user, playlist_id=None):
 
     user_playlist = {
         "title": settings.get("title") or "Your playlist",
-        "message": settings.get("message") or "",
-        "chat_title" : settings.get("chat_title") or "",
         "description": intent.get("description") or "",
         "tracks": summarised,
-        "question" : clarification.get("question") or "",
     }
 
     send_playlist = {
@@ -39,11 +36,12 @@ def create_playlist(ai_data, user, playlist_id=None):
         "tracks": summarised,
     }
 
-    if not summarised:
-        return user_playlist
+    if not summarised or user is None:
+        return send_playlist # guest users get the playlist but nothing is saved
 
     saved = save_playlist_for_user(user, user_playlist, playlist_id=playlist_id)
     user_playlist["playlist_id"] = saved.id
+    user_playlist["saved"] = True
 
-    return user_playlist
+    return send_playlist
 

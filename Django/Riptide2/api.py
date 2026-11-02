@@ -6,11 +6,14 @@ from django.db import transaction
 from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+
 from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 
+from .models import Playlist
 from .models import ChatMessage, UserChat
 
 
@@ -149,7 +152,8 @@ def chat_send_message(request, chat_id):
 # ---------------------------------------------------------------------
 # Streamed ai response
 # ---------------------------------------------------------------------
-@csrf_exempt
+@api_view(["POST"])
+@permission_classes([AllowAny])
 def chat(request):
     """stream a provider response as server sent events."""
     if request.method != "POST":
@@ -164,20 +168,19 @@ def chat(request):
     if not isinstance(messages, list):
         return JsonResponse({"error": "messages must be a list"}, status=400)
 
-    # load the provider only when this endpoint is used
-    from .services.providers import get_provider
-    from .services.system import SYSTEM_PROMPT
+    # guests can generate but not save
+    user = request.user if request.user.is_authenticated else None
+    playlist_id = request.data.get("playlist_id") if user else None
 
-    def generate():
-        """send text chunks and a final event."""
-        try:
-            for chunk in get_provider().stream(messages, system=SYSTEM_PROMPT):
-                yield f"data: {json.dumps({'t': chunk})}\n\n"
-        except Exception as error:
-            yield f"data: {json.dumps({'error': str(error)})}\n\n"
-        yield "data: [DONE]\n\n"
+    from .services.ai_response import generate_ai_response
 
-    response = StreamingHttpResponse(generate(), content_type="text/event-stream")
-    response["Cache-Control"] = "no-cache"
-    response["X-Accel-Buffering"] = "no"
-    return response
+    try:
+        result = generate_ai_response(messages, user=user, playlist_id=playlist_id)
+    except Playlist.DoesNotExist:
+        raise NotFound("Playlist not found")
+    except Exception:
+        raise Response({"error": "Could not generate a playlist"}, status=502)
+
+    return Response(result)
+
+
