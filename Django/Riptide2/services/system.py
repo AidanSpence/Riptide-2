@@ -73,9 +73,9 @@ the user's text
 "energy_progression": "none",
 "artist_repetition_limit": 2,
 "harmonic_compatibility": false,
-"title": "playlist name",
+"name": "playlist name (be creative)",
 "message": "a message to output about the playlist"
-"chat_title": "a short title of the chat that relates to the content of the playlist"
+"chat_name": "a short name of the chat that relates to the content of the playlist"
 },
 "constraints": {
 "required_features": [],
@@ -252,9 +252,9 @@ Request: "Make me a playlist for driving at night. I want atmospheric, slightly 
 "energy_progression": "steady",
 "artist_repetition_limit": 2,
 "harmonic_compatibility": false,
-"title": "Atmospheric Night Driving",
+"name": "Atmospheric Night Driving",
 "message": "Here is your Night driving playlist"
-"chat_title": "Night driving Playlist"
+"chat_name": "Night driving Playlist"
 },
 "constraints": {
 "required_features": ["steady_tempo"],
@@ -301,9 +301,9 @@ Request: "30 high-energy tracks for a run, around 160 bpm, nothing explicit, no 
 "energy_progression": "steady",
 "artist_repetition_limit": 2,
 "harmonic_compatibility": false,
-"title": "running in the 2010s",
+"name": "running in the 2010s",
 "message": "Here is your 2010s running playlist"
-"chat_title": "Running Playlist"
+"chat_name": "Running Playlist"
 },
 "constraints": {
 "required_features": ["steady_tempo"],

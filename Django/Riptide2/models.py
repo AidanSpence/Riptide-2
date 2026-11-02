@@ -7,17 +7,23 @@ from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
 
 
+# ---------------------------------------------------------------------
+# Authentication & Users
+# ---------------------------------------------------------------------
+
 class UserManager(BaseUserManager):
     """create regular and admin accounts."""
     use_in_migrations = True
 
     def create_user(self, username, password=None, **extra):
+        """Make a normal user."""
         user = self.model(username=username, **extra)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
     def create_superuser(self, username, password=None, **extra):
+        """Make an admin user."""
         extra.setdefault("is_staff", True)
         extra.setdefault("is_superuser", True)
 
@@ -39,7 +45,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = "users"
 
+
+# ---------------------------------------------------------------------
+# Music Data
+# ---------------------------------------------------------------------
+
 class Artist(models.Model):
+    """A music artist."""
     name = models.TextField(unique=True)
 
     class Meta:
@@ -47,9 +59,11 @@ class Artist(models.Model):
         db_table = 'music"."artists'
 
     def __str__(self):
+        """Show the artist's name."""
         return self.name
 
 class Song(models.Model):
+    """A song and its audio details."""
     title = models.TextField()
     artists = models.ManyToManyField(Artist, through="SongArtist", related_name="songs")
     bpm = models.DecimalField(max_digits=6, decimal_places=2, null=True)
@@ -64,6 +78,7 @@ class Song(models.Model):
         db_table = 'music"."songs'
 
 class SongArtist(models.Model):
+    """Links a song to its artists."""
     song = models.OneToOneField(Song, on_delete=models.DO_NOTHING, db_column="song_id", primary_key=True)
     artist = models.ForeignKey(Artist, on_delete=models.DO_NOTHING, db_column="artist_id")
     position = models.SmallIntegerField(default=0)
@@ -73,24 +88,21 @@ class SongArtist(models.Model):
         db_table = 'music"."song_artists'
 
 
+# ---------------------------------------------------------------------
+# Playlists
+# ---------------------------------------------------------------------
+
 class Playlist(models.Model):
+    """A user's playlist."""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="playlists",       # was OneToOneField
-    )
-    chat = models.ForeignKey(           # optional: link to the chat that made it
-        "UserChat",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
         related_name="playlists",
     )
     name = models.TextField()
     description = models.TextField(blank=True, default="")
-    message = models.TextField(blank=True, default="")   # the AI's interim message
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)     # changes when a refinement replaces the tracks
+    updated_at = models.DateTimeField(auto_now=True)
 
     songs = models.ManyToManyField(Song, through="PlaylistSong", related_name="playlists")
 
@@ -100,10 +112,12 @@ class Playlist(models.Model):
         indexes = [models.Index(fields=["user", "-created_at"])]
 
     def __str__(self):
+        """Show the playlist's name."""
         return self.name
 
 
 class PlaylistSong(models.Model):
+    """A song's place in a playlist."""
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     position = models.IntegerField()
@@ -117,7 +131,12 @@ class PlaylistSong(models.Model):
         ]
 
 
+# ---------------------------------------------------------------------
+# External Accounts / Integrations
+# ---------------------------------------------------------------------
+
 class LinkedAccount(models.Model):
+    """A user's account on another service."""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     provider = models.TextField()
     provider_user_id = models.TextField()
@@ -132,6 +151,7 @@ class LinkedAccount(models.Model):
 
 
 class SpotifyAccount(models.Model):
+    """A user's Spotify login details."""
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     spotify_user_id = models.CharField(max_length=100)
     access_token = models.TextField()
@@ -139,7 +159,12 @@ class SpotifyAccount(models.Model):
     expires_at = models.DateTimeField()
 
 
+# ---------------------------------------------------------------------
+# Chat
+# ---------------------------------------------------------------------
+
 class UserChat(models.Model):
+    """A chat owned by a user."""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -153,7 +178,10 @@ class UserChat(models.Model):
 
 
 class ChatMessage(models.Model):
+    """One message in a chat."""
+
     class Sender(models.TextChoices):
+        """Who sent the message."""
         USER = "user", "User"
         SYSTEM = "system", "System"
 
