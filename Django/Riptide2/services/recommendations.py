@@ -24,9 +24,16 @@ def extract_json(message):
         raise ValidationError(f"AI reply was not valid JSON: {e}")
 
 def analyse_music_request(message):
+    """returns validated ai message,
+    true or false for clarification
+    and a string question """
     ai_data = extract_json(message)
     
     serializer = RecommendationRequestSerializer(data=ai_data)
     serializer.is_valid(raise_exception=True)
 
-    return serializer.validated_data
+    clarification = ai_data.get("clarification", {})
+    clarify = clarification.get("needed")
+    question = clarification.get("question")
+
+    return serializer.validated_data, clarify, question

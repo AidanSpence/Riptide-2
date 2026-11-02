@@ -1,5 +1,6 @@
 from Riptide2.services.candidate_search import retrieve_candidates
 from Riptide2.services.playlist_builder import build_playlist
+from Riptide2.services.playlist_saver import save_playlist_for_user
 
 def summarise(playlist):
     return [
@@ -13,19 +14,36 @@ def summarise(playlist):
         for s in playlist
     ]
 
-def create_playlist(ai_data):
+def create_playlist(ai_data, user, playlist_id=None):
     candidates = retrieve_candidates(ai_data)
     tracks = build_playlist(candidates=candidates, ai_data=ai_data)
 
     settings = ai_data.get("playlist", {})
     intent = ai_data.get("intent", {})
+    clarification = ai_data.get("clarification", {})
+
+    summarised = summarise(tracks)
 
     user_playlist = {
         "title": settings.get("title") or "Your playlist",
         "message": settings.get("message") or "",
         "chat_title" : settings.get("chat_title") or "",
         "description": intent.get("description") or "",
-        "tracks": summarise(tracks),
+        "tracks": summarised,
+        "question" : clarification.get("question") or "",
     }
+
+    send_playlist = {
+        "message": settings.get("message") or "",
+        "chat_title" : settings.get("chat_title") or "",
+        "tracks": summarised,
+    }
+
+    if not summarised:
+        return user_playlist
+
+    saved = save_playlist_for_user(user, user_playlist, playlist_id=playlist_id)
+    user_playlist["playlist_id"] = saved.id
+
     return user_playlist
 

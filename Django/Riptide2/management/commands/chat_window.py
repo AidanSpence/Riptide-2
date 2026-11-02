@@ -47,6 +47,10 @@ class Command(BaseCommand):
 
             print("\n")
             history.append({"role": "assistant", "content": reply})
-            ai_msg = analyse_music_request(reply)
-            print(create_playlist(ai_data=ai_msg))
+            ai_msg, clarify, question = analyse_music_request(reply)
+
+            if clarify:
+                print(question)
+            else:
+                print(create_playlist(ai_data=ai_msg))
 
