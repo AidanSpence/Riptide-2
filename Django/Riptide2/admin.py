@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.db.models import Count
 from .models import User, Song, Playlist, PlaylistSong
 
 
@@ -46,3 +47,54 @@ class UserAdmin(UserAdmin):
             "fields": ("username", "password1", "password2"),
         }),
     )
+
+
+class PlaylistSongInline(admin.TabularInline):
+    model = PlaylistSong
+    extra = 0
+    ordering = ("position",)
+    fields = ("position", "song_title", "song_artists", "song_duration")
+    readonly_fields = ("position", "song_title", "song_artists", "song_duration")
+    can_delete = False
+
+    def get_queryset(self, request):
+        return (
+            super().get_queryset(request)
+            .select_related("song")
+            .prefetch_related("song__artists")
+        )
+
+    @admin.display(description="title")
+    def song_title(self, obj):
+        return obj.song.title
+
+    @admin.display(description="artists")
+    def song_artists(self, obj):
+        return ", ".join(a.name for a in obj.song.artists.all())
+
+    @admin.display(description="duration (s)")
+    def song_duration(self, obj):
+        return obj.song.duration_s
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(Playlist)
+class PlaylistAdmin(admin.ModelAdmin):
+    list_display = ("name", "user", "track_count", "created_at", "updated_at")
+    list_select_related = ("user",)
+    list_filter = ("created_at",)
+    search_fields = ("name", "user__username", "user__email")
+    raw_id_fields = ("user",)
+    readonly_fields = ("created_at", "updated_at")
+    inlines = [PlaylistSongInline]
+    date_hierarchy = "created_at"
+    list_per_page = 50
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(_track_count=Count("playlistsong"))
+
+    @admin.display(description="tracks", ordering="_track_count")
+    def track_count(self, obj):
+        return obj._track_count
