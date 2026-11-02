@@ -50,11 +50,16 @@ DB_NAME=<your_database_name>
 DB_USER=<your_database_user>
 DB_PASSWORD=<your_database_password>
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=5433
 SECRET_KEY=<your_secret_key>
 DJANGO_DEBUG=1
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
 CORS_ALLOWED_ORIGINS=http://localhost:3000
+LLM_PROVIDER=<ollama/bedrock>
+AWS_REGION=us-east-1
+BEDROCK_MODEL_ID=model-id
+SPOTIFY_CLIENT_SECRET=<your_secret_key>
+SPOTIFY_CLIENT_ID=<your_id>
 ```
 
 > If you do not know the exact values for your local environment, use placeholders such as `<your_database_name>` until the required credentials are available.
