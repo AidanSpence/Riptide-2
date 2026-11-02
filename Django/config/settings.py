@@ -12,12 +12,13 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+db_env = {**dotenv_values(BASE_DIR / ".env"), **os.environ}
+spotify_env = {**dotenv_values(BASE_DIR / ".env.spotify"), **os.environ}
 
 
 # Quick-start development settings - unsuitable for production
@@ -92,11 +93,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ["DB_NAME"],
-        'USER': os.environ["DB_USER"],
-        'PASSWORD': os.environ["DB_PASSWORD"],
-        'HOST': os.environ["DB_HOST"],
-        'PORT': os.environ.get("DB_PORT", "5432"),
+        'NAME': db_env["DB_NAME"],
+        'USER': db_env["DB_USER"],
+        'PASSWORD': db_env["DB_PASSWORD"],
+        'HOST': db_env["DB_HOST"],
+        'PORT': db_env.get("DB_PORT", "5432"),
         'CONN_MAX_AGE': 60,
         'OPTIONS': {
             'sslmode': os.environ.get("DB_SSLMODE", "prefer"),
@@ -110,6 +111,13 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
 
+
+# Spotify Authentication
+
+SPOTIFY_CLIENT_ID = spotify_env["SPOTIFY_CLIENT_ID"]
+SPOTIFY_CLIENT_SECRET = spotify_env["SPOTIFY_CLIENT_SECRET"]
+SPOTIFY_REDIRECT_URI = "http://127.0.0.1:8000/spotify/callback/"
+SPOTIFY_SCOPES = "user-read-email user-read-private playlist-read-private user-library-modify user-library-read"
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
