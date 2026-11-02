@@ -13,11 +13,11 @@ class SongAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related("artists")
 
-    @admin.display(description="Artists")
+    @admin.display(description="artists")
     def artist_names(self, obj):
         return ", ".join(a.name for a in obj.artists.all())
 
-    # stops Django from editing as data is form postgre
+    # music data is managed by postgres
     def has_add_permission(self, request):
         return False
 
@@ -29,13 +29,13 @@ class SongAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
-    ordering = ("email",)
-    list_display = ("email", "username", "is_staff", "is_active")
-    search_fields = ("email", "username")
+    ordering = ("username",)
+    list_display = ("username", "is_staff", "is_active")
+    search_fields = ("username",)
 
     fieldsets = (
-        (None, {"fields": ("email", "password")}),
-        ("Profile", {"fields": ("username", "avatar_url")}),
+        (None, {"fields": ("username", "password")}),
+        ("Profile", {"fields": ("email", "avatar_url")}),
         ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser",
                                     "groups", "user_permissions")}),
         ("Dates", {"fields": ("last_login",)}),
@@ -43,6 +43,6 @@ class UserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             "classes": ("wide",),
-            "fields": ("email", "username", "password1", "password2"),
+            "fields": ("username", "password1", "password2"),
         }),
     )

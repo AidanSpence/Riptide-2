@@ -154,7 +154,7 @@ export async function listChats(accessToken: string) {
 // Create a conversation
 export async function createChat(
   accessToken: string,
-  name: string = "New chat"
+  name: string = "Awaiting Name"
 ) {
   const chat = await authRequest<ChatSummary>(
     "/api/chats/",

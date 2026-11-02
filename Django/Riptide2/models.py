@@ -8,6 +8,7 @@ from pgvector.django import VectorField
 
 
 class UserManager(BaseUserManager):
+    """create regular and admin accounts."""
     use_in_migrations = True
 
     def create_user(self, username, password=None, **extra):
@@ -23,6 +24,7 @@ class UserManager(BaseUserManager):
         return self.create_user(username, password, **extra)
 
 class User(AbstractBaseUser, PermissionsMixin):
+    """account details and permissions."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = CIEmailField(unique=True, null=True, blank=True)
     username = CICharField(max_length=150, unique=True)
@@ -58,7 +60,7 @@ class Song(models.Model):
     cluster_id = models.IntegerField(null=True)
 
     class Meta:
-        managed = False # SQL owns this table
+        managed = False  # postgres owns this table
         db_table = 'music"."songs'
 
 class SongArtist(models.Model):

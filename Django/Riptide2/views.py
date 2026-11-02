@@ -1,79 +1,32 @@
-import json
+"""spotify browser views."""
+
 import spotipy as sp
-from spotipy.oauth2 import SpotifyOAuth
-from rest_framework import serializers, status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from django.http import StreamingHttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
 from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.password_validation import validate_password
-from .services.providers import get_provider
-from Riptide2.services.system import SYSTEM_PROMPT
-from .models import User
+
 from .services import spotify_auth
 
-# -------------------------
-# Login/Account
-# -------------------------
-
-class SignupSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = User
-        fields = ("id", "email", "username", "password")
-
-    def validate_password(self, value):
-        validate_password(value)
-        return value
-
-    def create(self, data):
-        return User.objects.create_user(**data)
-
-
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def signup(request):
-    s = SignupSerializer(data=request.data)
-    s.is_valid(raise_exception=True)
-    s.save()
-    return Response(s.data, status=status.HTTP_201_CREATED)
-
-
-@api_view(["GET"])
-def me(request):
-    u = request.user
-    return Response({"id": str(u.id), "email": u.email,
-                     "username": u.username})
-
-# -------------------------
-# Spotify
-# -------------------------
 
 @login_required
 def export(request):
+    """export the current playlist to spotify."""
+    # this uses the playlist and spotify client attached to the request
     user_playlist = request.user_playlist
-    track_uris = []
-    track_ids = [t["spotify_track_id"] for t in user_playlist["tracks"]]
-    for id in track_ids:
-        track_uris.append("spotify:track:" + id)
-    new_playlist = sp.user_playlist_create(
-        user=sp.current_user()["id"], 
+    track_ids = [track["spotify_track_id"] for track in user_playlist["tracks"]]
+    track_uris = ["spotify:track:" + track_id for track_id in track_ids]
+    playlist = sp.user_playlist_create(
+        user=sp.current_user()["id"],
         name=user_playlist["title"],
         public=False,
-        description=user_playlist["description"]
-        )
-    playlist_id = new_playlist["id"]
-    sp.playlist_add_items(playlist_id=playlist_id, items=track_uris)
+        description=user_playlist["description"],
+    )
+    sp.playlist_add_items(playlist_id=playlist["id"], items=track_uris)
 
 
 @login_required
 def spotify_login(request):
+    """start spotify login."""
     state = spotify_auth.generate_state()
     request.session["spotify_state"] = state
     return redirect(spotify_auth.build_authorize_url(state))
@@ -81,35 +34,14 @@ def spotify_login(request):
 
 @login_required
 def spotify_callback(request):
+    """finish spotify login and save the account."""
     if request.GET.get("error"):
         return HttpResponseBadRequest("Spotify authorization was denied.")
     if request.GET.get("state") != request.session.pop("spotify_state", None):
         return HttpResponseBadRequest("State mismatch.")
+    if not request.GET.get("code"):
+        return HttpResponseBadRequest("Missing authorization code.")
 
     token_data = spotify_auth.exchange_code_for_tokens(request.GET["code"])
     spotify_auth.link_account(request.user, token_data)
     return redirect("home")
-
-# -------------------------
-# Chat
-# -------------------------
-
-@csrf_exempt
-def chat(request):
-    if request.method != "POST":
-        return JsonResponse({"error" : "POST only"}, status=405)
-    messages = json.loads(request.body).get("messages", [])
-
-    def gen():
-        try:
-            for text in get_provider().stream(messages, system=SYSTEM_PROMPT):
-                yield f"data: {json.dumps({'t': text})}\n\n"
-        except Exception as e:
-            yield f"data: {json.dumps({"error": str(e)})}\n\n"
-        yield "data: [DONE]\n\n"
-
-    resp = StreamingHttpResponse(gen(), content_type="text/event-stream")
-    resp['Cache-Control'] = "no-cache"
-    resp['X-Accel-Buffering'] = "no"
-    return resp
-

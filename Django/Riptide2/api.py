@@ -1,50 +1,29 @@
+"""account and chat api endpoints."""
+
+import json
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.db import transaction
+from django.http import JsonResponse, StreamingHttpResponse
+from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from django.contrib.auth.password_validation import validate_password
-from .models import User
-import json
-from django.contrib.auth import get_user_model
-from django.http import JsonResponse
+
+from .models import ChatMessage, UserChat
+
 
 User = get_user_model()
-
-def signup(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "POST required"}, status=405)
-
-    data = json.loads(request.body)
-
-    username = data.get("username")
-    password = data.get("password")
-    confirm_password = data.get("confirm_password")
-
-    # Check required fields
-    if not username or not password or not confirm_password:
-        return JsonResponse({"error": "Missing fields"}, status=400)
-
-    # Check passwords match
-    if password != confirm_password:
-        return JsonResponse({"error": "Passwords do not match"}, status=400)
-
-    # Check username availability
-    if User.objects.filter(username=username).exists():
-        return JsonResponse({"error": "Username already exists"}, status=409)
-
-    # Create account (password is automatically hashed)
-    try:
-        User.objects.create_user(username=username, password=password)
-    except Exception:
-        import traceback
-        traceback.print_exc()
-        return JsonResponse({"error": "Account creation failed"}, status=500)
-
-    return JsonResponse({"message": "Account created"}, status=201)
+MESSAGE_LIMIT = 3
 
 
-
+# account serializers
 class SignupSerializer(serializers.ModelSerializer):
+    """check account details before signup."""
+
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -59,17 +38,143 @@ class SignupSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
+
+# chat serializers
+class UserChatSerializer(serializers.ModelSerializer):
+    """read and create chat records."""
+
+    name = serializers.CharField(max_length=100, required=False, default="New chat")
+
+    class Meta:
+        model = UserChat
+        fields = ("id", "name", "created_at")
+        read_only_fields = ("id", "created_at")
+
+
+class ChatMessageSerializer(serializers.ModelSerializer):
+    """return saved chat messages."""
+
+    class Meta:
+        model = ChatMessage
+        fields = ("id", "sender", "text", "created_at")
+        read_only_fields = fields
+
+
+class ChatInputSerializer(serializers.Serializer):
+    """check new chat messages."""
+
+    text = serializers.CharField(max_length=4000, allow_blank=False, trim_whitespace=True)
+
+
+# account endpoints
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def signup(request):
-    s = SignupSerializer(data=request.data)
-    s.is_valid(raise_exception=True)
-    s.save()
-    return Response(s.data, status=status.HTTP_201_CREATED)
+    """create an account with a username and password."""
+    serializer = SignupSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def me(request):
-    u = request.user
-    return Response({"id": str(u.id), "email": u.email,
-                     "username": u.username})
+    """return the logged in user."""
+    user = request.user
+    return Response({"id": str(user.id), "email": user.email, "username": user.username})
+
+
+# saved chat endpoints
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+def chats(request):
+    """list chats or create a new chat."""
+    if request.method == "GET":
+        user_chats = UserChat.objects.filter(user=request.user).order_by("-created_at", "-id")
+        return Response({"chats": UserChatSerializer(user_chats, many=True).data})
+
+    serializer = UserChatSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    chat = serializer.save(user=request.user)
+    return Response(UserChatSerializer(chat).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def chat_detail(request, chat_id):
+    """load one chat and its remaining message count."""
+    chat = get_object_or_404(UserChat, id=chat_id, user=request.user)
+    messages = chat.messages.all()
+    count = chat.messages.filter(sender=ChatMessage.Sender.USER).count()
+    return Response({
+        **UserChatSerializer(chat).data,
+        "messages": ChatMessageSerializer(messages, many=True).data,
+        "remaining_messages": max(0, MESSAGE_LIMIT - count),
+    })
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def chat_send_message(request, chat_id):
+    """save a message if the chat has space."""
+    serializer = ChatInputSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    # lock the chat while checking the limit
+    with transaction.atomic():
+        chat = get_object_or_404(
+            UserChat.objects.select_for_update(), id=chat_id, user=request.user
+        )
+        count = chat.messages.filter(sender=ChatMessage.Sender.USER).count()
+        if count >= MESSAGE_LIMIT:
+            return Response(
+                {"error": "Message limit reached", "remaining_messages": 0},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
+        message = ChatMessage.objects.create(
+            chat=chat,
+            sender=ChatMessage.Sender.USER,
+            text=serializer.validated_data["text"],
+        )
+
+    return Response({
+        "message": ChatMessageSerializer(message).data,
+        "remaining_messages": MESSAGE_LIMIT - count - 1,
+    }, status=status.HTTP_201_CREATED)
+
+
+# streamed ai response
+@csrf_exempt
+def chat(request):
+    """stream a provider response as server sent events."""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST only"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    messages = data.get("messages", [])
+    if not isinstance(messages, list):
+        return JsonResponse({"error": "messages must be a list"}, status=400)
+
+    # load the provider only when this endpoint is used
+    from .services.providers import get_provider
+    from .services.system import SYSTEM_PROMPT
+
+    def generate():
+        """send text chunks and a final event."""
+        try:
+            for chunk in get_provider().stream(messages, system=SYSTEM_PROMPT):
+                yield f"data: {json.dumps({'t': chunk})}\n\n"
+        except Exception as error:
+            yield f"data: {json.dumps({'error': str(error)})}\n\n"
+        yield "data: [DONE]\n\n"
+
+    response = StreamingHttpResponse(generate(), content_type="text/event-stream")
+    response["Cache-Control"] = "no-cache"
+    response["X-Accel-Buffering"] = "no"
+    return response
