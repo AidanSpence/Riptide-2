@@ -1,3 +1,4 @@
 export default function page() {
-  <div />
+  // navbar and main page are currently displayed by layout.tsx
+  return null;
 }
