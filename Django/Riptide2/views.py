@@ -17,6 +17,9 @@ from Riptide2.services.system import SYSTEM_PROMPT
 from .models import User
 from .services import spotify_auth
 
+# -------------------------
+# Login/Account
+# -------------------------
 
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -48,6 +51,9 @@ def me(request):
     return Response({"id": str(u.id), "email": u.email,
                      "username": u.username})
 
+# -------------------------
+# Spotify
+# -------------------------
 
 @login_required
 def export(request):
@@ -84,6 +90,9 @@ def spotify_callback(request):
     spotify_auth.link_account(request.user, token_data)
     return redirect("home")
 
+# -------------------------
+# Chat
+# -------------------------
 
 @csrf_exempt
 def chat(request):

@@ -23,6 +23,7 @@ def create_playlist(ai_data):
     user_playlist = {
         "title": settings.get("title") or "Your playlist",
         "message": settings.get("message") or "",
+        "chat_title" : settings.get("chat_title") or "",
         "description": intent.get("description") or "",
         "tracks": summarise(tracks),
     }

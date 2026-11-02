@@ -75,6 +75,7 @@ the user's text
 "harmonic_compatibility": false,
 "title": "playlist name",
 "message": "a message to output about the playlist"
+"chat_title": "a short title of the chat that relates to the content of the playlist"
 },
 "constraints": {
 "required_features": [],
@@ -253,6 +254,7 @@ Request: "Make me a playlist for driving at night. I want atmospheric, slightly 
 "harmonic_compatibility": false,
 "title": "Atmospheric Night Driving",
 "message": "Here is your Night driving playlist"
+"chat_title": "Night driving Playlist"
 },
 "constraints": {
 "required_features": ["steady_tempo"],
@@ -301,6 +303,7 @@ Request: "30 high-energy tracks for a run, around 160 bpm, nothing explicit, no 
 "harmonic_compatibility": false,
 "title": "running in the 2010s",
 "message": "Here is your 2010s running playlist"
+"chat_title": "Running Playlist"
 },
 "constraints": {
 "required_features": ["steady_tempo"],
