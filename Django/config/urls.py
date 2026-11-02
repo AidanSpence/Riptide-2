@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from Riptide2 import api, views
+from Riptide2 import views, api
 from django.http import JsonResponse
 
 urlpatterns = [
@@ -16,3 +16,6 @@ urlpatterns = [
     path("api/chats/<int:chat_id>/", api.chat_detail),
     path("api/chats/<int:chat_id>/messages/", api.chat_send_message),
 ]
+
+
+# change so it works with django ninja
