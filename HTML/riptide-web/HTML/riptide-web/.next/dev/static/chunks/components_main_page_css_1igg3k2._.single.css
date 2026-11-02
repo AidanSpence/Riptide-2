@@ -140,7 +140,7 @@
 }
 
 .left_profile_container {
-  border-top: var(--border-thick);
+  border-top: var(--border-thin);
   flex-direction: row;
   flex: .3;
   place-items: center;
@@ -245,12 +245,14 @@
 }
 
 .center_chats_container {
+  scrollbar-width: none;
   flex-direction: column;
   flex: 9;
   gap: 2%;
-  width: auto;
-  height: auto;
+  min-width: 0;
+  min-height: 0;
   display: flex;
+  overflow-y: auto;
 }
 
 .center_box_sizing_user {
@@ -258,9 +260,10 @@
   border-radius: var(--corner-rad-small);
   width: fit-content;
   max-width: 50%;
-  height: fit-content;
+  min-height: fit-content;
   color: var(--color-text);
   overflow-wrap: break-word;
+  flex-shrink: 0;
   place-self: flex-end center;
   margin: 1%;
   padding: 2%;
@@ -278,6 +281,7 @@
   height: fit-content;
   color: var(--color-text);
   overflow-wrap: break-word;
+  flex-shrink: 0;
   place-self: flex-start center;
   margin: 1%;
   padding: 2%;
