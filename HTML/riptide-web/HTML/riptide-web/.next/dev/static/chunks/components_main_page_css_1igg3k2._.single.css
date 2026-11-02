@@ -1,0 +1,439 @@
+/* [project]/components/main_page.css [app-client] (css) */
+.page_layout {
+  --left-drawer-width: 18%;
+  --right-drawer-width: 22%;
+  aspect-ratio: 3;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--color-primary) 9%, transparent),
+    color-mix(in srgb, var(--color-surface) 3%, transparent));
+  border: var(--border-thick);
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  flex-direction: row;
+  flex-grow: 1;
+  place-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.drawer_toggle {
+  z-index: 5;
+  border: var(--border-thin);
+  border-radius: var(--corner-rad-small);
+  background: var(--color-primary);
+  width: 3vmin;
+  height: 5vmin;
+  color: var(--color-text);
+  font-size: var(--font-med);
+  cursor: pointer;
+  align-items: center;
+  display: flex;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.left_drawer_toggle {
+  clip-path: inset(0 0 0 35%);
+  justify-content: end;
+  padding-right: .3vmin;
+  transition: left .3s, transform .3s;
+  left: -10px;
+}
+
+.left_drawer_toggle.is_open {
+  left: var(--left-drawer-width);
+  transform: translate(-25%, -50%);
+}
+
+.left_box {
+  box-sizing: border-box;
+  z-index: 10;
+  visibility: hidden;
+  border: none;
+  flex-direction: column;
+  flex: 0 0 0;
+  width: 0;
+  min-width: 0;
+  height: 100%;
+  transition: flex-basis .3s, visibility 0s linear .3s;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.left_box.is_open {
+  flex-basis: var(--left-drawer-width);
+  visibility: visible;
+  border-right: var(--border-thick);
+  padding: .25%;
+  transition: flex-basis .3s, visibility;
+}
+
+.left_chats {
+  flex-direction: column;
+  flex: 1;
+  gap: 1%;
+  height: 100%;
+  display: flex;
+  overflow-y: hidden;
+}
+
+.left_chat_title {
+  font-size: var(--font-med);
+  padding: 1%;
+}
+
+.left_chat_box_scrolling {
+  scrollbar-width: none;
+  flex-direction: column;
+  flex: 1;
+  align-items: center;
+  gap: 4%;
+  height: 100%;
+  display: flex;
+  overflow-y: scroll;
+}
+
+.left_chat_box_scrolling::-webkit-scrollbar {
+  display: none;
+}
+
+.left_box_sizing {
+  border: var(--border-thick);
+  border-radius: var(--corner-rad-small);
+  width: 95%;
+  min-height: 8vmin;
+  max-height: 8vmin;
+}
+
+.left_linked_playlists {
+  scrollbar-width: none;
+  flex-direction: column;
+  flex: 1.6;
+  gap: 1%;
+  height: 100%;
+  display: flex;
+  overflow-y: scroll;
+}
+
+.left_playlist_title {
+  font-size: var(--font-med);
+  padding: 1%;
+  overflow: hidden;
+}
+
+.left_linked_playlists_scrolling {
+  scrollbar-width: none;
+  flex-direction: column;
+  flex: 1.5;
+  align-items: center;
+  gap: 3%;
+  height: 100%;
+  display: flex;
+  overflow-y: scroll;
+}
+
+.left_profile_container {
+  border-top: var(--border-thick);
+  flex-direction: row;
+  flex: .3;
+  place-items: center;
+  gap: 5%;
+  margin: auto;
+  padding: 1%;
+  display: flex;
+}
+
+.left_profile_icon_bg {
+  aspect-ratio: 1;
+  aspect-ratio: 1;
+  border: var(--border-thin);
+  border-radius: var(--corner-rad-small);
+  background: var(--color-primary);
+  place-items: center;
+  width: 5vmin;
+  height: 5vmin;
+  margin: 1%;
+  display: grid;
+}
+
+.left_profile_icon_text {
+  color: var(--color-text);
+  font-size: clamp(.2rem, 1vw, 10rem);
+}
+
+.left_profile_info_box {
+  text-overflow: ellipsis;
+  flex-direction: column;
+  align-items: start;
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  overflow: hidden;
+}
+
+.left_profile_name {
+  font-size: var(--font-sml);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+  overflow: hidden;
+}
+
+.left_profile_service_state {
+  font-size: var(--font-xsml);
+}
+
+.center_box {
+  box-sizing: border-box;
+  border: var(--border-thick);
+  flex-direction: column;
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+}
+
+.center_title_bar {
+  border-bottom: var(--border-thin);
+  flex: 1;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  padding-left: 1%;
+  display: flex;
+  overflow: hidden;
+}
+
+.center_playlist_title {
+  max-width: 20.5vmin;
+  font-size: var(--font-med);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.center_playlist_attached_title {
+  white-space: nowrap;
+  background-color: var(--color-highight-nointeract);
+  border-radius: var(--corner-rad-small);
+  width: max-content;
+  max-height: fit-content;
+  font-size: clamp(1rem, var(--font-sml),);
+  border: var(--border-thin-highlight);
+  padding: .2% 3%;
+}
+
+.center_playlist_privacy_title {
+  white-space: nowrap;
+  background-color: var(--color-highight-nointeract);
+  border-radius: var(--corner-rad-small);
+  width: max-content;
+  height: fit-content;
+  font-size: var(--font-sml);
+  border: var(--border-thin-highlight);
+  padding: .2rem .4rem;
+}
+
+.center_chats_container {
+  flex-direction: column;
+  flex: 9;
+  gap: 2%;
+  width: auto;
+  height: auto;
+  display: flex;
+}
+
+.center_box_sizing_user {
+  border: var(--border-med-highlight);
+  border-radius: var(--corner-rad-small);
+  width: fit-content;
+  max-width: 50%;
+  height: fit-content;
+  color: var(--color-text);
+  overflow-wrap: break-word;
+  place-self: flex-end center;
+  margin: 1%;
+  padding: 2%;
+  font-size: 2vmin;
+  display: inline;
+  overflow: hidden;
+}
+
+.center_box_sizing_system {
+  background-color: var(--color-primary);
+  border: var(--border-med-highlight);
+  border-radius: var(--corner-rad-small);
+  width: fit-content;
+  max-width: 50%;
+  height: fit-content;
+  color: var(--color-text);
+  overflow-wrap: break-word;
+  place-self: flex-start center;
+  margin: 1%;
+  padding: 2%;
+  font-size: 2vmin;
+  display: inline;
+  overflow: hidden;
+}
+
+.center_chats_input_box {
+  border: var(--border-thick);
+  border-radius: var(--corner-rad-small);
+  border: 3%;
+  flex: 1;
+  place-self: center;
+  width: 60%;
+  height: auto;
+  margin: 1%;
+  display: flex;
+}
+
+.center_chats_input_clickable {
+  border-radius: var(--corner-rad-small);
+  width: 100%;
+  height: 100%;
+  padding: 1%;
+}
+
+.center_chats_send_message {
+  aspect-ratio: 1;
+  border-radius: var(--corner-rad-small);
+  cursor: pointer;
+  align-self: center;
+  place-items: center;
+  height: 60%;
+}
+
+.center_send_button_image {
+  width: 100%;
+  height: 100%;
+}
+
+.right_drawer_toggle {
+  clip-path: inset(0 35% 0 0);
+  justify-content: start;
+  padding-left: .3vmin;
+  transition: right .3s, transform .3s;
+  right: -10px;
+}
+
+.right_drawer_toggle.is_open {
+  right: var(--right-drawer-width);
+  transform: translate(25%, -50%);
+}
+
+.right_box {
+  box-sizing: border-box;
+  visibility: hidden;
+  z-index: 10;
+  border: none;
+  flex: 0 0 0;
+  width: 0;
+  min-width: 0;
+  height: 100%;
+  transition: flex-basis .3s, visibility 0s linear .3s;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.right_box.is_open {
+  flex-basis: var(--right-drawer-width);
+  visibility: visible;
+  border-left: var(--border-thick);
+  padding: .25%;
+  transition: flex-basis .3s, visibility;
+}
+
+.right_box {
+  flex-direction: column;
+  gap: 1%;
+}
+
+.playlist_top_bar {
+  border-bottom: var(--border-thin);
+  font-size: var(--font-med);
+  flex: none;
+  padding: 1%;
+}
+
+.right_all_playlists_container {
+  scrollbar-width: auto;
+  flex-direction: column;
+  flex: 1;
+  gap: 3%;
+  min-height: 0;
+  display: flex;
+  overflow-y: auto;
+}
+
+.right_playlist_layout {
+  border: var(--border-thin);
+  border-radius: var(--corner-rad-small);
+  flex-direction: column;
+  flex: 0 0 48%;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+.right_playlist_title_box {
+  background-color: var(--color-primary);
+  border-bottom: var(--border-thin);
+  font-size: var(--font-med);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: none;
+  padding: 2%;
+  font-weight: bold;
+  overflow: hidden;
+}
+
+.right_playlist_song_list {
+  scrollbar-width: none;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow-y: auto;
+}
+
+.right_playlist_song_box {
+  border-bottom: var(--border-thin);
+  font-size: var(--font-sml);
+  flex: none;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 5%;
+  padding: 2%;
+  display: grid;
+}
+
+.right_playlist_song_title, .right_playlist_song_artist {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.right_playlist_song_length {
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .left_box, .right_box, .left_drawer_toggle, .right_drawer_toggle {
+    transition: none;
+  }
+}
+
+/*# sourceMappingURL=components_main_page_css_1igg3k2._.single.css.map*/
