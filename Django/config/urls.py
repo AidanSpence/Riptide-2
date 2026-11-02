@@ -10,6 +10,8 @@ urlpatterns = [
     path("api/chat/", views.chat),
     path("api/token/refresh/", TokenRefreshView.as_view()),
     path("api/me/", views.me),
+    path("api/export", views.export),
+    path("api/spotify-login", views.spotify_login)
 ]
 
 

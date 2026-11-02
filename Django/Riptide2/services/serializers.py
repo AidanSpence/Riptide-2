@@ -129,6 +129,9 @@ class PlaylistSerializer(serializers.Serializer):
     message = serializers.CharField(
         required=False, allow_null=True, allow_blank=True
     )
+    chat_title = serializers.CharField(
+        required=False, allow_null=True, allow_blank=True
+    )
 
 
 class RecommendationRequestSerializer(serializers.Serializer):

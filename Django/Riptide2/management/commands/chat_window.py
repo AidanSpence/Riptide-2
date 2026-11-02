@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
-from Riptide2.providers import get_provider
-from Riptide2.system import SYSTEM_PROMPT
+from Riptide2.services.providers import get_provider
+from Riptide2.services.system import SYSTEM_PROMPT
 from Riptide2.services.recommendations import analyse_music_request
 from Riptide2.services.playlist_creator import create_playlist
 
@@ -47,6 +47,10 @@ class Command(BaseCommand):
 
             print("\n")
             history.append({"role": "assistant", "content": reply})
-            ai_msg = analyse_music_request(reply)
-            print(create_playlist(ai_data=ai_msg))
+            ai_msg, clarify, question = analyse_music_request(reply)
+
+            if clarify:
+                print(question)
+            else:
+                print(create_playlist(ai_data=ai_msg))
 

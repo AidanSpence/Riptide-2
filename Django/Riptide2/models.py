@@ -103,6 +103,12 @@ class LinkedAccount(models.Model):
             models.UniqueConstraint(fields=["provider", "provider_user_id"], name="uniq_provider_account"),
         ]
 
+class SpotifyAccount(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    spotify_user_id = models.CharField(max_length=100)
+    access_token = models.TextField()
+    refresh_token = models.TextField()
+    expires_at = models.DateTimeField()
 
 class UserChat(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

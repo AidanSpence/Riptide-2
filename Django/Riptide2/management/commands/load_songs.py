@@ -1,7 +1,7 @@
 from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 
-from Riptide2.file_cleaning import SongUploader
+from Django.Riptide2.services.file_cleaning import SongUploader
 
 class Command(BaseCommand):
     help = "Load songs from a CSV into DB" # Visible with 'python manage.py help <command>'
