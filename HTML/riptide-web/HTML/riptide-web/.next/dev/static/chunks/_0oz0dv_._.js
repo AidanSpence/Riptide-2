@@ -7,7 +7,11 @@ __turbopack_context__.s([
     ()=>AccountPopup
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/image.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/api.ts [app-client] (ecmascript)");
 'use client';
+;
+;
 ;
 ;
 function AccountPopup({ isActive, onClose }) {
@@ -22,33 +26,69 @@ function AccountPopup({ isActive, onClose }) {
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "title_bar",
-                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                    className: "account_close_button",
-                    type: "button",
-                    onClick: onClose,
-                    "aria-label": "Close account popup",
-                    children: "×"
-                }, void 0, false, {
-                    fileName: "[project]/components/accounts-popup.tsx",
-                    lineNumber: 22,
-                    columnNumber: 13
-                }, this)
-            }, void 0, false, {
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                        src: "riptide-logo.svg",
+                        alt: "alt",
+                        width: 48,
+                        height: 48
+                    }, void 0, false, {
+                        fileName: "[project]/components/accounts-popup.tsx",
+                        lineNumber: 24,
+                        columnNumber: 13
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        className: "account_close_button",
+                        type: "button",
+                        onClick: onClose,
+                        "aria-label": "Close account popup",
+                        children: "×"
+                    }, void 0, false, {
+                        fileName: "[project]/components/accounts-popup.tsx",
+                        lineNumber: 25,
+                        columnNumber: 13
+                    }, this)
+                ]
+            }, void 0, true, {
                 fileName: "[project]/components/accounts-popup.tsx",
-                lineNumber: 21,
+                lineNumber: 23,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: ""
-            }, void 0, false, {
+                className: "account_info",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "username",
+                        children: " "
+                    }, void 0, false, {
+                        fileName: "[project]/components/accounts-popup.tsx",
+                        lineNumber: 35,
+                        columnNumber: 13
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "spotify_signin"
+                    }, void 0, false, {
+                        fileName: "[project]/components/accounts-popup.tsx",
+                        lineNumber: 36,
+                        columnNumber: 13
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "spotify_signout"
+                    }, void 0, false, {
+                        fileName: "[project]/components/accounts-popup.tsx",
+                        lineNumber: 37,
+                        columnNumber: 13
+                    }, this)
+                ]
+            }, void 0, true, {
                 fileName: "[project]/components/accounts-popup.tsx",
-                lineNumber: 31,
+                lineNumber: 34,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/accounts-popup.tsx",
-        lineNumber: 12,
+        lineNumber: 14,
         columnNumber: 9
     }, this);
 }
@@ -1601,6 +1641,8 @@ __turbopack_context__.s([
     ()=>deletePlaylist,
     "getChat",
     ()=>getChat,
+    "getCurrentUser",
+    ()=>getCurrentUser,
     "isPlaylistData",
     ()=>isPlaylistData,
     "listChats",
@@ -1620,6 +1662,9 @@ const API_URL = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$
 const LOGIN_ENDPOINT = '/api/login/';
 const REGISTER_ENDPOINT = '/api/signup/';
 const PLAYLIST_DEMO_MODE = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_PLAYLIST_MODE !== "api";
+async function getCurrentUser(accessToken) {
+    return authRequest("/api/me/", accessToken);
+}
 function isPlaylistData(value) {
     if (!value || typeof value !== "object") return false;
     const playlist = value;
