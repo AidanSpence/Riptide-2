@@ -27,7 +27,7 @@ def get_spotify(user) -> spotipy.Spotify:
     return spotipy.Spotify(auth=get_valid_token(user), requests_timeout=10)
 
 
-def _parse_track(track: dict) -> dict:
+def parse_track(track: dict) -> dict:
     return {
         "spotify_track_id": track.get("id"),
         "uri": track.get("uri"),
@@ -50,10 +50,9 @@ def get_playlist_tracks(user, playlist_id: str) -> list[dict]:
 
     tracks = []
     for item in items:
-        # Spotify's newer playlist-items responses use "item"; older ones use "track".
         track = item.get("item") or item.get("track")
-        if track and track.get("id"):  # skip removed/unavailable/local tracks
-            tracks.append(_parse_track(track))
+        if track and track.get("id"):
+            tracks.append(parse_track(track))
     return tracks
 
 
