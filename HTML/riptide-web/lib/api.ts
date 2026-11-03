@@ -61,6 +61,12 @@ export type UserData = {
 };
 
 
+type SpotifyLoginResponse = {
+  url: string;
+};
+
+
+
 // use the provided JSON while the Django playlist endpoints are unfinished
 // set NEXT_PUBLIC_PLAYLIST_MODE=api before building to enable real API requests
 export const PLAYLIST_DEMO_MODE = process.env.NEXT_PUBLIC_PLAYLIST_MODE !== "api";
@@ -71,6 +77,18 @@ export async function getCurrentUser(accessToken: string): Promise<UserData> {
     accessToken
   );
 }
+
+
+
+export async function spotifyLogin(accessToken: string): Promise<void> {
+  const data = await authRequest<SpotifyLoginResponse>(
+    "/api/spotify-login/",
+    accessToken
+  );
+
+  window.location.assign(data.url);
+}
+
 
 
 export function isPlaylistData(value: unknown): value is PlaylistData {
