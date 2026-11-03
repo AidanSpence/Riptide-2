@@ -9,12 +9,36 @@ __turbopack_context__.s([
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/image.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/api.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$auth$2d$provider$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/auth-provider.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
 'use client';
 ;
 ;
 ;
 ;
+;
 function AccountPopup({ isActive, onClose }) {
+    _s();
+    const { accessToken } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$auth$2d$provider$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"])();
+    const [username, setUsername] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "AccountPopup.useEffect": ()=>{
+            if (!accessToken) return;
+            async function loadUsername() {
+                try {
+                    const user = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getCurrentUser"])(accessToken);
+                    setUsername(user.username);
+                } catch (error) {
+                    console.error("Failed to retrieve username:", error);
+                }
+            }
+            loadUsername();
+        }
+    }["AccountPopup.useEffect"], [
+        accessToken
+    ]);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         id: "account-dialog",
         className: `account_main${isActive ? ' is_active' : ''}`,
@@ -34,7 +58,7 @@ function AccountPopup({ isActive, onClose }) {
                         height: 48
                     }, void 0, false, {
                         fileName: "[project]/components/accounts-popup.tsx",
-                        lineNumber: 24,
+                        lineNumber: 46,
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -45,13 +69,13 @@ function AccountPopup({ isActive, onClose }) {
                         children: "×"
                     }, void 0, false, {
                         fileName: "[project]/components/accounts-popup.tsx",
-                        lineNumber: 25,
+                        lineNumber: 47,
                         columnNumber: 13
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/accounts-popup.tsx",
-                lineNumber: 23,
+                lineNumber: 45,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -59,39 +83,69 @@ function AccountPopup({ isActive, onClose }) {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "username",
-                        children: " "
-                    }, void 0, false, {
+                        children: [
+                            "Username: ",
+                            accessToken ? username : "Not Logged in"
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/components/accounts-popup.tsx",
-                        lineNumber: 35,
+                        lineNumber: 57,
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "spotify_signin"
-                    }, void 0, false, {
+                        children: [
+                            " ",
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                className: "spotify_signin",
+                                children: "Sign in with Spotify"
+                            }, void 0, false, {
+                                fileName: "[project]/components/accounts-popup.tsx",
+                                lineNumber: 58,
+                                columnNumber: 19
+                            }, this),
+                            " "
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/components/accounts-popup.tsx",
-                        lineNumber: 36,
+                        lineNumber: 58,
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "spotify_signout"
-                    }, void 0, false, {
+                        children: [
+                            " ",
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                className: "spotify_signout",
+                                children: "Sign out of Spotify"
+                            }, void 0, false, {
+                                fileName: "[project]/components/accounts-popup.tsx",
+                                lineNumber: 59,
+                                columnNumber: 19
+                            }, this),
+                            " "
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/components/accounts-popup.tsx",
-                        lineNumber: 37,
+                        lineNumber: 59,
                         columnNumber: 13
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/accounts-popup.tsx",
-                lineNumber: 34,
+                lineNumber: 56,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/accounts-popup.tsx",
-        lineNumber: 14,
+        lineNumber: 36,
         columnNumber: 9
     }, this);
 }
+_s(AccountPopup, "C6eKinC0SGvth1BPkAKU8kc2vYA=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$auth$2d$provider$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"]
+    ];
+});
 _c = AccountPopup;
 var _c;
 __turbopack_context__.k.register(_c, "AccountPopup");

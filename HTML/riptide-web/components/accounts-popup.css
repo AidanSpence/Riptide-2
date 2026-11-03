@@ -23,7 +23,7 @@
     background: transparent;
     border: none;
     color: var(--color-text);
-    font-size: 2rem;
+    font-size: var(--font-lar);
     cursor: pointer;
 }
 .title_bar{
@@ -37,6 +37,41 @@
     border-bottom: var(--border-thin);
 }
 .account_info{
+    display: flex;
+    flex-direction: column;
+    gap: 2%;
     width: 100%;
     flex: 15;
+    padding: 3%;
+}
+.username{
+    font-size: var(--font-med);
+}
+
+.spotify_signin{
+    min-width: 10%;
+    min-height: 10%;
+    padding: 1%;
+    border: var(--border-thick);
+    border-radius: var(--corner-rad-small);
+    cursor: pointer;
+    box-shadow: 0 0.5% 0 var(--color-primary);
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
+.spotify_signin:active{
+  transform: translateY(4px);
+}
+
+.spotify_signout{
+    min-width: 10%;
+    min-height: 10%;
+    padding: 1%;
+    border: var(--border-thick);
+    border-radius: var(--corner-rad-small);
+    cursor: pointer;
+    box-shadow: 0 0.5% 0 var(--color-primary);
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
+.spotify_signout:active{
+  transform: translateY(4px);
 }

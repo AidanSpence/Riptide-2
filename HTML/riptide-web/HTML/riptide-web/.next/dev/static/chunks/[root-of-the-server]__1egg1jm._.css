@@ -915,10 +915,17 @@ body {
   aspect-ratio: 1;
   border: var(--border-thin);
   border-radius: var(--corner-rad-small);
+  cursor: pointer;
+  width: 6.36%;
+  box-shadow: 0 0.5% 0 var(--color-primary);
   justify-content: center;
   align-items: center;
-  width: 6.36%;
+  transition: transform 50ms, box-shadow 50ms;
   display: flex;
+}
+
+.nav_settings:active {
+  transform: translateY(4px);
 }
 
 .settings_img {
@@ -948,6 +955,7 @@ body {
   color: var(--color-text);
   border-radius: var(--corner-rad-small);
   background: var(--color-primary);
+  cursor: pointer;
   display: flex;
 }
 
@@ -1668,10 +1676,10 @@ body {
 
 .account_close_button {
   color: var(--color-text);
+  font-size: var(--font-lar);
   cursor: pointer;
   background: none;
   border: none;
-  font-size: 2rem;
 }
 
 .title_bar {
@@ -1686,8 +1694,46 @@ body {
 }
 
 .account_info {
+  flex-direction: column;
   flex: 15;
+  gap: 2%;
   width: 100%;
+  padding: 3%;
+  display: flex;
+}
+
+.username {
+  font-size: var(--font-med);
+}
+
+.spotify_signin {
+  border: var(--border-thick);
+  border-radius: var(--corner-rad-small);
+  cursor: pointer;
+  min-width: 10%;
+  min-height: 10%;
+  box-shadow: 0 0.5% 0 var(--color-primary);
+  padding: 1%;
+  transition: transform 50ms, box-shadow 50ms;
+}
+
+.spotify_signin:active {
+  transform: translateY(4px);
+}
+
+.spotify_signout {
+  border: var(--border-thick);
+  border-radius: var(--corner-rad-small);
+  cursor: pointer;
+  min-width: 10%;
+  min-height: 10%;
+  box-shadow: 0 0.5% 0 var(--color-primary);
+  padding: 1%;
+  transition: transform 50ms, box-shadow 50ms;
+}
+
+.spotify_signout:active {
+  transform: translateY(4px);
 }
 
 /* [project]/components/main_page.css [app-client] (css) */

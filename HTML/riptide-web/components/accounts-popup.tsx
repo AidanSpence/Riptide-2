@@ -2,14 +2,36 @@
 
 import "./accounts-popup.css";
 import Image from 'next/image'
-import {} from '../lib/api'
-
+import {getCurrentUser} from '../lib/api'
+import { useEffect, useState } from "react";
+import { useAuth } from "@/components/auth-provider";
 type AccountPopupProps = {
     isActive: boolean;
     onClose: () => void;
 };
 
 export default function AccountPopup({ isActive, onClose }: AccountPopupProps) {
+
+    const { accessToken } = useAuth();
+    const [username, setUsername] = useState<string>("");
+
+    useEffect(() => {
+    if (!accessToken) return;
+
+    async function loadUsername() {
+        try {
+        const user = await getCurrentUser(accessToken!);
+        setUsername(user.username);
+        } catch (error) {
+        console.error("Failed to retrieve username:", error);
+        }
+    }
+
+    loadUsername();
+    }, [accessToken]);
+
+
+
     return (
         <div
             id="account-dialog"
@@ -32,9 +54,9 @@ export default function AccountPopup({ isActive, onClose }: AccountPopupProps) {
             </button>
         </div>
         <div className="account_info">
-            <div className="username"> </div>
-            <div className="spotify_signin"></div>
-            <div className="spotify_signout"></div>
+            <div className="username">Username: {accessToken ? username : "Not Logged in"}</div>
+            <div> <button className="spotify_signin">Sign in with Spotify</button> </div>
+            <div> <button className="spotify_signout">Sign out of Spotify</button> </div>
 
 
 
