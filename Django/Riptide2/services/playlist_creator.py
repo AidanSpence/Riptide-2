@@ -20,7 +20,6 @@ def create_playlist(ai_data, user=None, playlist_id=None):
 
     settings = ai_data.get("playlist", {})
     intent = ai_data.get("intent", {})
-    clarification = ai_data.get("clarification", {})
 
     summarised = summarise(tracks)
 
