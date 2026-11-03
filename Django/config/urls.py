@@ -16,8 +16,8 @@ urlpatterns = [
     # integrations and exports
     path("spotify/login/", views.spotify_login, name="spotify_login"),
     path("spotify/callback/", views.spotify_callback, name="spotify_callback"),
-    path("spotify/export/", views.export, name="spotify_export"),
-    path("spotify/import/<str:playlist_id>/", views.import_playlist, name="spotify_import"),
+    # path("spotify/export/", views.export, name="spotify_export"),
+    # path("spotify/import/<str:playlist_id>/", views.import_playlist, name="spotify_import"),
 
     # chats
     path("api/chats/", api.chats),

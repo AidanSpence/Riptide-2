@@ -2,7 +2,7 @@
 
 import "./accounts-popup.css";
 import Image from 'next/image'
-import {getCurrentUser} from '../lib/api'
+import {getCurrentUser, spotifyLogin} from '../lib/api'
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 type AccountPopupProps = {
@@ -51,7 +51,7 @@ export default function AccountPopup({ isActive, onClose }: AccountPopupProps) {
         </div>
         <div className="account_info">
             <div className="username">Username: {accessToken ? username : "Not Logged in"}</div>
-            <div> <button className="spotify_signin">Sign in with Spotify</button> </div>
+            <div> <button className="spotify_signin" onClick={() => spotifyLogin(accessToken!)}>Sign in with Spotify</button> </div>
             <div> <button className="spotify_signout">Sign out of Spotify</button> </div>
 
 

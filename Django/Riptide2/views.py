@@ -1,56 +1,63 @@
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseBadRequest, JsonResponse
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
+from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from .services import spotify_auth
-from .services.spotify_client import SpotifyNotLinked, create_playlist, get_playlist_tracks
 
 
-@login_required
-def export(request):
-    """Export the current playlist to Spotify."""
-    user_playlist = request.user_playlist
-    track_ids = [t["spotify_track_id"] for t in user_playlist["tracks"]]
-    try:
-        playlist = create_playlist(
-            request.user,
-            user_playlist["title"],
-            user_playlist["description"],
-            track_ids,
-        )
-    except SpotifyNotLinked:
-        return redirect("spotify_login")
-    return JsonResponse({"playlist_id": playlist["id"]})
-
-
-@login_required
-def import_playlist(request, playlist_id):
-    """Pull all tracks from a Spotify playlist."""
-    try:
-        tracks = get_playlist_tracks(request.user, playlist_id)
-    except SpotifyNotLinked:
-        return redirect("spotify_login")
-    return JsonResponse({"tracks": tracks})
-
-
-@login_required
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def spotify_login(request):
     """start spotify login."""
+
     state = spotify_auth.generate_state()
-    request.session["spotify_state"] = state
-    return redirect(spotify_auth.build_authorize_url(state))
+
+    cache.set(
+        f"spotify_oauth:{state}",
+        str(request.user.pk),
+        timeout=600
+    )
+
+    url = spotify_auth.build_authorize_url(state)
+
+    return Response({"url": url})
 
 
-@login_required
 def spotify_callback(request):
     """finish spotify login and save the account."""
+
+    state = request.GET.get("state")
+
+    if not state:
+        return HttpResponseBadRequest("Missing state.")
+
+    cache_key = f"spotify_oauth:{state}"
+    user_id = cache.get(cache_key)
+
+    if not user_id:
+        return HttpResponseBadRequest("Invalid or expired state.")
+
+    # consume the state so it cannot be reused
+    cache.delete(cache_key)
+
     if request.GET.get("error"):
         return HttpResponseBadRequest("Spotify authorization was denied.")
-    if request.GET.get("state") != request.session.pop("spotify_state", None):
-        return HttpResponseBadRequest("State mismatch.")
-    if not request.GET.get("code"):
+
+    code = request.GET.get("code")
+
+    if not code:
         return HttpResponseBadRequest("Missing authorization code.")
 
-    token_data = spotify_auth.exchange_code_for_tokens(request.GET["code"])
-    spotify_auth.link_account(request.user, token_data)
-    return redirect("home")
+    user = get_user_model().objects.get(pk=user_id)
+
+    token_data = spotify_auth.exchange_code_for_tokens(code)
+    spotify_auth.link_account(user, token_data)
+
+    return redirect(settings.FRONTEND_URL)

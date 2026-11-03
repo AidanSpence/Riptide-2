@@ -110,7 +110,7 @@ AUTH_USER_MODEL = "Riptide2.User"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
-
+FRONTEND_URL = "http://localhost:3000"
 
 # Spotify Authentication
 
