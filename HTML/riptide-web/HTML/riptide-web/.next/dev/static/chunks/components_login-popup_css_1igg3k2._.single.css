@@ -264,6 +264,10 @@
     visibility: visible;
   }
 
+  .static {
+    position: static;
+  }
+
   .container {
     width: 100%;
   }
@@ -390,10 +394,18 @@
   display: flex;
 }
 
+.left_right_container_login > form {
+  flex: 0 0 50%;
+  min-width: 0;
+  height: 100%;
+}
+
 .right_login {
   display: auto;
   background-image: radial-gradient(circle at 0 0, #3b82f6, #2f6cff, #151b2b, #0b1020);
+  flex: 0 0 50%;
   width: 100%;
+  min-width: 0;
   height: 100%;
   position: relative;
 }
@@ -608,6 +620,27 @@
 }
 
 .login_button:active {
+  transform: translateY(4px);
+}
+
+.logout_button {
+  border-radius: var(--corner-rad-small);
+  background-color: var(--color-primary);
+  border: var(--border-thick);
+  width: 50%;
+  height: 10%;
+  color: var(--color-text);
+  font-size: var(--font-med);
+  font-family: var(--font-geist-sans);
+  cursor: pointer;
+  box-shadow: 0 0.5% 0 var(--color-primary);
+  justify-content: center;
+  align-items: center;
+  transition: transform 50ms, box-shadow 50ms;
+  display: flex;
+}
+
+.logout_button:active {
   transform: translateY(4px);
 }
 

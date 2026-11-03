@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/components/accounts-popup.css"],"sourcesContent":["\r\n.account_main {\r\n    display: none;\r\n}\r\n\r\n.account_main.is_active {\r\n    display: flex;\r\n    position: fixed;\r\n    inset: 0;\r\n    flex-direction: column;\r\n    margin: auto;\r\n    width: 85vmin;\r\n    aspect-ratio: 4 / 3;\r\n    border: var(--border-thick);\r\n    border-radius: var(--corner-rad-small);\r\n    background-color: var(--color-surface);\r\n    z-index: 1000;\r\n    overflow: hidden;\r\n}\r\n\r\n/* close button */\r\n.account_close_button {\r\n    position: absolute;\r\n    top: 2%;\r\n    right: 2%;\r\n    background: transparent;\r\n    border: none;\r\n    color: var(--color-text);\r\n    font-size: 2rem;\r\n    cursor: pointer;\r\n}\r\n.title_bar{\r\n    width: 100%;\r\n}"],"names":[],"mappings":"AACA;;;;AAIA;;;;;;;;;;;;;;;AAgBA;;;;;;;;;;;AAUA"}}]
+}

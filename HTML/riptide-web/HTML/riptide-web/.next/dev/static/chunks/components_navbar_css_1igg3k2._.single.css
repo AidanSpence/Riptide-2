@@ -264,6 +264,10 @@
     visibility: visible;
   }
 
+  .static {
+    position: static;
+  }
+
   .container {
     width: 100%;
   }

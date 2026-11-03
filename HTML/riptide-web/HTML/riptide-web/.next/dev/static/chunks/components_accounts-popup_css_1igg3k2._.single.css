@@ -1,0 +1,36 @@
+/* [project]/components/accounts-popup.css [app-client] (css) */
+.account_main {
+  display: none;
+}
+
+.account_main.is_active {
+  aspect-ratio: 4 / 3;
+  border: var(--border-thick);
+  border-radius: var(--corner-rad-small);
+  background-color: var(--color-surface);
+  z-index: 1000;
+  flex-direction: column;
+  width: 85vmin;
+  margin: auto;
+  display: flex;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+.account_close_button {
+  color: var(--color-text);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  position: absolute;
+  top: 2%;
+  right: 2%;
+}
+
+.title_bar {
+  width: 100%;
+}
+
+/*# sourceMappingURL=components_accounts-popup_css_1igg3k2._.single.css.map*/
