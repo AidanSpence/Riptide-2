@@ -20,9 +20,6 @@
 
 /* close button */
 .account_close_button {
-    position: absolute;
-    top: 2%;
-    right: 2%;
     background: transparent;
     border: none;
     color: var(--color-text);
@@ -30,5 +27,16 @@
     cursor: pointer;
 }
 .title_bar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 3%;
+    padding-left: 3%;
     width: 100%;
+    flex: 1;
+    border-bottom: var(--border-thin);
+}
+.account_info{
+    width: 100%;
+    flex: 15;
 }

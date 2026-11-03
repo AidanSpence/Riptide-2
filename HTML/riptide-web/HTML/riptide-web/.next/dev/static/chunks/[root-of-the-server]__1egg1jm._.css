@@ -1672,12 +1672,21 @@ body {
   background: none;
   border: none;
   font-size: 2rem;
-  position: absolute;
-  top: 2%;
-  right: 2%;
 }
 
 .title_bar {
+  border-bottom: var(--border-thin);
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-left: 3%;
+  padding-right: 3%;
+  display: flex;
+}
+
+.account_info {
+  flex: 15;
   width: 100%;
 }
 
