@@ -105,7 +105,7 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
 
         {/* top bar */}
         <div className='title_bar'>
-            <Image className="logo_login" src="riptide-logo.svg" alt="alt" width={30} height={30} loading="eager" />
+            <Image className="logo_login" src="riptide-logo.svg" alt="alt" width={48} height={48} loading="eager" />
             <button className="close_login_button" type="button" aria-label="Close sign-in dialog" onClick={onClose}>
                 <Image className="close_login" src="close.svg" alt="" width={30} height={30} loading="eager" />
             </button>

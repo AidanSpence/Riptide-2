@@ -44,14 +44,10 @@ export default function AccountPopup({ isActive, onClose }: AccountPopupProps) {
         >
         <div className="title_bar">
             <Image src="riptide-logo.svg" alt="alt" width={48} height={48} />
-            <button
+            <Image src="close.svg" alt="" width={30} height={30} loading="eager"
                 className="account_close_button"
-                type="button"
                 onClick={onClose}
-                aria-label="Close account popup"
-            >
-                ×
-            </button>
+                aria-label="Close account popup" />
         </div>
         <div className="account_info">
             <div className="username">Username: {accessToken ? username : "Not Logged in"}</div>

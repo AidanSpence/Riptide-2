@@ -364,11 +364,6 @@
   display: flex;
 }
 
-.logo_login {
-  aspect-ratio: 1;
-  width: max-content;
-}
-
 .close_login {
   aspect-ratio: 1;
   width: 100%;

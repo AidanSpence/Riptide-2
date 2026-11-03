@@ -61,12 +61,15 @@ function AccountPopup({ isActive, onClose }) {
                         lineNumber: 46,
                         columnNumber: 13
                     }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                        src: "close.svg",
+                        alt: "",
+                        width: 30,
+                        height: 30,
+                        loading: "eager",
                         className: "account_close_button",
-                        type: "button",
                         onClick: onClose,
-                        "aria-label": "Close account popup",
-                        children: "×"
+                        "aria-label": "Close account popup"
                     }, void 0, false, {
                         fileName: "[project]/components/accounts-popup.tsx",
                         lineNumber: 47,
@@ -89,7 +92,7 @@ function AccountPopup({ isActive, onClose }) {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/accounts-popup.tsx",
-                        lineNumber: 57,
+                        lineNumber: 53,
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -100,14 +103,14 @@ function AccountPopup({ isActive, onClose }) {
                                 children: "Sign in with Spotify"
                             }, void 0, false, {
                                 fileName: "[project]/components/accounts-popup.tsx",
-                                lineNumber: 58,
+                                lineNumber: 54,
                                 columnNumber: 19
                             }, this),
                             " "
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/accounts-popup.tsx",
-                        lineNumber: 58,
+                        lineNumber: 54,
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -118,20 +121,20 @@ function AccountPopup({ isActive, onClose }) {
                                 children: "Sign out of Spotify"
                             }, void 0, false, {
                                 fileName: "[project]/components/accounts-popup.tsx",
-                                lineNumber: 59,
+                                lineNumber: 55,
                                 columnNumber: 19
                             }, this),
                             " "
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/accounts-popup.tsx",
-                        lineNumber: 59,
+                        lineNumber: 55,
                         columnNumber: 13
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/accounts-popup.tsx",
-                lineNumber: 56,
+                lineNumber: 52,
                 columnNumber: 9
             }, this)
         ]
@@ -308,8 +311,8 @@ function Login_popup({ isActive, onClose }) {
                         className: "logo_login",
                         src: "riptide-logo.svg",
                         alt: "alt",
-                        width: 30,
-                        height: 30,
+                        width: 48,
+                        height: 48,
                         loading: "eager"
                     }, void 0, false, {
                         fileName: "[project]/components/login-popup.tsx",
