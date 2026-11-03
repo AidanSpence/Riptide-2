@@ -364,19 +364,12 @@
   display: flex;
 }
 
-.close_login {
-  aspect-ratio: 1;
-  width: 100%;
-}
-
 .close_login_button {
-  aspect-ratio: 1;
   cursor: pointer;
   background: none;
   border: 0;
   justify-content: center;
   align-items: center;
-  width: max-content;
   padding: 0;
   display: flex;
 }
