@@ -31,7 +31,7 @@ Each message may contain a context block, an optional playlist block, and the us
 }
 </context>
 
-<playlist>
+(<playlist>
 [
   {
     "id": 50094,
@@ -43,6 +43,20 @@ Each message may contain a context block, an optional playlist block, and the us
 ]
 </playlist>
 
+OR
+
+<playlist>
+[
+  {
+    "title": "Roadhouse Blues",
+    "artists": "The Doors",
+    "album": "Morrison Hotel",
+    "explicit": "False",
+    "uri": "1Q5kgpp4pmyGqPwNBzkSrw"
+  }
+]
+</playlist>)
+
 <request>
 the user's text
 </request>
@@ -50,7 +64,7 @@ the user's text
 Input handling:
 
 - context is optional.
-- playlist is optional and may contain zero or more tracks.
+- playlist is optional and may contain zero or more tracks and not all tracks will include all the infomation.
 - request is the user's natural-language message.
 - previous_plan contains the previous search plan for the current playlist, or null.
 - If playlist is absent or empty, analyse only the user's request and previous_plan.
