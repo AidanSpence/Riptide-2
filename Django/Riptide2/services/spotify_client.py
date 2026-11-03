@@ -29,8 +29,7 @@ def get_spotify(user) -> spotipy.Spotify:
 
 def parse_track(track: dict) -> dict:
     return {
-        "spotify_track_id": track.get("id"),
-        "uri": track.get("uri"),
+        "spotify_track_id": track.get("uri"),
         "name": track.get("name"),
         "artist": ", ".join(a["name"] for a in track.get("artists", [])),
         "album": (track.get("album") or {}).get("name"),
@@ -54,18 +53,3 @@ def get_playlist_tracks(user, playlist_id: str) -> list[dict]:
         if track and track.get("id"):
             tracks.append(parse_track(track))
     return tracks
-
-
-def create_playlist(user, name: str, description: str, track_ids: list[str]) -> dict:
-    """Create a private playlist and add tracks (max 100 per request)."""
-    sp = get_spotify(user)
-    playlist = sp.user_playlist_create(
-        user=sp.current_user()["id"],
-        name=name,
-        public=False,
-        description=description,
-    )
-    uris = [f"spotify:track:{tid}" for tid in track_ids]
-    for i in range(0, len(uris), 100):
-        sp.playlist_add_items(playlist["id"], uris[i:i + 100])
-    return playlist

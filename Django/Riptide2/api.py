@@ -175,7 +175,7 @@ def chat(request):
     from .services.ai_response import generate_ai_response
 
     try:
-        result = generate_ai_response(messages, user=user, playlist_id=playlist_id)
+        result = generate_ai_response(messages, user=user, playlist_id=playlist_id, spotify_playlist_id=None)
     except Playlist.DoesNotExist:
         raise NotFound("Playlist not found")
     except Exception:

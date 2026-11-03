@@ -132,34 +132,6 @@ class PlaylistSong(models.Model):
 
 
 # ---------------------------------------------------------------------
-# External Accounts / Integrations
-# ---------------------------------------------------------------------
-
-class LinkedAccount(models.Model):
-    """A user's account on another service."""
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    provider = models.TextField()
-    provider_user_id = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = "linked_accounts"
-        constraints = [
-            models.UniqueConstraint(fields=["user", "provider"], name="uniq_user_provider"),
-            models.UniqueConstraint(fields=["provider", "provider_user_id"], name="uniq_provider_account"),
-        ]
-
-
-class SpotifyAccount(models.Model):
-    """A user's Spotify login details."""
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    spotify_user_id = models.CharField(max_length=100)
-    access_token = models.TextField()
-    refresh_token = models.TextField()
-    expires_at = models.DateTimeField()
-
-
-# ---------------------------------------------------------------------
 # Chat
 # ---------------------------------------------------------------------
 

@@ -31,31 +31,10 @@ Each message may contain a context block, an optional playlist block, and the us
 }
 </context>
 
-(<playlist>
-[
-  {
-    "id": 50094,
-    "title": "Roadhouse Blues",
-    "artists": "The Doors",
-    "duration_s": 243,
-    "spotify_track_id": "1Q5kgpp4pmyGqPwNBzkSrw"
-  }
-]
-</playlist>
-
-OR
-
 <playlist>
-[
-  {
-    "title": "Roadhouse Blues",
-    "artists": "The Doors",
-    "album": "Morrison Hotel",
-    "explicit": "False",
-    "uri": "1Q5kgpp4pmyGqPwNBzkSrw"
-  }
-]
-</playlist>)
+[The user's existing Spotify playlist, for reference:]
+1. Roadhouse Blues - The Doors | album: album | explicit: yes | duration_ms: 201 | id: 1Q5kgpp4pmyGqPwNBzkSrw
+</playlist>
 
 <request>
 the user's text
