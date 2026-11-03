@@ -15,6 +15,8 @@ NORMALISED_FEATURES = {
 
 RAW_FEATURES = {"bpm", "loudness_db"}
 
+STEADY_TOLERANCES = (0.05, 0.08, 0.12, 0.20)
+
 
 def to_db_scale(feature: str, value: float) -> float:
     """convert AI values to database style"""
@@ -162,7 +164,6 @@ def song_artists(song: dict) -> set[str]:
 def song_genres(song: dict) -> set[str]:
     return normalise_names(song.get("genres"))
 
-
 def matches_hard_constraints(song: dict, constraints: dict) -> bool:
     """apply checks before selection"""
 
@@ -227,6 +228,36 @@ def score_song(song: dict, audio_features: dict, playlist_settings: dict) -> flo
 
     return match_score
 
+def apply_steady_tempo(scored, audio_features, track_count):
+    """Keep only songs close to one BPM. `scored` is sorted best-first."""
+    pref = audio_features.get("bpm")
+    ref = number(pref.get("target")) if isinstance(pref, dict) else None
+
+    if ref is None:
+        top = [number(s.get("bpm")) for _, _, s in scored[:max(track_count * 2, 20)]]
+        top = sorted(b for b in top if b is not None)
+        if not top:
+            return scored
+        ref = top[len(top) // 2]
+
+    # start strict widen until there are enough songs to choose from
+    needed = int(track_count * 1.5)
+    kept = []
+    for tol in STEADY_TOLERANCES:
+        kept = [
+            item for item in scored
+            if (b := number(item[2].get("bpm"))) is not None
+            and abs(b - ref) <= ref * tol
+        ]
+        if len(kept) >= needed:
+            return kept
+
+    return kept if len(kept) >= track_count // 2 else scored
+
+def energy_of(s):
+    e = number(s.get("energy"))
+    return e if e is not None else -1
+
 def energy_progression(playlist_settings: dict) -> str:
     value = playlist_settings.get("energy_progression", "none")
 
@@ -240,17 +271,15 @@ def energy_progression(playlist_settings: dict) -> str:
 
     aliases = {
         "build": "ascending",
-        "build_up": "ascending",
-        "increase": "ascending",
+        "steady": "steady",
         "wind_down": "descending",
-        "decrease": "descending",
-        "random": "none",
-        "flat": "none",
+        "arc": "arc",
+        "none": "none",
     }
 
     value = aliases.get(value, value)
 
-    if value in {"ascending", "descending", "none"}:
+    if value in {"ascending", "descending", "arc", "none"}:
         return value
 
     return "none"
@@ -307,6 +336,11 @@ def build_playlist(candidates: list[dict], ai_data: dict, *, seed: int | None = 
     # Highest scoring candidates first, seeded randomness breaks any ties
     scored_candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
 
+    if "steady_tempo" in (constraints.get("required_features") or []):
+        scored_candidates = apply_steady_tempo(
+            scored_candidates, audio_features, track_count
+        )
+
     selected = []
     artist_counts = {}
 
@@ -327,12 +361,12 @@ def build_playlist(candidates: list[dict], ai_data: dict, *, seed: int | None = 
 
     progression = energy_progression(settings)
 
-    if progression in {"ascending", "descending"}:
-        selected.sort(key=lambda song: (
-            number(song.get("energy"))
-            if number(song.get("energy")) is not None
-            else -1
-        ),
-        reverse=(progression == "descending"),)
+    if progression == "ascending":
+        selected.sort(key=energy_of)
+    elif progression == "descending":
+        selected.sort(key=energy_of, reverse=True)
+    elif progression == "arc":
+        ordered = sorted(selected, key=energy_of)
+        selected = ordered[0::2] + ordered[1::2][::-1]   # rise, then fall
 
     return selected

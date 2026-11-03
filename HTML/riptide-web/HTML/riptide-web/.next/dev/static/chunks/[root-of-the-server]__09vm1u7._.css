@@ -397,6 +397,10 @@
     visibility: visible;
   }
 
+  .static {
+    position: static;
+  }
+
   .container {
     width: 100%;
   }
@@ -782,6 +786,10 @@ body {
 @layer utilities {
   .visible {
     visibility: visible;
+  }
+
+  .static {
+    position: static;
   }
 
   .container {
@@ -1218,6 +1226,10 @@ body {
     visibility: visible;
   }
 
+  .static {
+    position: static;
+  }
+
   .container {
     width: 100%;
   }
@@ -1344,10 +1356,18 @@ body {
   display: flex;
 }
 
+.left_right_container_login > form {
+  flex: 0 0 50%;
+  min-width: 0;
+  height: 100%;
+}
+
 .right_login {
   display: auto;
   background-image: radial-gradient(circle at 0 0, #3b82f6, #2f6cff, #151b2b, #0b1020);
+  flex: 0 0 50%;
   width: 100%;
+  min-width: 0;
   height: 100%;
   position: relative;
 }
@@ -1565,6 +1585,27 @@ body {
   transform: translateY(4px);
 }
 
+.logout_button {
+  border-radius: var(--corner-rad-small);
+  background-color: var(--color-primary);
+  border: var(--border-thick);
+  width: 50%;
+  height: 10%;
+  color: var(--color-text);
+  font-size: var(--font-med);
+  font-family: var(--font-geist-sans);
+  cursor: pointer;
+  box-shadow: 0 0.5% 0 var(--color-primary);
+  justify-content: center;
+  align-items: center;
+  transition: transform 50ms, box-shadow 50ms;
+  display: flex;
+}
+
+.logout_button:active {
+  transform: translateY(4px);
+}
+
 .register_submit_button {
   border-radius: var(--corner-rad-small);
   background-color: var(--color-primary);
@@ -1693,6 +1734,13 @@ body {
 
 .left_chat_title {
   font-size: var(--font-med);
+  padding: 1%;
+}
+
+.new_chat_button {
+  border: var(--border-thick);
+  border-radius: var(--corner-rad-small);
+  margin-bottom: 3%;
   padding: 1%;
 }
 
@@ -2005,9 +2053,43 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: none;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2%;
   padding: 2%;
   font-weight: bold;
+  display: flex;
   overflow: hidden;
+}
+
+.right_playlist_title_text {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.right_playlist_delete_button {
+  font-size: var(--font-xsml);
+  border: var(--border-thin);
+  border-radius: var(--corner-rad-small);
+  color: var(--color-text);
+  cursor: pointer;
+  flex: none;
+  padding: 1% 2%;
+}
+
+.right_playlist_delete_button:disabled {
+  cursor: not-allowed;
+  opacity: .6;
+}
+
+.right_playlist_status {
+  font-size: var(--font-xsml);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+  padding: 2%;
 }
 
 .right_playlist_song_list {

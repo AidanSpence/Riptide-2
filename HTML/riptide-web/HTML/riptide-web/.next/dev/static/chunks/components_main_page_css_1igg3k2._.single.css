@@ -89,6 +89,13 @@
   padding: 1%;
 }
 
+.new_chat_button {
+  border: var(--border-thick);
+  border-radius: var(--corner-rad-small);
+  margin-bottom: 3%;
+  padding: 1%;
+}
+
 .left_chat_box_scrolling {
   scrollbar-width: none;
   flex-direction: column;
@@ -398,9 +405,43 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: none;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2%;
   padding: 2%;
   font-weight: bold;
+  display: flex;
   overflow: hidden;
+}
+
+.right_playlist_title_text {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.right_playlist_delete_button {
+  font-size: var(--font-xsml);
+  border: var(--border-thin);
+  border-radius: var(--corner-rad-small);
+  color: var(--color-text);
+  cursor: pointer;
+  flex: none;
+  padding: 1% 2%;
+}
+
+.right_playlist_delete_button:disabled {
+  cursor: not-allowed;
+  opacity: .6;
+}
+
+.right_playlist_status {
+  font-size: var(--font-xsml);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+  padding: 2%;
 }
 
 .right_playlist_song_list {

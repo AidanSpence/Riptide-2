@@ -78,7 +78,16 @@
   aspect-ratio: 1;
   border: var(--border-thin);
   border-radius: var(--corner-rad-small);
+  cursor: pointer;
+  box-shadow: 0 0.5% 0 var(--color-primary);
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
 }
+
+.nav_settings:active{
+  transform: translateY(4px);
+}
+
+
 .settings_img{
   display: flex;
   justify-self: center;
@@ -94,11 +103,11 @@
   display: flex;
   width: 6.36%;
   aspect-ratio: 1;
-    /* button */
-    cursor: pointer;
-    box-shadow: 0 0.5% 0 var(--color-primary);
-    transition: transform 0.05s ease, box-shadow 0.05s ease;
-  }
+  /* button */
+  cursor: pointer;
+  box-shadow: 0 0.5% 0 var(--color-primary);
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
 
 .button_border:active{
   transform: translateY(4px);
@@ -121,7 +130,7 @@
 
   /* bg */
   background: var(--color-primary);
-
+  cursor: pointer;
 }
 
 

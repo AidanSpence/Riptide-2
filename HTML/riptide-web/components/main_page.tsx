@@ -82,10 +82,10 @@ export default function MainPage() {
         return `${action}: HTTP 404. Check that the Django chat endpoints exist.`;
       }
       return `${action}: HTTP ${error.status} - ${error.message}`;
-    }
-    if (error instanceof TypeError) {
-      return `${action}: Cannot contact Django. Check the API URL, server and CORS settings.`;
-    }
+      }
+      if (error instanceof TypeError) {
+        return `${action}: Cannot contact Django. Check the API URL, server and CORS settings.`;
+      }
     return `${action}: ${error instanceof Error ? error.message : "Unknown error"}`;
   }
 
@@ -450,8 +450,7 @@ export default function MainPage() {
           <div className="center_playlist_privacy_title">Private</div>
         </div>
         <div className="center_chats_container">
-                
-                
+
           {/* Create all boxes for chatting here in the container center_chats_container.
           center_box_sizing_user - (message is from the user)
           center_box_sizing_system - (message is from the system)

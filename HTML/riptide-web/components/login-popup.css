@@ -49,17 +49,8 @@
     flex: 1;
 }
 
-.logo_login{
-    width: max-content;
-    aspect-ratio: 1;
-}
-.close_login{
-    width: 100%;
-    aspect-ratio: 1;
-}
+
 .close_login_button{
-    width: max-content;
-    aspect-ratio: 1;
     display: flex;
     align-items: center;
     justify-content: center;

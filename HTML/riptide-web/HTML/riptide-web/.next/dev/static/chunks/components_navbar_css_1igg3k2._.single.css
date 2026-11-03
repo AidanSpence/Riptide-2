@@ -264,6 +264,10 @@
     visibility: visible;
   }
 
+  .static {
+    position: static;
+  }
+
   .container {
     width: 100%;
   }
@@ -387,10 +391,17 @@
   aspect-ratio: 1;
   border: var(--border-thin);
   border-radius: var(--corner-rad-small);
+  cursor: pointer;
+  width: 6.36%;
+  box-shadow: 0 0.5% 0 var(--color-primary);
   justify-content: center;
   align-items: center;
-  width: 6.36%;
+  transition: transform 50ms, box-shadow 50ms;
   display: flex;
+}
+
+.nav_settings:active {
+  transform: translateY(4px);
 }
 
 .settings_img {
@@ -420,6 +431,7 @@
   color: var(--color-text);
   border-radius: var(--corner-rad-small);
   background: var(--color-primary);
+  cursor: pointer;
   display: flex;
 }
 

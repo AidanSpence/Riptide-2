@@ -81,6 +81,17 @@ class ReleaseYearsSerializer(serializers.Serializer):
     max = NullableInt(min_value=1000, max_value=2200)
 
 
+class MusicalFiltersSerializer(serializers.Serializer):
+    mode = serializers.ChoiceField(
+        choices=["major", "minor"], required=False, allow_null=True)
+    time_signature = NullableInt(min_value=1, max_value=7)
+    camelot_keys = string_list()
+
+
+class ClusterSearchSerializer(serializers.Serializer):
+    candidate_pool_size = NullableInt(min_value=100, max_value=300)
+
+
 class SearchSerializer(serializers.Serializer):
     audio_features = AudioFeaturesSerializer(required=False, default=dict)
     genres = string_list()
@@ -89,6 +100,8 @@ class SearchSerializer(serializers.Serializer):
     reference_tracks = string_list()
     popularity = PopularitySerializer(required=False, default=dict)
     release_years = ReleaseYearsSerializer(required=False, default=dict)
+    musical_filters = MusicalFiltersSerializer(required=False, default=dict)
+    cluster_search = ClusterSearchSerializer(required=False, default=dict)
 
 
 # ---------------------------------------------------------------------
@@ -96,11 +109,7 @@ class SearchSerializer(serializers.Serializer):
 # ---------------------------------------------------------------------
 class ConstraintsSerializer(serializers.Serializer):
     # allowed unless the AI explicitly sends false
-    explicit_content = serializers.BooleanField(
-        required=False,
-        default=True,
-        allow_null=True,
-    )
+    explicit_content = serializers.BooleanField( required=False, default=True, allow_null=True,)
     excluded_genres = string_list()
     language = string_list()
     required_features = string_list()
@@ -109,31 +118,20 @@ class ConstraintsSerializer(serializers.Serializer):
 
 class PlaylistSerializer(serializers.Serializer):
     track_count = NullableInt(default=30, min_value=1, max_value=100)
-    strategy = serializers.CharField(
-        required=False, allow_null=True, allow_blank=True
-    )
+    strategy = serializers.CharField( required=False, allow_null=True, allow_blank=True)
     diversity = NullableFloat(min_value=0, max_value=1)
     discovery = NullableFloat(min_value=0, max_value=1)
-    # free text: "none", "ascending", "build", "steady", ...
-    # playlist_builder.energy_progression() normalises it
-    energy_progression = serializers.CharField(
-        required=False, allow_null=True, allow_blank=True
-    )
+    energy_progression = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     artist_repetition_limit = NullableInt(default=2, min_value=1)
-    harmonic_compatibility = serializers.BooleanField(
-        required=False, allow_null=True
-    )
-    title = serializers.CharField(
-        required=False, allow_null=True, allow_blank=True, max_length=100
-    )
-    message = serializers.CharField(
-        required=False, allow_null=True, allow_blank=True
-    )
-    chat_title = serializers.CharField(
-        required=False, allow_null=True, allow_blank=True
-    )
+    harmonic_compatibility = serializers.BooleanField(required=False, allow_null=True)
+    title = serializers.CharField(required=False, allow_null=True, allow_blank=True, max_length=100)
+    message = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    chat_title = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
 
+# ---------------------------------------------------------------------
+# Run
+# ---------------------------------------------------------------------
 class RecommendationRequestSerializer(serializers.Serializer):
     intent = serializers.DictField(required=False, default=dict)
     search = SearchSerializer()

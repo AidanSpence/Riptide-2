@@ -1,25 +1,36 @@
-import spotipy as sp
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect
 
 from .services import spotify_auth
+from .services.spotify_client import SpotifyNotLinked, create_playlist, get_playlist_tracks
 
 
 @login_required
 def export(request):
-    """export the current playlist to spotify."""
-    # this uses the playlist and spotify client attached to the request
+    """Export the current playlist to Spotify."""
     user_playlist = request.user_playlist
-    track_ids = [track["spotify_track_id"] for track in user_playlist["tracks"]]
-    track_uris = ["spotify:track:" + track_id for track_id in track_ids]
-    playlist = sp.user_playlist_create(
-        user=sp.current_user()["id"],
-        name=user_playlist["title"],
-        public=False,
-        description=user_playlist["description"],
-    )
-    sp.playlist_add_items(playlist_id=playlist["id"], items=track_uris)
+    track_ids = [t["spotify_track_id"] for t in user_playlist["tracks"]]
+    try:
+        playlist = create_playlist(
+            request.user,
+            user_playlist["title"],
+            user_playlist["description"],
+            track_ids,
+        )
+    except SpotifyNotLinked:
+        return redirect("spotify_login")
+    return JsonResponse({"playlist_id": playlist["id"]})
+
+
+@login_required
+def import_playlist(request, playlist_id):
+    """Pull all tracks from a Spotify playlist."""
+    try:
+        tracks = get_playlist_tracks(request.user, playlist_id)
+    except SpotifyNotLinked:
+        return redirect("spotify_login")
+    return JsonResponse({"tracks": tracks})
 
 
 @login_required
