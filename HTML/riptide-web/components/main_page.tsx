@@ -7,6 +7,7 @@ import Image from 'next/image'
 import {
   listChats,
   createChat,
+  deleteChat,
   getChat,
   sendChatMessage,
   listPlaylists,
@@ -232,7 +233,28 @@ export default function MainPage() {
     // console.log(inputText)
     // console.log(sender)
   };
+  async function handleDeleteChat(chatId: number) {
+    if (!accessToken) return;
 
+    try {
+      await deleteChat(accessToken, chatId);
+
+      // remove deleted chat from the sidebar
+      setChats(previous =>
+        previous.filter(chat => chat.id !== chatId)
+      );
+
+      // clear the current chat if it was deleted
+      if (currentChatId === chatId) {
+        setCurrentChatId(null);
+        setMessageText([]);
+        setSendLimit(false);
+      }
+
+    } catch (error) {
+      console.error("Failed to delete chat:", error);
+    }
+  }
   async function saveChatInput(){
     const text = tempMessageText.trim();
     if (!text) return;
@@ -449,7 +471,7 @@ export default function MainPage() {
 
           <div className="center_playlist_privacy_title">Private</div>
           <div className="delete_chat_button_box" title="Delete current chat">
-            <button className="delete_chat_button">
+            <button className="delete_chat_button" onClick={() => {if(currentChatId !== null){handleDeleteChat(currentChatId)}} }>
               <Image src="close.svg" alt="alt" width={30} height={30}/>
             </button>
           </div>

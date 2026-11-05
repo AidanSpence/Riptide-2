@@ -183,6 +183,20 @@ export async function listChats(accessToken: string) {
   return { chats };
 }
 
+// Delete a conversation
+export async function deleteChat(
+  accessToken: string,
+  chatId: number
+): Promise<void> {
+  await authRequest<void>(
+    `/api/chats/${chatId}/`,
+    accessToken,
+    {
+      method: "DELETE"
+    }
+  );
+}
+
 
 // Create a conversation
 export async function createChat(
