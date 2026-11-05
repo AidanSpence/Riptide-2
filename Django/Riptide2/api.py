@@ -1,4 +1,5 @@
 import json
+import traceback
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
@@ -94,6 +95,7 @@ def me(request):
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 def chats(request):
+    print("adswreaturertuakr")
     """list chats or create a new chat."""
     if request.method == "GET":
         user_chats = UserChat.objects.filter(user=request.user).order_by("-created_at", "-id")
@@ -144,43 +146,25 @@ def chat_send_message(request, chat_id):
             text=serializer.validated_data["text"],
         )
 
-    return Response({
-        "message": ChatMessageSerializer(message).data,
-        "remaining_messages": MESSAGE_LIMIT - count - 1,
-    }, status=status.HTTP_201_CREATED)
-
-# ---------------------------------------------------------------------
-# Streamed ai response
-# ---------------------------------------------------------------------
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def chat(request):
-    """stream a provider response as server sent events."""
-    if request.method != "POST":
-        return JsonResponse({"error": "POST only"}, status=405)
-
-    try:
-        data = json.loads(request.body)
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
-
-    messages = data.get("messages", [])
-    if not isinstance(messages, list):
-        return JsonResponse({"error": "messages must be a list"}, status=400)
-
-    # guests can generate but not save
-    user = request.user if request.user.is_authenticated else None
-    playlist_id = request.data.get("playlist_id") if user else None
+    history = [
+        {"role": "user" if m.sender == ChatMessage.Sender.USER else "assistant",
+         "content": m.text}
+        for m in chat.messages.order_by("created_at", "id")
+    ]
 
     from .services.ai_response import generate_ai_response
 
+    playlist = None
     try:
-        result = generate_ai_response(messages, user=user, playlist_id=playlist_id, spotify_playlist_id=None)
-    except Playlist.DoesNotExist:
-        raise NotFound("Playlist not found")
+        playlist = generate_ai_response(
+            history, user=request.user, playlist_id=None, spotify_playlist_id=None
+        )
     except Exception:
-        raise Response({"error": "Could not generate a playlist"}, status=502)
+        traceback.print_exc()
+        # still return the saved message so the UI doesn't lose it
 
-    return Response(result)
-
-
+    return Response({
+        "message": ChatMessageSerializer(message).data,
+        "remaining_messages": MESSAGE_LIMIT - count - 1,
+        **({"playlist": playlist} if playlist else {}),
+    }, status=status.HTTP_201_CREATED)
