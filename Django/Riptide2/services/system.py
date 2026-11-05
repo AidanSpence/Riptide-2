@@ -177,7 +177,7 @@ Do not add a new output field for this relationship. Express its effects through
 "energy_progression": "none",
 "artist_repetition_limit": 2,
 "harmonic_compatibility": false,
-"name": "playlist name (be creative)",
+"name": "playlist name",
 "message": "a message to output about the playlist",
 "chat_name": "a short name of the chat that relates to the content of the playlist"
 },

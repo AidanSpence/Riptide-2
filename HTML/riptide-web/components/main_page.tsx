@@ -295,6 +295,8 @@ export default function MainPage() {
       const result = await sendChatMessage(token, chatId, text);
       if (activeTokenRef.current !== token) return;
 
+      console.log(result)
+
       // append django's accepted message (with its database id)
       setMessageText(previous => [...previous, toClientMessage(result.message)]);
 
@@ -310,7 +312,6 @@ export default function MainPage() {
             ...previous.filter(item => item.id !== newPlaylist.id)
           ]);
         } else {
-          console.log(result)
           setPlaylistError("Django returned a playlist in an unexpected format.");
         }
       }
