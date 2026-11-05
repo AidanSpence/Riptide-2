@@ -255,87 +255,114 @@ export default function MainPage() {
       console.error("Failed to delete chat:", error);
     }
   }
-  async function saveChatInput(){
-    const text = tempMessageText.trim();
-    if (!text) return;
+async function saveChatInput() {
+  const text = tempMessageText.trim();
+  if (!text) return;
 
-    // let the user know why the message wasn't sent rather than doing nothing
-    if (!accessToken) {
-      setChatError("Log in using the profile button before sending a message.");
-      return;
-    }
-    // django handles the real send limit; the state here locks the button
-    if (sendLimit) {
-      setLimitMessage();
-      return;
-    }
-    if (isSending || isLoadingChat || requestPendingRef.current) return;
+  // let the user know why the message wasn't sent rather than doing nothing
+  if (!accessToken) {
+    setChatError("Log in using the profile button before sending a message.");
+    return;
+  }
 
-    // prevents duplicate submissions while react is updating its state
-    requestPendingRef.current = true;
-    const token = accessToken;
-    setIsSending(true);
-    setChatError("");
+  // django handles the real send limit; the state here locks the button
+  if (sendLimit) {
+    setLimitMessage();
+    return;
+  }
 
-    try {
-      let chatId = currentChatId;
+  if (isSending || isLoadingChat || requestPendingRef.current) return;
 
-      // first message: create the conversation automatically if none is selected
-      if (chatId === null) {
-        const chat = await createChat(token);
-        if (activeTokenRef.current !== token) return;
+  // prevents duplicate submissions while react is updating its state
+  requestPendingRef.current = true;
+  const token = accessToken;
+  setIsSending(true);
+  setChatError("");
 
-        chatId = chat.id;
-        setChats(previous => [chat, ...previous]);
-        setCurrentChatId(chat.id);
-        setMessageText([]);
-      }
+  try {
+    let chatId = currentChatId;
 
-      // send just the new message to django instead of the full array
-      const result = await sendChatMessage(token, chatId, text);
+    // first message: create the conversation automatically if none is selected
+    if (chatId === null) {
+      const chat = await createChat(token);
       if (activeTokenRef.current !== token) return;
 
-      console.log(result)
+      chatId = chat.id;
+      setChats(previous => [chat, ...previous]);
+      setCurrentChatId(chat.id);
+      setMessageText([]);
+    }
 
-      // append django's accepted message (with its database id)
-      setMessageText(previous => [...previous, toClientMessage(result.message)]);
+    // send just the new message to django instead of the full array
+    const result = await sendChatMessage(token, chatId, text);
+    if (activeTokenRef.current !== token) return;
 
-      // Django can optionally include a new playlist alongside the chat reply
-      if (result.playlist) {
-        if (isPlaylistData(result.playlist)) {
-          const newPlaylist: PlaylistData = {
-            ...result.playlist,
-            id: result.playlist.id ?? nextLocalPlaylistId.current--
-          };
-          setPlaylists(previous => [
-            newPlaylist,
-            ...previous.filter(item => item.id !== newPlaylist.id)
-          ]);
-        } else {
-          setPlaylistError("Django returned a playlist in an unexpected format.");
-        }
-      }
+    console.log(result);
 
-      setTempMessageText("");
-      setSendLimit(result.remaining_messages === 0);
-      if (result.remaining_messages === 0) {
-        setChatError("Send limit reached, create a new chat to continue");
-      }
-    } catch (error) {
-      if (activeTokenRef.current !== token) return;
-      console.error("Failed to send message:", error);
-      if (error instanceof ChatApiError && error.status === 429) {
-        setLimitMessage();
-      } else if (error instanceof ChatApiError && error.status === 401) {
-        logout();
+    // append django's accepted user message
+    const newMessages: message[] = [
+      toClientMessage(result.message)
+    ];
+
+    // append the system message if django returned one with the playlist
+    if (result.playlist?.message) {
+      const temp_sys_msg: message = {
+        text: result.playlist.message,
+        id: crypto.randomUUID(),
+        sender: "system"
+      };
+
+      newMessages.push(temp_sys_msg);
+    }
+
+    // update the message array once
+    setMessageText(previous => [...previous, ...newMessages]);
+
+    // django can optionally include a new playlist alongside the chat reply
+    if (result.playlist) {
+      if (isPlaylistData(result.playlist)) {
+        const newPlaylist: PlaylistData = {
+          ...result.playlist,
+          id: result.playlist.id ?? nextLocalPlaylistId.current--
+        };
+
+        setPlaylists(previous => [
+          newPlaylist,
+          ...previous.filter(item => item.id !== newPlaylist.id)
+        ]);
       } else {
-        setChatError(describeChatError(error, "Failed to send message"));
+        setPlaylistError("Django returned a playlist in an unexpected format.");
       }
-    } finally {
-      requestPendingRef.current = false;
-      if (activeTokenRef.current === token) setIsSending(false);
+    }
+
+    setTempMessageText("");
+    setSendLimit(result.remaining_messages === 0);
+
+    if (result.remaining_messages === 0) {
+      setChatError("Send limit reached, create a new chat to continue");
+    }
+
+  } catch (error) {
+    if (activeTokenRef.current !== token) return;
+
+    console.error("Failed to send message:", error);
+
+    if (error instanceof ChatApiError && error.status === 429) {
+      setLimitMessage();
+    } else if (error instanceof ChatApiError && error.status === 401) {
+      logout();
+    } else {
+      setChatError(describeChatError(error, "Failed to send message"));
+    }
+
+  } finally {
+    requestPendingRef.current = false;
+
+    if (activeTokenRef.current === token) {
+      setIsSending(false);
     }
   }
+}
 
   async function startNewChat() {
     if (!accessToken || isSending || isLoadingChat) return;
