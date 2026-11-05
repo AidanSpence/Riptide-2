@@ -132,6 +132,18 @@ class PlaylistSong(models.Model):
 
 
 # ---------------------------------------------------------------------
+# Accounts
+# ---------------------------------------------------------------------
+
+class SpotifyAccount(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    spotify_user_id = models.CharField(max_length=100)
+    access_token = models.TextField()
+    refresh_token = models.TextField()
+    expires_at = models.DateTimeField()
+
+
+# ---------------------------------------------------------------------
 # Chat
 # ---------------------------------------------------------------------
 

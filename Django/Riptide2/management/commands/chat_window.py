@@ -52,5 +52,5 @@ class Command(BaseCommand):
             if clarify:
                 print(question)
             else:
-                print(create_playlist(ai_data=ai_msg))
+                print(create_playlist(ai_data=ai_msg, user=None, playlist_id=None))
 
