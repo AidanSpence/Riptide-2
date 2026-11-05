@@ -251,6 +251,15 @@
   padding: .2rem .4rem;
 }
 
+.delete_chat_button_box {
+  margin-left: auto;
+  padding: 3%;
+}
+
+.delete_chat_button {
+  cursor: pointer;
+}
+
 .center_chats_container {
   scrollbar-width: none;
   flex-direction: column;

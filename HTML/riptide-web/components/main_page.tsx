@@ -449,6 +449,11 @@ export default function MainPage() {
           </div>
 
           <div className="center_playlist_privacy_title">Private</div>
+          <div className="delete_chat_button_box" title="Delete current chat">
+            <button className="delete_chat_button">
+              <Image src="close.svg" alt="alt" width={30} height={30}/>
+            </button>
+          </div>
         </div>
         <div className="center_chats_container">
 
