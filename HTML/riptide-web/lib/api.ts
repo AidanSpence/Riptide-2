@@ -51,7 +51,7 @@ export type PlaylistData = {
 export type SendMessageResponse = {
   message: ChatMessageData;
   remaining_messages: number;
-  playlist?: PlaylistData;
+  playlist: PlaylistData;
 };
 
 
