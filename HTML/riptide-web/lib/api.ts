@@ -1,5 +1,5 @@
 // used by the static frontend at build time; localhost remains the dev fallback
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:9000';
+const API_URL = 'http://127.0.0.1:9000';
 const LOGIN_ENDPOINT = '/api/login/'
 const REGISTER_ENDPOINT = '/api/signup/'
 
@@ -42,9 +42,9 @@ export type PlaylistTrackData = {
 export type PlaylistData = {
   // optional for a generated playlist that has not been saved to postgres yet
   id?: number;
-  title: string;
-  message?: string;
-  description?: string;
+  message: string,
+  chat_name : string,
+  name:string,
   tracks: PlaylistTrackData[];
 };
 
@@ -95,7 +95,7 @@ export function isPlaylistData(value: unknown): value is PlaylistData {
   if (!value || typeof value !== "object") return false;
   const playlist = value as Partial<PlaylistData>;
   return (playlist.id === undefined || (typeof playlist.id === "number" && Number.isInteger(playlist.id))) &&
-    typeof playlist.title === "string" &&
+    typeof playlist.name === "string" &&
     Array.isArray(playlist.tracks) &&
     playlist.tracks.every(track =>
       !!track && typeof track === "object" &&

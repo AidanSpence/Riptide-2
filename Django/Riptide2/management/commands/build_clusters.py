@@ -2,8 +2,7 @@ import numpy as np
 import psycopg
 from django.core.management.base import BaseCommand
 from sklearn.cluster import KMeans
-
-from Django.Riptide2.services.file_cleaning import django_dsn
+from Riptide2.services.file_cleaning import django_dsn
 
 class Command(BaseCommand):
     help =  "Run k-means on music.songs.features and fill music clusters / songs.clusters_id" # Visible with 'python manage.py help <command>'

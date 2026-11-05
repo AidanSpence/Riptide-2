@@ -188,7 +188,7 @@ export default function MainPage() {
   // remove the playlist from the UI, and from Django if it was saved there
   async function removePlaylist(playlist: PlaylistData) {
     if (deletingPlaylistId !== null) return;
-    if (!window.confirm(`Delete playlist "${playlist.title}"?`)) return;
+    if (!window.confirm(`Delete playlist "${playlist.name}"?`)) return;
 
     const playlistId = playlist.id;
     if (playlistId === undefined) return;
@@ -288,6 +288,7 @@ export default function MainPage() {
             ...previous.filter(item => item.id !== newPlaylist.id)
           ]);
         } else {
+          console.log(result)
           setPlaylistError("Django returned a playlist in an unexpected format.");
         }
       }
@@ -583,15 +584,15 @@ all elements can be of any type or length including blank but preferably have co
       {playlists.map(playlist => (
         <div className="right_playlist_layout" key={playlist.id}>
           <div className="right_playlist_title_box">
-            <span className="right_playlist_title_text" title={playlist.title}>
-              {playlist.title}
+            <span className="right_playlist_title_text" title={playlist.name}>
+              {playlist.name}
             </span>
             <button
               className="right_playlist_delete_button"
               type="button"
               onClick={() => void removePlaylist(playlist)}
               disabled={deletingPlaylistId !== null}
-              aria-label={`Delete playlist ${playlist.title}`}
+              aria-label={`Delete playlist ${playlist.name}`}
             >
               {deletingPlaylistId === playlist.id ? "Deleting..." : "Delete"}
             </button>

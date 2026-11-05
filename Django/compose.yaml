@@ -24,6 +24,9 @@ services:
       - "127.0.0.1:9000:8000"
     volumes:
       - .:/app
+    env_file:
+      .env
+      .env.spotify
     environment:
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
@@ -32,6 +35,8 @@ services:
       DB_PORT: "5432"
       DJANGO_DEBUG: "1"
       OLLAMA_URL: http://host.docker.internal:11434/api/chat
+      SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET}
+      SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID}
     depends_on:
       db:
         condition: service_healthy
