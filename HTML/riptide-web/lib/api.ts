@@ -160,8 +160,8 @@ async function authRequest<T>(
     throw new ChatApiError(response.status, message);
   }
 
-  if (data === null) {
-    throw new Error("API returned no valid JSON");
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   return data as T;

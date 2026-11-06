@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 from .services import spotify_auth
 from .models import Playlist, PlaylistSong
-from .services.spotify_client import SpotifyNotLinked, export_playlist
+from .services.spotify_client import SpotifyNotLinked, export_playlist, get_spotify
 
 
 @api_view(["GET"])
@@ -113,3 +113,37 @@ def export(request, playlist_id):
     playlist.save(update_fields=["spotify_playlist_id", "spotify_url", "updated_at"])
 
     return Response(result, status=status.HTTP_201_CREATED)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def spotify_playlists(request):
+    """list the playlists on the user's linked Spotify account."""
+    try:
+        sp = get_spotify(request.user)
+    except SpotifyNotLinked:
+        return Response({"linked": False, "playlists": []})
+
+    playlists = []
+    try:
+        results = sp.current_user_playlists(limit=50)
+        while results:
+            for p in results["items"]:
+                if not p:
+                    continue
+                images = p.get("images") or []
+                playlists.append({
+                    "id": p["id"],
+                    "name": p["name"],
+                    "image": images[0]["url"] if images else None,
+                    "track_count": (p.get("items") or p.get("tracks") or {}).get("total"),
+                    "url": p["external_urls"]["spotify"],
+                })
+            results = sp.next(results) if results.get("next") else None
+    except spotipy.SpotifyException as e:
+        return Response(
+            {"error": "Spotify rejected the request.", "detail": str(e)},
+            status=status.HTTP_502_BAD_GATEWAY,
+        )
+
+    return Response({"linked": True, "playlists": playlists})

@@ -117,7 +117,7 @@ FRONTEND_URL = "http://localhost:3000"
 SPOTIFY_CLIENT_ID = spotify_env["SPOTIFY_CLIENT_ID"]
 SPOTIFY_CLIENT_SECRET = spotify_env["SPOTIFY_CLIENT_SECRET"]
 SPOTIFY_REDIRECT_URI = "http://127.0.0.1:8000/spotify/callback/"
-SPOTIFY_SCOPES = "user-read-email user-read-private playlist-read-private user-library-modify user-library-read"
+SPOTIFY_SCOPES = "user-read-email user-read-private playlist-read-private user-library-modify user-library-read playlist-read-collaborative"
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
