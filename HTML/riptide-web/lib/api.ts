@@ -48,6 +48,14 @@ export type PlaylistData = {
   tracks: PlaylistTrackData[];
 };
 
+export type linkedPlaylistData = {
+  id: string,
+  name: string,
+  image: string,
+  track_count: string,
+  url: string,
+};
+
 export type SendMessageResponse = {
   message: ChatMessageData;
   remaining_messages: number;

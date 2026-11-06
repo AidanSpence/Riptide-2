@@ -18,7 +18,8 @@ import {
   ChatApiError,
   type ChatSummary,
   type ChatMessageData,
-  type PlaylistData
+  type PlaylistData,
+  type linkedPlaylistData
 } from "../lib/api";
 import { demoPlaylists } from "../lib/playlist-demo";
 
@@ -59,6 +60,11 @@ export default function MainPage() {
   const [exportingPlaylistId, setExportingPlaylistId] = useState<number | null>(null);
   // negative IDs are temporary for generated playlists not saved by Django
   const nextLocalPlaylistId = useRef<number>(-2);
+
+  // linked playlists map
+  const [linkedPlaylists, setlinkedPlaylists] = useState<linkedPlaylistData[]>([]);
+  const [linked, setLinked] = useState(true);
+  const [loading, setLoading] = useState(true);
 
 
 
@@ -208,6 +214,36 @@ export default function MainPage() {
       return;
     }
   }
+
+  // spotify playlist loading
+  async function loadLinkedPlaylists() {
+    try {
+      const res = await fetch("/api/spotify/playlists/", {
+        credentials: "include",
+        // if you use token auth instead of sessions:
+        // headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Failed to load playlists");
+      const data = await res.json();
+      setLinked(data.linked);
+      setPlaylists(data.playlists);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+  if (activeTokenRef) {
+      loadLinkedPlaylists();
+  }
+
+
+  async function connectSpotify() {
+    const res = await fetch("/api/spotify/login/", { credentials: "include" });
+    const { url } = await res.json();
+    window.location.href = url; // send the browser to Spotify's consent page
+  }
+
   // package the playlist, send it to django, and ensure it can only be done once
   async function sendExportPlaylist(playlist: PlaylistData) {
     if (!window.confirm(`export playlist "${playlist.name}"?`)) return;
@@ -484,15 +520,36 @@ async function saveChatInput() {
             ))}
           </div>
 
+      <div className="left_linked_playlists">
+        <div className="left_playlist_title">Your linked service playlists:</div>
+        <div className="left_linked_playlists_scrolling">
+          {loading && <div>Loading…</div>}
 
+          {!loading && !linked && (
+            <button onClick={connectSpotify}>Connect Spotify</button>
+          )}
 
+          {!loading && linked && linkedPlaylists.length === 0 && (
+            <div>No playlists found.</div>
+          )}
 
+          {linkedPlaylists.map((p) => (
+            <a
+              key={p.id}
+              className="left_box_sizing left_playlist_box_1"
+              href={p.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {p.image && <img className="left_playlist_img" src={p.image} alt="" />}
+              <div className="left_playlist_info">
+                <div className="left_playlist_name">{p.name}</div>
+                <div className="left_playlist_count">{p.track_count ?? "?"} tracks</div>
+              </div>
+            </a>
+          ))}
         </div>
-        <div className="left_linked_playlists">
-          <div className="left_playlist_title">Your linked service playlists:</div>
-          <div className="left_linked_playlists_scrolling">
-            <div className="left_box_sizing left_playlist_box_1"></div>
-          </div>
+      </div>
 
 
         </div>
