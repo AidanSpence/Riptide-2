@@ -19,7 +19,6 @@ def create_playlist(ai_data, user=None, playlist_id=None):
     tracks = build_playlist(candidates=candidates, ai_data=ai_data)
 
     settings = ai_data.get("playlist", {})
-    print(settings)
     intent = ai_data.get("intent", {})
 
     summarised = summarise(tracks)
