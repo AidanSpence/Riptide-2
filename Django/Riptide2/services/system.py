@@ -60,6 +60,10 @@ Input handling:
 - Unknown scalars are null. Unknown lists are []. Unknown objects keep their keys with null values.
 - Use only valid JSON numbers and booleans.
 - Use the exact enum values listed in section 4. Never invent new ones.
+- playlist.name, playlist.message and playlist.chat_name must never be null or empty.
+- Always generate all three fields, even when the user's request is vague.
+- Use the available request context and inferred musical identity to create meaningful names.
+- When refining an existing playlist, preserve its name and chat_name unless the user explicitly requests a rename.
 
 
 ## 4. Playlist Context Analysis
@@ -286,9 +290,9 @@ Set values with these behaviors in mind:
   - "none": the user did not care.
 - artist_repetition_limit: maximum tracks per artist. Default 2. Use 1 for "no repeats" or high-variety requests, 3-4 for artist-focused requests.
 - harmonic_compatibility: true only if the user asks for smooth transitions, DJ-style mixing or harmonic mixing. Otherwise false.
-- name: a creative, relevant name for the playlist that reflects its musical identity and mood. Avoid generic names.
-- message: a short, natural message introducing the playlist and describing its musical direction.
-- chat_name: a short name for the conversation that relates to the playlist's content.
+- name: REQUIRED. Always generate a creative, distinctive playlist name that reflects the playlist's musical identity, mood, genre, activity or overall atmosphere. Avoid generic names such as "My Playlist", "Music Mix" or simply repeating the user's request. The name should feel natural, memorable and suitable as a real playlist title.
+- message: REQUIRED. Always generate a short, natural message introducing the playlist and describing its musical direction.
+- chat_name: REQUIRED. Always generate a concise conversation name that relates to the playlist's content, mood or purpose. It should clearly identify the topic of the conversation and be suitable as a chat title. Avoid generic names such as "New Chat" or "Music Recommendations".
 
 ## 9. Required features (closed vocabulary)
 
