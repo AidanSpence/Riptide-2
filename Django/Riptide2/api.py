@@ -95,7 +95,7 @@ def me(request):
 # ---------------------------------------------------------------------
 # Saved chat endpoints
 # ---------------------------------------------------------------------
-@api_view(["GET", "POST", "DELETE"])
+@api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 def chats(request):
     """list chats or create a new chat."""
@@ -103,24 +103,22 @@ def chats(request):
         user_chats = UserChat.objects.filter(user=request.user).order_by("-created_at", "-id")
         return Response({"chats": UserChatSerializer(user_chats, many=True).data})
 
-    if request.method == "DELETE":
-        chat_id = request.chatId
-        try:
-            delete_chat = UserChat.objects.get(chat_id).delete()
-        except UserChat.DoesNotExist:
-            return Response({"error", "chat doesn't exist"})
-
     serializer = UserChatSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     chat = serializer.save(user=request.user)
     return Response(UserChatSerializer(chat).data, status=status.HTTP_201_CREATED)
 
 
-@api_view(["GET"])
+@api_view(["GET", "DELETE"])
 @permission_classes([IsAuthenticated])
 def chat_detail(request, chat_id):
-    """load one chat and its remaining message count."""
+    """load or delete one chat."""
     chat = get_object_or_404(UserChat, id=chat_id, user=request.user)
+
+    if request.method == "DELETE":
+        chat.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     messages = chat.messages.all()
     count = chat.messages.filter(sender=ChatMessage.Sender.USER).count()
     return Response({
