@@ -786,6 +786,7 @@ function MainPage() {
     const [playlistError, setPlaylistError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const [isLoadingPlaylists, setIsLoadingPlaylists] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [deletingPlaylistId, setDeletingPlaylistId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [exportingPlaylistId, setExportingPlaylistId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     // negative IDs are temporary for generated playlists not saved by Django
     const nextLocalPlaylistId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(-2);
     // message limit message, sets limit internally to true, and
@@ -917,7 +918,7 @@ function MainPage() {
     // remove the playlist from the UI, and from Django if it was saved there
     async function removePlaylist(playlist) {
         if (deletingPlaylistId !== null) return;
-        if (!window.confirm(`Delete playlist "${playlist.title}"?`)) return;
+        if (!window.confirm(`Delete playlist "${playlist.name}"?`)) return;
         const playlistId = playlist.id;
         if (playlistId === undefined) return;
         setPlaylistError("");
@@ -930,18 +931,28 @@ function MainPage() {
             setPlaylistError("Log in before deleting a saved playlist.");
             return;
         }
+    }
+    // package the playlist, send it to django, and ensure it can only be done once
+    async function sendExportPlaylist(playlist) {
+        if (!window.confirm(`export playlist "${playlist.name}"?`)) return;
+        const playlistId = playlist.id;
+        if (playlistId === undefined) return;
+        setPlaylistError("");
+        if (!accessToken) {
+            setPlaylistError("Log in before exporting a saved playlist.");
+            return;
+        }
         const token = accessToken;
-        setDeletingPlaylistId(playlistId);
+        setExportingPlaylistId(playlistId);
         try {
-            await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["deletePlaylist"])(token, playlistId);
+            await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["exportPlaylist"])(token, playlistId);
             if (activeTokenRef.current !== token) return;
-            setPlaylists((previous)=>previous.filter((item)=>item.id !== playlistId));
         } catch (error) {
             if (activeTokenRef.current !== token) return;
-            console.error("Failed to delete playlist:", error);
-            setPlaylistError(describePlaylistError(error, "Unable to delete playlist"));
+            console.error("Failed to export playlist:", error);
+            setPlaylistError(describePlaylistError(error, "Unable to export playlist"));
         } finally{
-            if (activeTokenRef.current === token) setDeletingPlaylistId(null);
+            if (activeTokenRef.current === token) setExportingPlaylistId(null);
         }
     }
     // updates the temp variables each time the input field changes
@@ -1009,12 +1020,26 @@ function MainPage() {
             // send just the new message to django instead of the full array
             const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["sendChatMessage"])(token, chatId, text);
             if (activeTokenRef.current !== token) return;
-            // append django's accepted message (with its database id)
+            console.log(result);
+            // append django's accepted user message
+            const newMessages = [
+                toClientMessage(result.message)
+            ];
+            // append the system message if django returned one with the playlist
+            if (result.playlist?.message) {
+                const temp_sys_msg = {
+                    text: result.playlist.message,
+                    id: crypto.randomUUID(),
+                    sender: "system"
+                };
+                newMessages.push(temp_sys_msg);
+            }
+            // update the message array once
             setMessageText((previous)=>[
                     ...previous,
-                    toClientMessage(result.message)
+                    ...newMessages
                 ]);
-            // Django can optionally include a new playlist alongside the chat reply
+            // django can optionally include a new playlist alongside the chat reply
             if (result.playlist) {
                 if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isPlaylistData"])(result.playlist)) {
                     const newPlaylist = {
@@ -1046,7 +1071,9 @@ function MainPage() {
             }
         } finally{
             requestPendingRef.current = false;
-            if (activeTokenRef.current === token) setIsSending(false);
+            if (activeTokenRef.current === token) {
+                setIsSending(false);
+            }
         }
     }
     async function startNewChat() {
@@ -1117,7 +1144,7 @@ function MainPage() {
                 children: leftOpen ? "<" : ">"
             }, void 0, false, {
                 fileName: "[project]/components/main_page.tsx",
-                lineNumber: 404,
+                lineNumber: 447,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1134,7 +1161,7 @@ function MainPage() {
                                 children: "Chats:"
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 421,
+                                lineNumber: 464,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1145,7 +1172,7 @@ function MainPage() {
                                 children: "New Chat"
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 422,
+                                lineNumber: 465,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1158,18 +1185,18 @@ function MainPage() {
                                         children: chat.name
                                     }, chat.id, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 432,
+                                        lineNumber: 475,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 430,
+                                lineNumber: 473,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 420,
+                        lineNumber: 463,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1180,7 +1207,7 @@ function MainPage() {
                                 children: "Your linked service playlists:"
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 449,
+                                lineNumber: 492,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1189,18 +1216,18 @@ function MainPage() {
                                     className: "left_box_sizing left_playlist_box_1"
                                 }, void 0, false, {
                                     fileName: "[project]/components/main_page.tsx",
-                                    lineNumber: 451,
+                                    lineNumber: 494,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 450,
+                                lineNumber: 493,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 448,
+                        lineNumber: 491,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1213,12 +1240,12 @@ function MainPage() {
                                     children: "JD"
                                 }, void 0, false, {
                                     fileName: "[project]/components/main_page.tsx",
-                                    lineNumber: 457,
+                                    lineNumber: 500,
                                     columnNumber: 49
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 457,
+                                lineNumber: 500,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1229,7 +1256,7 @@ function MainPage() {
                                         children: "John Doe"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 459,
+                                        lineNumber: 502,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1237,25 +1264,25 @@ function MainPage() {
                                         children: "Service - Spotify Connectedsdfguiopoigfghj"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 460,
+                                        lineNumber: 503,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 458,
+                                lineNumber: 501,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 456,
+                        lineNumber: 499,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/main_page.tsx",
-                lineNumber: 414,
+                lineNumber: 457,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1273,13 +1300,13 @@ function MainPage() {
                                         children: "No playlist Attached"
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 469,
+                                        lineNumber: 512,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 468,
+                                lineNumber: 511,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1287,7 +1314,7 @@ function MainPage() {
                                 children: "Private"
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 472,
+                                lineNumber: 515,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1301,29 +1328,29 @@ function MainPage() {
                                         }
                                     },
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                        src: "close.svg",
+                                        src: "bin.svg",
                                         alt: "alt",
                                         width: 30,
                                         height: 30
                                     }, void 0, false, {
                                         fileName: "[project]/components/main_page.tsx",
-                                        lineNumber: 475,
+                                        lineNumber: 518,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/main_page.tsx",
-                                    lineNumber: 474,
+                                    lineNumber: 517,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 473,
+                                lineNumber: 516,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 467,
+                        lineNumber: 510,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1333,12 +1360,12 @@ function MainPage() {
                                 children: msg.text
                             }, msg.id, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 486,
+                                lineNumber: 529,
                                 columnNumber: 13
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 479,
+                        lineNumber: 522,
                         columnNumber: 9
                     }, this),
                     (chatError || isSending || isLoadingChat || !accessToken || currentChatId === null || sendLimit) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1351,7 +1378,7 @@ function MainPage() {
                         children: chatError || (isSending ? "Sending message..." : isLoadingChat ? "Loading conversation..." : !accessToken ? "Log in using the profile button to send messages." : sendLimit ? "Send limit reached, create a new chat to continue." : "Send a message to create a conversation, or select a saved chat.")
                     }, void 0, false, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 501,
+                        lineNumber: 544,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1375,7 +1402,7 @@ function MainPage() {
                                 required: true
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 511,
+                                lineNumber: 554,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1392,24 +1419,24 @@ function MainPage() {
                                     alt: "send button"
                                 }, void 0, false, {
                                     fileName: "[project]/components/main_page.tsx",
-                                    lineNumber: 536,
+                                    lineNumber: 579,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 529,
+                                lineNumber: 572,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 510,
+                        lineNumber: 553,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/main_page.tsx",
-                lineNumber: 466,
+                lineNumber: 509,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1422,7 +1449,7 @@ function MainPage() {
                 children: rightOpen ? ">" : "<"
             }, void 0, false, {
                 fileName: "[project]/components/main_page.tsx",
-                lineNumber: 550,
+                lineNumber: 593,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1436,7 +1463,7 @@ function MainPage() {
                         children: "Your Playlists"
                     }, void 0, false, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 587,
+                        lineNumber: 630,
                         columnNumber: 5
                     }, this),
                     __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PLAYLIST_DEMO_MODE"] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1444,7 +1471,7 @@ function MainPage() {
                         children: "Demo playlist - changes reset on refresh"
                     }, void 0, false, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 591,
+                        lineNumber: 634,
                         columnNumber: 7
                     }, this),
                     playlistError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1453,7 +1480,7 @@ function MainPage() {
                         children: playlistError
                     }, void 0, false, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 594,
+                        lineNumber: 637,
                         columnNumber: 7
                     }, this),
                     isLoadingPlaylists && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1462,7 +1489,7 @@ function MainPage() {
                         children: "Loading playlists..."
                     }, void 0, false, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 597,
+                        lineNumber: 640,
                         columnNumber: 7
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1473,7 +1500,7 @@ function MainPage() {
                                 children: !__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PLAYLIST_DEMO_MODE"] && !accessToken ? "Log in to view your playlists." : "No playlists to display."
                             }, void 0, false, {
                                 fileName: "[project]/components/main_page.tsx",
-                                lineNumber: 603,
+                                lineNumber: 646,
                                 columnNumber: 9
                             }, this),
                             playlists.map((playlist)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1484,11 +1511,11 @@ function MainPage() {
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                     className: "right_playlist_title_text",
-                                                    title: playlist.title,
-                                                    children: playlist.title
+                                                    title: playlist.name,
+                                                    children: playlist.name
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/main_page.tsx",
-                                                    lineNumber: 613,
+                                                    lineNumber: 656,
                                                     columnNumber: 13
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1496,17 +1523,29 @@ function MainPage() {
                                                     type: "button",
                                                     onClick: ()=>void removePlaylist(playlist),
                                                     disabled: deletingPlaylistId !== null,
-                                                    "aria-label": `Delete playlist ${playlist.title}`,
+                                                    "aria-label": `Delete playlist ${playlist.name}`,
                                                     children: deletingPlaylistId === playlist.id ? "Deleting..." : "Delete"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/main_page.tsx",
-                                                    lineNumber: 616,
+                                                    lineNumber: 659,
                                                     columnNumber: 13
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                    className: "right_playlist_export_button",
+                                                    type: "button",
+                                                    onClick: ()=>void sendExportPlaylist(playlist),
+                                                    disabled: deletingPlaylistId !== null,
+                                                    "aria-label": `export playlist ${playlist.name}`,
+                                                    children: deletingPlaylistId === playlist.id ? "Export..." : "Export"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/main_page.tsx",
+                                                    lineNumber: 668,
+                                                    columnNumber: 15
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/main_page.tsx",
-                                            lineNumber: 612,
+                                            lineNumber: 655,
                                             columnNumber: 11
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1520,7 +1559,7 @@ function MainPage() {
                                                             children: track.title
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/main_page.tsx",
-                                                            lineNumber: 630,
+                                                            lineNumber: 682,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1529,7 +1568,7 @@ function MainPage() {
                                                             children: track.artists
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/main_page.tsx",
-                                                            lineNumber: 631,
+                                                            lineNumber: 683,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1537,46 +1576,46 @@ function MainPage() {
                                                             children: formatPlaylistDuration(track.duration_s)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/main_page.tsx",
-                                                            lineNumber: 632,
+                                                            lineNumber: 684,
                                                             columnNumber: 17
                                                         }, this)
                                                     ]
                                                 }, `${track.id}-${index}`, true, {
                                                     fileName: "[project]/components/main_page.tsx",
-                                                    lineNumber: 629,
+                                                    lineNumber: 681,
                                                     columnNumber: 15
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/components/main_page.tsx",
-                                            lineNumber: 626,
+                                            lineNumber: 678,
                                             columnNumber: 11
                                         }, this)
                                     ]
                                 }, playlist.id, true, {
                                     fileName: "[project]/components/main_page.tsx",
-                                    lineNumber: 611,
+                                    lineNumber: 654,
                                     columnNumber: 9
                                 }, this))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/main_page.tsx",
-                        lineNumber: 600,
+                        lineNumber: 643,
                         columnNumber: 5
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/main_page.tsx",
-                lineNumber: 560,
+                lineNumber: 603,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/main_page.tsx",
-        lineNumber: 402,
+        lineNumber: 445,
         columnNumber: 5
     }, this);
 }
-_s(MainPage, "jT8VXiNbzb+wlLNnKBNnb7uBc+I=", false, function() {
+_s(MainPage, "f/Lu9g5rtj7JSMeE13GpkC0Q4HI=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$auth$2d$provider$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"]
     ];
@@ -1745,6 +1784,8 @@ __turbopack_context__.s([
     ()=>deleteChat,
     "deletePlaylist",
     ()=>deletePlaylist,
+    "exportPlaylist",
+    ()=>exportPlaylist,
     "getChat",
     ()=>getChat,
     "getCurrentUser",
@@ -1766,7 +1807,7 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
 // used by the static frontend at build time; localhost remains the dev fallback
-const API_URL = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:9000';
+const API_URL = 'http://127.0.0.1:9000';
 const LOGIN_ENDPOINT = '/api/login/';
 const REGISTER_ENDPOINT = '/api/signup/';
 const PLAYLIST_DEMO_MODE = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_PLAYLIST_MODE !== "api";
@@ -1780,7 +1821,7 @@ async function spotifyLogin(accessToken) {
 function isPlaylistData(value) {
     if (!value || typeof value !== "object") return false;
     const playlist = value;
-    return (playlist.id === undefined || typeof playlist.id === "number" && Number.isInteger(playlist.id)) && typeof playlist.title === "string" && Array.isArray(playlist.tracks) && playlist.tracks.every((track)=>!!track && typeof track === "object" && typeof track.id === "number" && typeof track.title === "string" && typeof track.artists === "string" && typeof track.duration_s === "number");
+    return (playlist.id === undefined || typeof playlist.id === "number" && Number.isInteger(playlist.id)) && typeof playlist.name === "string" && Array.isArray(playlist.tracks) && playlist.tracks.every((track)=>!!track && typeof track === "object" && typeof track.id === "number" && typeof track.title === "string" && typeof track.artists === "string" && typeof track.duration_s === "number");
 }
 class ChatApiError extends Error {
     status;
@@ -1937,6 +1978,23 @@ async function listPlaylists(accessToken) {
 async function deletePlaylist(accessToken, playlistId) {
     const response = await fetch(`${API_URL.replace(/\/+$/, "")}/api/playlists/${playlistId}/`, {
         method: "DELETE",
+        headers: {
+            "Authorization": `Bearer ${accessToken}`
+        }
+    });
+    if (!response.ok) {
+        const data = await response.json().catch(()=>null);
+        let message = `HTTP ${response.status}`;
+        if (data && typeof data === "object") {
+            const error = data;
+            message = error.error ?? error.detail ?? message;
+        }
+        throw new ChatApiError(response.status, message);
+    }
+}
+async function exportPlaylist(accessToken, playlistId) {
+    const response = await fetch(`${API_URL.replace(/\/+$/, "")}/api/spotify/export/${playlistId}/`, {
+        method: "POST",
         headers: {
             "Authorization": `Bearer ${accessToken}`
         }

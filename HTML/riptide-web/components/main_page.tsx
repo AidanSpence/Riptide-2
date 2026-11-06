@@ -12,6 +12,7 @@ import {
   sendChatMessage,
   listPlaylists,
   deletePlaylist,
+  exportPlaylist,
   isPlaylistData,
   PLAYLIST_DEMO_MODE,
   ChatApiError,
@@ -55,6 +56,7 @@ export default function MainPage() {
   const [playlistError, setPlaylistError] = useState<string>("");
   const [isLoadingPlaylists, setIsLoadingPlaylists] = useState<boolean>(false);
   const [deletingPlaylistId, setDeletingPlaylistId] = useState<number | null>(null);
+  const [exportingPlaylistId, setExportingPlaylistId] = useState<number | null>(null);
   // negative IDs are temporary for generated playlists not saved by Django
   const nextLocalPlaylistId = useRef<number>(-2);
 
@@ -205,19 +207,31 @@ export default function MainPage() {
       setPlaylistError("Log in before deleting a saved playlist.");
       return;
     }
+  }
+  // package the playlist, send it to django, and ensure it can only be done once
+  async function sendExportPlaylist(playlist: PlaylistData) {
+    if (!window.confirm(`export playlist "${playlist.name}"?`)) return;
+
+    const playlistId = playlist.id;
+    if (playlistId === undefined) return;
+    setPlaylistError("");
+
+    if (!accessToken) {
+      setPlaylistError("Log in before exporting a saved playlist.");
+      return;
+    }
 
     const token = accessToken;
-    setDeletingPlaylistId(playlistId);
+    setExportingPlaylistId(playlistId);
     try {
-      await deletePlaylist(token, playlistId);
+      await exportPlaylist(token, playlistId);
       if (activeTokenRef.current !== token) return;
-      setPlaylists(previous => previous.filter(item => item.id !== playlistId));
     } catch (error) {
       if (activeTokenRef.current !== token) return;
-      console.error("Failed to delete playlist:", error);
-      setPlaylistError(describePlaylistError(error, "Unable to delete playlist"));
+      console.error("Failed to export playlist:", error);
+      setPlaylistError(describePlaylistError(error, "Unable to export playlist"));
     } finally {
-      if (activeTokenRef.current === token) setDeletingPlaylistId(null);
+      if (activeTokenRef.current === token) setExportingPlaylistId(null);
     }
   }
 
@@ -501,7 +515,7 @@ async function saveChatInput() {
           <div className="center_playlist_privacy_title">Private</div>
           <div className="delete_chat_button_box" title="Delete current chat">
             <button className="delete_chat_button" onClick={() => {if(currentChatId !== null){handleDeleteChat(currentChatId)}} }>
-              <Image src="close.svg" alt="alt" width={30} height={30}/>
+              <Image src="bin.svg" alt="alt" width={30} height={30}/>
             </button>
           </div>
         </div>
@@ -650,6 +664,15 @@ all elements can be of any type or length including blank but preferably have co
               aria-label={`Delete playlist ${playlist.name}`}
             >
               {deletingPlaylistId === playlist.id ? "Deleting..." : "Delete"}
+            </button>
+              <button
+              className="right_playlist_export_button"
+              type="button"
+              onClick={() => void sendExportPlaylist(playlist)}
+              disabled={deletingPlaylistId !== null}
+              aria-label={`export playlist ${playlist.name}`}
+            >
+              {deletingPlaylistId === playlist.id ? "Export..." : "Export"}
             </button>
           </div>
           <div className="right_playlist_song_list">

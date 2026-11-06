@@ -368,3 +368,24 @@ export async function deletePlaylist(accessToken: string, playlistId: number): P
     throw new ChatApiError(response.status, message);
   }
 }
+export async function exportPlaylist(accessToken: string, playlistId: number): Promise<void> {
+  const response = await fetch(
+    `${API_URL.replace(/\/+$/, "")}/api/spotify/export/${playlistId}/`,
+    {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+      }
+    }
+  );
+
+  if (!response.ok) {
+    const data: unknown = await response.json().catch(() => null);
+    let message = `HTTP ${response.status}`;
+    if (data && typeof data === "object") {
+      const error = data as { error?: string; detail?: string };
+      message = error.error ?? error.detail ?? message;
+    }
+    throw new ChatApiError(response.status, message);
+  }
+}

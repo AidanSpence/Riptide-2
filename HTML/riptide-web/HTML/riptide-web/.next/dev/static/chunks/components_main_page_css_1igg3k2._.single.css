@@ -446,6 +446,21 @@
   opacity: .6;
 }
 
+.right_playlist_export_button {
+  font-size: var(--font-xsml);
+  border: var(--border-thin);
+  border-radius: var(--corner-rad-small);
+  color: var(--color-text);
+  cursor: pointer;
+  flex: none;
+  padding: 1% 2%;
+}
+
+.right_playlist_export_button:disabled {
+  cursor: not-allowed;
+  opacity: .6;
+}
+
 .right_playlist_status {
   font-size: var(--font-xsml);
   color: var(--color-text);
