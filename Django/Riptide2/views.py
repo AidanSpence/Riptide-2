@@ -71,7 +71,7 @@ def export(request, playlist_id):
     """push a saved playlist to the user's linked Spotify account."""
     playlist = get_object_or_404(Playlist, id=playlist_id, user=request.user)
 
-    # Already exported? Return the existing link instead of making a duplicate.
+    # returns the existing link instead of making a duplicate.
     if playlist.spotify_playlist_id and not request.data.get("force"):
         return Response({
             "spotify_playlist_id": playlist.spotify_playlist_id,

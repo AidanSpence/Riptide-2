@@ -124,9 +124,9 @@ class PlaylistSerializer(serializers.Serializer):
     energy_progression = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     artist_repetition_limit = NullableInt(default=2, min_value=1)
     harmonic_compatibility = serializers.BooleanField(required=False, allow_null=True)
-    title = serializers.CharField(required=False, allow_null=True, allow_blank=True, max_length=100)
-    message = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-    chat_title = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    name = serializers.CharField(required=True, allow_null=False, allow_blank=False, max_length=100)
+    message = serializers.CharField(required=True, allow_null=False, allow_blank=False)
+    chat_name = serializers.CharField(required=True, allow_null=False, allow_blank=False)
 
 
 # ---------------------------------------------------------------------
