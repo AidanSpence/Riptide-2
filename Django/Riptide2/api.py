@@ -92,14 +92,20 @@ def me(request):
 # ---------------------------------------------------------------------
 # Saved chat endpoints
 # ---------------------------------------------------------------------
-@api_view(["GET", "POST"])
+@api_view(["GET", "POST", "DELETE"])
 @permission_classes([IsAuthenticated])
 def chats(request):
-    print("adswreaturertuakr")
     """list chats or create a new chat."""
     if request.method == "GET":
         user_chats = UserChat.objects.filter(user=request.user).order_by("-created_at", "-id")
         return Response({"chats": UserChatSerializer(user_chats, many=True).data})
+
+    if request.method == "DELETE":
+        chat_id = request.chatId
+        try:
+            delete_chat = UserChat.objects.get(chat_id).delete()
+        except UserChat.DoesNotExist:
+            return Response({"error", "chat doesn't exist"})
 
     serializer = UserChatSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)

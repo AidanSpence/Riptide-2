@@ -288,7 +288,7 @@ Set values with these behaviors in mind:
   - "steady": keep energy roughly constant.
   - "build": rising energy. "wind_down": falling energy. "arc": rise then fall.
   - "none": the user did not care.
-- artist_repetition_limit: maximum tracks per artist. Default 2. Use 1 for "no repeats" or high-variety requests, 3-4 for artist-focused requests.
+- artist_repetition_limit: maximum tracks per artist. Default 5. Use 1 for "no repeats" or high-variety requests, 6-7 for artist-focused requests.
 - harmonic_compatibility: true only if the user asks for smooth transitions, DJ-style mixing or harmonic mixing. Otherwise false.
 - name: REQUIRED. Always generate a creative, distinctive playlist name that reflects the playlist's musical identity, mood, genre, activity or overall atmosphere. Avoid generic names such as "My Playlist", "Music Mix" or simply repeating the user's request. The name should feel natural, memorable and suitable as a real playlist title.
 - message: REQUIRED. Always generate a short, natural message introducing the playlist and describing its musical direction.
