@@ -7,6 +7,9 @@ from django.db import transaction
 from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Prefetch
+
+
 
 from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes
@@ -14,7 +17,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
-from .models import Playlist
+from .models import Playlist, PlaylistSong
 from .models import ChatMessage, UserChat
 
 
@@ -174,3 +177,54 @@ def chat_send_message(request, chat_id):
         "remaining_messages": MESSAGE_LIMIT - count - 1,
         **({"playlist": playlist} if playlist else {}),
     }, status=status.HTTP_201_CREATED)
+
+# ---------------------------------------------------------------------
+# Playlist retrieve endpoint
+# ---------------------------------------------------------------------
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_playlists(request):
+    """get saved playlists for the logged-in user."""
+
+    # only retrieve playlists owned by this user
+    playlists = Playlist.objects.filter(
+        user=request.user
+    ).prefetch_related(
+        Prefetch(
+            "playlistsong_set",
+            queryset=PlaylistSong.objects.select_related(
+                "song"
+            ).prefetch_related(
+                "song__artists"
+            ).order_by("position")
+        )
+    ).order_by("-created_at")
+
+    result = []
+
+    for playlist in playlists:
+        tracks = []
+
+        for item in playlist.playlistsong_set.all():
+            song = item.song
+
+            tracks.append({
+                "id": song.id,
+                "title": song.title,
+                "artists": [
+                    artist.name for artist in song.artists.all()
+                ],
+                "duration_s": song.duration_s,
+            })
+
+        result.append({
+            "id": playlist.id,
+            "title": playlist.name,
+            "tracks": tracks,
+            "duration_s": sum(
+                track["duration_s"] or 0
+                for track in tracks
+            ),
+        })
+
+    return Response({"playlists": result})

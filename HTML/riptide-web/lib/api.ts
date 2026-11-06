@@ -69,7 +69,8 @@ type SpotifyLoginResponse = {
 
 // use the provided JSON while the Django playlist endpoints are unfinished
 // set NEXT_PUBLIC_PLAYLIST_MODE=api before building to enable real API requests
-export const PLAYLIST_DEMO_MODE = process.env.NEXT_PUBLIC_PLAYLIST_MODE !== "api";
+export const PLAYLIST_DEMO_MODE = false
+// process.env.NEXT_PUBLIC_PLAYLIST_MODE !== "api";
 
 export async function getCurrentUser(accessToken: string): Promise<UserData> {
   return authRequest<UserData>(

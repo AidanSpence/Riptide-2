@@ -16,9 +16,11 @@ urlpatterns = [
     # integrations and exports
     path("spotify/login/", views.spotify_login),
     path("spotify/callback/", views.spotify_callback),
-    path("spotify/export/", views.export),
+    path("api/spotify/export/", views.export),
     # path("spotify/import/<str:playlist_id>/", views.import_playlist, name="spotify_import"),
 
+    # playlists
+    path("api/playlists/", api.list_playlists),
     # chats
     path("api/chats/", api.chats),
     path("api/chats/<int:chat_id>/", api.chat_detail),
