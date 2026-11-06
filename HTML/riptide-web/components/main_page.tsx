@@ -315,7 +315,7 @@ async function saveChatInput() {
     return;
   }
 
-  // django handles the real send limit; the state here locks the button
+  // django handles the real send limit, the state here locks the button
   if (sendLimit) {
     setLimitMessage();
     return;
@@ -326,6 +326,8 @@ async function saveChatInput() {
   // prevents duplicate submissions while react is updating its state
   requestPendingRef.current = true;
   const token = accessToken;
+  let tempMessageId: string | null = null;
+
   setIsSending(true);
   setChatError("");
 
@@ -343,16 +345,33 @@ async function saveChatInput() {
       setMessageText([]);
     }
 
+    // display the user's message immediately
+    tempMessageId = crypto.randomUUID();
+
+    const tempUserMessage: message = {
+      id: tempMessageId,
+      text: text,
+      sender: "user"
+    };
+
+    setMessageText(previous => [...previous, tempUserMessage]);
+
     // send just the new message to django instead of the full array
     const result = await sendChatMessage(token, chatId, text);
     if (activeTokenRef.current !== token) return;
 
     console.log(result);
 
-    // append django's accepted user message
-    const newMessages: message[] = [
-      toClientMessage(result.message)
-    ];
+    // replace the temporary message with django's saved message
+    setMessageText(previous =>
+      previous.map(msg =>
+        msg.id === tempMessageId
+          ? toClientMessage(result.message)
+          : msg
+      )
+    );
+
+    const newMessages: message[] = [];
 
     // append the system message if django returned one with the playlist
     if (result.playlist?.message) {
@@ -365,7 +384,7 @@ async function saveChatInput() {
       newMessages.push(temp_sys_msg);
     }
 
-    // update the message array once
+    // append the system message
     setMessageText(previous => [...previous, ...newMessages]);
 
     // django can optionally include a new playlist alongside the chat reply
@@ -394,6 +413,15 @@ async function saveChatInput() {
 
   } catch (error) {
     if (activeTokenRef.current !== token) return;
+
+    // remove the temporary message if django rejected the request
+    if (tempMessageId !== null) {
+      const failedMessageId = tempMessageId;
+
+      setMessageText(previous =>
+        previous.filter(msg => msg.id !== failedMessageId)
+      );
+    }
 
     console.error("Failed to send message:", error);
 
@@ -600,7 +628,7 @@ async function saveChatInput() {
         {(chatError || isSending || isLoadingChat || !accessToken || currentChatId === null || sendLimit) && (
           <div role={chatError ? "alert" : "status"} aria-live="polite"
             style={{ padding: "0.25rem 1rem", fontSize: "0.85rem" }}>
-            {chatError || (isSending ? "Sending message..." :
+            {chatError || (isSending ? "Loading response..." :
               isLoadingChat ? "Loading conversation..." :
               !accessToken ? "Log in using the profile button to send messages." :
               sendLimit ? "Send limit reached, create a new chat to continue." :

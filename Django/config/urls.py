@@ -19,6 +19,8 @@ urlpatterns = [
     path("spotify/export/", views.export),
     path("spotify/playlists/", views.spotify_playlists),
 
+    # playlists
+    path("api/playlists/", api.list_playlists),
     # chats
     path("api/chats/", api.chats),
     path("api/chats/<int:chat_id>/", api.chat_detail),
