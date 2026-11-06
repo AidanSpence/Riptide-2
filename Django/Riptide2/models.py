@@ -103,6 +103,8 @@ class Playlist(models.Model):
     description = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    spotify_playlist_id = models.CharField(max_length=64, blank=True, default="")
+    spotify_url = models.URLField(blank=True, default="")
 
     songs = models.ManyToManyField(Song, through="PlaylistSong", related_name="playlists")
 

@@ -53,3 +53,34 @@ def get_playlist_tracks(user, playlist_id: str) -> list[dict]:
         if track and track.get("id"):
             tracks.append(parse_track(track))
     return tracks
+
+def _to_uri(track_id: str) -> str:
+    return track_id if track_id.startswith("spotify:track:") else f"spotify:track:{track_id}"
+
+
+def export_playlist(user, title: str, description: str, track_ids: list[str]) -> dict:
+    """Create a private playlist on the user's Spotify account and fill it."""
+    sp = get_spotify(user)
+
+    # POST /me/playlists creates the playlist for the current user.
+    # (Recent spotipy: sp.current_user_playlist_create(...). If your version
+    # lacks it, _post works the same way.)
+    new_playlist = sp._post(
+        "me/playlists",
+        payload={
+            "name": title[:100],
+            "public": False,
+            "description": (description or "")[:300],
+        },
+    )
+
+    uris = [_to_uri(t) for t in track_ids if t]
+    # Spotify accepts at most 100 items per request
+    for i in range(0, len(uris), 100):
+        sp.playlist_add_items(new_playlist["id"], uris[i:i + 100])
+
+    return {
+        "spotify_playlist_id": new_playlist["id"],
+        "url": new_playlist["external_urls"]["spotify"],
+        "tracks_added": len(uris),
+    }

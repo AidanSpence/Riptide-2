@@ -19,12 +19,13 @@ def create_playlist(ai_data, user=None, playlist_id=None):
     tracks = build_playlist(candidates=candidates, ai_data=ai_data)
 
     settings = ai_data.get("playlist", {})
+    print(settings)
     intent = ai_data.get("intent", {})
 
     summarised = summarise(tracks)
 
     user_playlist = {
-        "name": settings.get("name") or "Your playlist",
+        "name": settings.get("name") or "",
         "description": intent.get("description") or "",
         "tracks": summarised,
     }
@@ -32,7 +33,7 @@ def create_playlist(ai_data, user=None, playlist_id=None):
     send_playlist = {
         "message": settings.get("message") or "",
         "chat_name" : settings.get("chat_name") or "",
-        "name": settings.get("name") or "Your playlist",
+        "name": settings.get("name") or "",
         "tracks": summarised,
     }
 
