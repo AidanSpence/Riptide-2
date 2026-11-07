@@ -17,6 +17,7 @@ import {
   PLAYLIST_DEMO_MODE,
   ChatApiError,
   getSpotifyStatus,
+  getCurrentUser,
   type ChatSummary,
   type ChatMessageData,
   type PlaylistData,
@@ -64,18 +65,38 @@ export default function MainPage() {
 
   // linked playlists map
   const [linkedPlaylists, setlinkedPlaylists] = useState<linkedPlaylistData[]>([]);
-  const [linked, setLinked] = useState(true);
-  const [loading, setLoading] = useState(true);
+  const [linked, setLinked] = useState();
+  const [loading, setLoading] = useState();
   // spotify
   const [spotifyConnected, setSpotifyConnected] = useState<boolean>(false);
 
 
 
 
+  const [username, setUsername] = useState<string>("");
 
 
-
-
+  async function loadUsername() {
+      try {
+      const user = await getCurrentUser(accessToken!);
+      setUsername(user.username);
+      } catch (error) {
+      console.error("Failed to retrieve username:", error);
+      }
+  } 
+  
+useEffect(() => {
+  if (accessToken) {
+    void loadUsername();
+  }
+}, [accessToken]);
+    
+  
+useEffect(() => {
+  if (!accessToken) {
+    void setUsername("");
+  }
+}, [accessToken]);
 
 
   // message limit message, sets limit internally to true, and
@@ -260,11 +281,6 @@ export default function MainPage() {
   // }
 
 
-  async function connectSpotify() {
-    const res = await fetch("/api/spotify/login/", { credentials: "include" });
-    const { url } = await res.json();
-    window.location.href = url;
-  }
 
   // package the playlist, send it to django, and ensure it can only be done once
   async function sendExportPlaylist(playlist: PlaylistData) {
@@ -576,7 +592,7 @@ async function saveChatInput() {
           {loading && <div>Loading…</div>}
 
           {!loading && !linked && (
-            <button onClick={connectSpotify}>Connect Spotify</button>
+            <p>Connect Spotify To See Linked Playlists</p>
           )}
 
           {!loading && linked && linkedPlaylists.length === 0 && (
@@ -606,8 +622,8 @@ async function saveChatInput() {
         <div className="left_profile_container">
           <div className="left_profile_icon_bg"><div className="left_profile_icon_text">JD</div></div>
           <div className="left_profile_info_box">
-            <div className="left_profile_name">John Doe</div>
-            <div className="left_profile_service_state">Service - Spotify Connectedsdfguiopoigfghj</div>
+            <div className="left_profile_name">{username? username: "John Doe"}</div>
+            <div className="left_profile_service_state">{spotifyConnected ? "Spotify Connected" : "Spotify Not Connected"}</div>
           </div>
         </div>
       </div>

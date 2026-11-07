@@ -35,8 +35,7 @@ services:
       DB_PORT: "5432"
       DJANGO_DEBUG: "1"
       OLLAMA_URL: http://host.docker.internal:11434/api/chat
-      SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET}
-      SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID}
+
     depends_on:
       db:
         condition: service_healthy

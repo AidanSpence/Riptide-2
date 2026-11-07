@@ -25,7 +25,7 @@ export default function AccountPopup({ isActive, onClose }: AccountPopupProps) {
         } catch (error) {
         console.error("Failed to retrieve username:", error);
         }
-    }
+    } 
 
     loadUsername();
     }, [accessToken]);

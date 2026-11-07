@@ -91,7 +91,7 @@ export async function getCurrentUser(accessToken: string): Promise<UserData> {
 // send spotify login
 export async function spotifyLogin(accessToken: string): Promise<void> {
   const data = await authRequest<SpotifyLoginResponse>(
-    "/api/spotify-login/",
+    "/spotify/login/",
     accessToken
   );
 
@@ -100,12 +100,14 @@ export async function spotifyLogin(accessToken: string): Promise<void> {
 
 // check if spotify is connected
 export async function getSpotifyStatus(accessToken: string): Promise<boolean> {
+  try {
   const result = await authRequest<{ connected: boolean }>(
     "/api/spotify/status/",
     accessToken
   );
-
   return result.connected;
+  }
+  catch {return false}
 }
 
 
