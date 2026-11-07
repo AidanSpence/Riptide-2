@@ -18,6 +18,7 @@ urlpatterns = [
     path("spotify/callback/", views.spotify_callback),
     path("spotify/export/", views.export),
     path("spotify/playlists/", views.spotify_playlists),
+    # path("api/spotify/status/", api.spotify_status),
 
     # playlists
     path("api/playlists/", api.list_playlists),

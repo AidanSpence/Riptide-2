@@ -16,10 +16,11 @@ import {
   isPlaylistData,
   PLAYLIST_DEMO_MODE,
   ChatApiError,
+  getSpotifyStatus,
   type ChatSummary,
   type ChatMessageData,
   type PlaylistData,
-  type linkedPlaylistData
+  type linkedPlaylistData,
 } from "../lib/api";
 import { demoPlaylists } from "../lib/playlist-demo";
 
@@ -65,7 +66,8 @@ export default function MainPage() {
   const [linkedPlaylists, setlinkedPlaylists] = useState<linkedPlaylistData[]>([]);
   const [linked, setLinked] = useState(true);
   const [loading, setLoading] = useState(true);
-
+  // spotify
+  const [spotifyConnected, setSpotifyConnected] = useState<boolean>(false);
 
 
 
@@ -214,34 +216,54 @@ export default function MainPage() {
       return;
     }
   }
+  // check spotify connected and update the profile in bottom left
+  useEffect(() => {
+    if (!accessToken) return;
 
-  // spotify playlist loading
-  async function loadLinkedPlaylists() {
-    try {
-      const res = await fetch("/api/spotify/playlists/", {
-        credentials: "include",
-        // if you use token auth instead of sessions:
-        // headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to load playlists");
-      const data = await res.json();
-      setLinked(data.linked);
-      setPlaylists(data.playlists);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }
-  if (activeTokenRef) {
-      loadLinkedPlaylists();
-  }
+    let cancelled = false;
+
+    getSpotifyStatus(accessToken)
+      .then(connected => {
+        if (!cancelled) setSpotifyConnected(connected);
+      })
+      .catch(console.error);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken]);
+
+
+
+
+
+  // // spotify playlist loading
+  // async function loadLinkedPlaylists() {
+  //   try {
+  //     const res = await fetch("/api/spotify/playlists/", {
+  //       credentials: "include",
+  //       // if you use token auth instead of sessions:
+  //       // headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     if (!res.ok) throw new Error("Failed to load playlists");
+  //     const data = await res.json();
+  //     setLinked(data.linked);
+  //     setPlaylists(data.playlists);
+  //   } catch (err) {
+  //     console.error(err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
+  // if (accessToken ) {
+  //     loadLinkedPlaylists();
+  // }
 
 
   async function connectSpotify() {
     const res = await fetch("/api/spotify/login/", { credentials: "include" });
     const { url } = await res.json();
-    window.location.href = url; // send the browser to Spotify's consent page
+    window.location.href = url;
   }
 
   // package the playlist, send it to django, and ensure it can only be done once

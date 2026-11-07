@@ -19,7 +19,7 @@ from rest_framework.exceptions import NotFound
 
 from .models import Playlist, PlaylistSong
 from .models import ChatMessage, UserChat
-
+# from .models import LinkedAccount
 
 User = get_user_model()
 MESSAGE_LIMIT = 3
@@ -224,3 +224,17 @@ def list_playlists(request):
         })
 
     return Response({"playlists": result})
+# ---------------------------------------------------------------------
+# Spotify check if linked
+# ---------------------------------------------------------------------
+# @api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+# def spotify_status(request):
+#     """check if the user has spotify linked."""
+
+#     connected = LinkedAccount.objects.filter(
+#         user=request.user,
+#         provider="spotify"
+#     ).exists()
+
+#     return Response({"connected": connected})
