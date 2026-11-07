@@ -209,20 +209,18 @@ def list_playlists(request):
             tracks.append({
                 "id": song.id,
                 "title": song.title,
-                "artists": [
+                "artists": ", ".join(
                     artist.name for artist in song.artists.all()
-                ],
-                "duration_s": song.duration_s,
+                ),
+                "duration_s": song.duration_s or 0
             })
 
         result.append({
             "id": playlist.id,
-            "title": playlist.name,
-            "tracks": tracks,
-            "duration_s": sum(
-                track["duration_s"] or 0
-                for track in tracks
-            ),
+            "name": playlist.name,
+            "message": "",
+            "chat_name": "",
+            "tracks": tracks
         })
 
     return Response({"playlists": result})

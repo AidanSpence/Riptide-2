@@ -352,7 +352,12 @@ export async function listPlaylists(accessToken: string): Promise<PlaylistData[]
   if (playlists.some(playlist => typeof playlist.id !== "number" || playlist.id <= 0)) {
     throw new Error("Saved playlists returned by Django need a positive numeric playlist id.");
   }
-
+  console.table(
+  playlists.map(playlist => ({
+    id: playlist.id,
+    name: playlist.name,
+    tracks: playlist.tracks.length
+  })))
   return playlists;
 }
 
