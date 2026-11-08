@@ -18,10 +18,11 @@ import {
   ChatApiError,
   getSpotifyStatus,
   getCurrentUser,
+  getLinkedPlaylists,
   type ChatSummary,
   type ChatMessageData,
   type PlaylistData,
-  type linkedPlaylistData,
+  type LinkedPlaylist
 } from "../lib/api";
 import { demoPlaylists } from "../lib/playlist-demo";
 
@@ -64,9 +65,9 @@ export default function MainPage() {
   const nextLocalPlaylistId = useRef<number>(-2);
 
   // linked playlists map
-  const [linkedPlaylists, setlinkedPlaylists] = useState<linkedPlaylistData[]>([]);
-  const [linked, setLinked] = useState();
-  const [loading, setLoading] = useState();
+  const [linked, setLinked] = useState<boolean>(false);
+  const [linkedPlaylists, setLinkedPlaylists] = useState<LinkedPlaylist[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   // spotify
   const [spotifyConnected, setSpotifyConnected] = useState<boolean>(false);
 
@@ -256,29 +257,38 @@ useEffect(() => {
 
 
 
+  // load spotify playlists when the user logs in
+  useEffect(() => {
+    if (!accessToken) return;
 
+    let cancelled = false;
 
-  // // spotify playlist loading
-  // async function loadLinkedPlaylists() {
-  //   try {
-  //     const res = await fetch("/api/spotify/playlists/", {
-  //       credentials: "include",
-  //       // if you use token auth instead of sessions:
-  //       // headers: { Authorization: `Bearer ${token}` },
-  //     });
-  //     if (!res.ok) throw new Error("Failed to load playlists");
-  //     const data = await res.json();
-  //     setLinked(data.linked);
-  //     setPlaylists(data.playlists);
-  //   } catch (err) {
-  //     console.error(err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }
-  // if (accessToken ) {
-  //     loadLinkedPlaylists();
-  // }
+    async function loadLinkedPlaylists() {
+      setLoading(true);
+
+      try {
+        const data = await getLinkedPlaylists(accessToken!);
+
+        if (cancelled) return;
+
+        setLinked(data.linked);
+        setLinkedPlaylists(data.playlists);
+
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to load Spotify playlists:", error);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void loadLinkedPlaylists();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken]);
 
 
 
@@ -399,7 +409,16 @@ async function saveChatInput() {
     if (activeTokenRef.current !== token) return;
 
     console.log(result);
-
+    // update the chat name in the sidebar
+    if (result.playlist?.chat_name) {
+      setChats(previous =>
+        previous.map(chat =>
+          chat.id === chatId
+            ? { ...chat, name: result.playlist!.chat_name }
+            : chat
+        )
+      );
+    }
     // replace the temporary message with django's saved message
     setMessageText(previous =>
       previous.map(msg =>
@@ -606,10 +625,10 @@ async function saveChatInput() {
             <div>No playlists found.</div>
           )}
 
-          {linkedPlaylists.map((p) => (
+          {!loading && linked && linkedPlaylists.map((p) => (
             <a
               key={p.id}
-              className="left_box_sizing left_playlist_box_1"
+              className="left_box_sizing left_playlist_box"
               href={p.url}
               target="_blank"
               rel="noreferrer"

@@ -185,6 +185,14 @@
 }
 
 
+.left_playlist_img{
+    aspect-ratio: 1;
+    max-height: 64px;
+}
+
+
+
+
 .left_profile_container{
     flex:0.3;
     max-height: 12%;

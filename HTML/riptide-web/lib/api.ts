@@ -48,12 +48,17 @@ export type PlaylistData = {
   tracks: PlaylistTrackData[];
 };
 
-export type linkedPlaylistData = {
-  id: string,
-  name: string,
-  image: string,
-  track_count: string,
-  url: string,
+export type LinkedPlaylist = {
+  id: string;
+  name: string;
+  track_count: number;
+  image: string | null;
+  url: string;
+};
+
+export type LinkedPlaylistsResponse = {
+  linked: boolean;
+  playlists: LinkedPlaylist[];
 };
 
 export type SendMessageResponse = {
@@ -98,11 +103,21 @@ export async function spotifyLogin(accessToken: string): Promise<void> {
   window.location.assign(data.url);
 }
 
+// get the user's linked spotify playlists
+export async function getLinkedPlaylists(
+  accessToken: string
+): Promise<LinkedPlaylistsResponse> {
+  return authRequest<LinkedPlaylistsResponse>(
+    "/spotify/playlists/",
+    accessToken
+  );
+}
+
 // check if spotify is connected
 export async function getSpotifyStatus(accessToken: string): Promise<boolean> {
   try {
   const result = await authRequest<{ connected: boolean }>(
-    "/api/spotify/status/",
+    "/spotify/status/",
     accessToken
   );
   return result.connected;
