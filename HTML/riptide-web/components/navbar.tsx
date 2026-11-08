@@ -4,13 +4,39 @@ import Image from 'next/image'
 import "./navbar.css";
 import Login_popup from "@/components/login-popup";
 import AccountPopup from "@/components/accounts-popup";
-import { useState } from 'react'
-
-
+import { useAuth } from "./auth-provider";
+import {getCurrentUser} from '../lib/api'
+import React, { useEffect, useRef, useState } from "react";
 export default function Navbar() {
     // defines the state of the popup
     const [loginActive, setLoginActive] = useState(false);
     const [accountActive, setAccountActive] = useState(false);
+    const { accessToken, logout } = useAuth();
+    const [username, setUsername] = useState<string>("");
+    
+    
+    async function loadUsername() {
+          try {
+          const user = await getCurrentUser(accessToken!);
+          setUsername(user.username);
+          } catch (error) {
+          console.error("Failed to retrieve username:", error);
+          }
+      } 
+    useEffect(() => {
+        if (!accessToken) return;
+
+        void loadUsername();
+    }, [accessToken]);
+
+    function getInitials(username: string): string {
+        return username
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(word => word[0].toUpperCase())
+        .join("");
+    }
     return(
 
         <nav className="navbar">
@@ -44,7 +70,7 @@ export default function Navbar() {
                     setAccountActive(false)
                     setLoginActive((active) => !active)
                 }}>
-                        <div className="nav_profile">JD</div>
+                        <div className="nav_profile">{username? getInitials(username): "JD"}</div>
                     </button>
                 </div>
 

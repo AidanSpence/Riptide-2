@@ -240,7 +240,7 @@ useEffect(() => {
   // check spotify connected and update the profile in bottom left
   useEffect(() => {
     if (!accessToken) return;
-
+    console.log("Spotify Connection status: ", getSpotifyStatus(accessToken))
     let cancelled = false;
 
     getSpotifyStatus(accessToken)
@@ -540,7 +540,14 @@ async function saveChatInput() {
       if (activeTokenRef.current === token) setIsLoadingChat(false);
     }
   }
-
+  function getInitials(username: string): string {
+    return username
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(word => word[0].toUpperCase())
+      .join("");
+  }
   // Page stuff
   return(
 
@@ -620,7 +627,7 @@ async function saveChatInput() {
 
         </div>
         <div className="left_profile_container">
-          <div className="left_profile_icon_bg"><div className="left_profile_icon_text">JD</div></div>
+          <div className="left_profile_icon_bg"><div className="left_profile_icon_text">{username? getInitials(username): "JD"}</div></div>
           <div className="left_profile_info_box">
             <div className="left_profile_name">{username? username: "John Doe"}</div>
             <div className="left_profile_service_state">{spotifyConnected ? "Spotify Connected" : "Spotify Not Connected"}</div>
@@ -631,7 +638,7 @@ async function saveChatInput() {
       {/* Main chat area. */}
       <div className="center_box">
         <div className="center_title_bar">
-          <div className="center_playlist_title">Title Placeholder
+          <div className="center_playlist_title"> {"Chat Title"} 
             <div className="center_playlist_attached_title">No playlist Attached</div>
           </div>
 
@@ -666,7 +673,7 @@ async function saveChatInput() {
         {(chatError || isSending || isLoadingChat || !accessToken || currentChatId === null || sendLimit) && (
           <div role={chatError ? "alert" : "status"} aria-live="polite"
             style={{ padding: "0.25rem 1rem", fontSize: "0.85rem" }}>
-            {chatError || (isSending ? "Loading response..." :
+            {chatError || (isSending ? "Generating response..." :
               isLoadingChat ? "Loading conversation..." :
               !accessToken ? "Log in using the profile button to send messages." :
               sendLimit ? "Send limit reached, create a new chat to continue." :
