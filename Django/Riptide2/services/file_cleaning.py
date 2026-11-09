@@ -7,10 +7,12 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from psycopg import sql
+from django.conf import settings
+from psycopg.conninfo import make_conninfo
 
 RENAME = {
     'Song': 'title', 'Artist': 'artists', 'BPM': 'bpm', 'Camelot': 'camelot',
-    'Energy': 'energy', 'Duration': 'duration', 'Popularity': 'popularity',
+    'Energy': 'energy', 'Duration': 'duration_s', 'Popularity': 'popularity',
     'Genres': 'genres', 'Album': 'album', 'Album Date': 'album_date',
     'Dance': 'danceability', 'Acoustic': 'acousticness',
     'Instrumental': 'instrumentalness', 'Valence': 'valence',
@@ -136,23 +138,29 @@ class Cleaning:
             df[c] = df[c].map(self.fix_bugged_char)
 
         # Convert Duration, Explicit and Key to correct values
-        dur = df['duration'].astype('str')
+        dur = df['duration_s'].astype('str')
         # Catch for times not HH:MM:SS
         dur = dur.where(dur.str.count(':') == 2, '00:' + dur)
-        df['duration'] = pd.to_timedelta(dur).dt.total_seconds().round().astype('int64')
+        df['duration_s'] = pd.to_timedelta(dur).dt.total_seconds().round().astype('Int64')
 
         df['explicit'] = (df['explicit'].str.lower().map({'yes': True, 'no': False}).fillna(False).astype(bool))
 
         keys = df['Key'].map(self.encode)
-        df['pitch'] = keys.map(lambda k: k[0] if k else None).astype('int64')
-        df['mode'] = keys.map(lambda k: k[1] if k else None).astype('int64')
+        df['pitch_class'] = keys.map(lambda k: k[0] if k else None).astype('Int64')
+        df['mode'] = keys.map(lambda k: k[1] if k else None).astype('Int64')
         df = df.drop(columns='Key')
 
         d = df['album_date'].map(self.parse_date)
         df['release_date'] = d.map(lambda t: t[0])
-        df['release_prescision'] = d.map(lambda t: t[1])
-        df['release_year'] = d.map(lambda t: t[2]).astype('int64')
+        df['release_year'] = d.map(lambda t: t[2]).astype('Int64')
         df = df.drop(columns='album_date')
+
+        missing = (
+            df['title'].isna() | (df['title'].astype('string').str.strip() == '') |
+            df['artists'].isna() | (df['artists'].astype('string').str.strip() == '')
+        )
+        print(f"Dropping {int(missing.sum())} rows missing title or artist")
+        df = df[~missing].reset_index(drop=True)
 
         df["artists"] = df['artists'].map(self.split_artists)
         comma_names = sorted({a for cell in df['artists'].dropna()
@@ -162,12 +170,28 @@ class Cleaning:
             for n in comma_names:
                 print(" ", n)
         df['genres'] = df['genres'].map(self.split_genres)
-        df['isrc'] = df['isrc'].str.strip().str.upper()
+        df['isrc'] = (df['isrc'].astype('string').str.upper()
+                    .str.replace(r'[^A-Z0-9]', '', regex=True))
+        bad = df['isrc'].notna() & (df['isrc'].str.len() != 12)
+        if bad.any():
+            print(f"isrc: {int(bad.sum())} invalid values, e.g. {df.loc[bad, 'isrc'].head(5).tolist()}")
+            df.loc[bad, 'isrc'] = None
         df["spotify_track_id"] = df["spotify_track_id"].str.strip()
+
+        NUMERIC = ['energy', 'danceability', 'acousticness', 'instrumentalness',
+                   'valence', 'speechiness', 'liveness', 'popularity',
+                   'bpm', 'loudness_db', 'time_signature']
+        for c in NUMERIC:
+            raw = df[c]
+            num = pd.to_numeric(raw, errors='coerce')
+            bad = raw.notna() & num.isna()
+            if bad.any():
+                print(f"{c}: {bad.sum()} non-numeric values, e.g. {raw[bad].unique()[:5].tolist()}")
+            df[c] = num
 
         for c in ['energy', 'danceability', 'acousticness', 'instrumentalness',
                   'valence', 'speechiness', 'liveness', 'popularity']:
-            assert df[c].between(0,100).all(), f"{c} out of 0-100"
+            assert df[c].dropna().between(0, 100).all(), f"{c} out of 0-100"
 
         # check for duplicates
         dupes = df[df.duplicated('spotify_track_id', keep=False)]
@@ -175,8 +199,19 @@ class Cleaning:
             print("duplicate track id:\n", dupes[['title']].to_string())
 
         # Save file to clean version
-        df.to_csv("clean_"+ self.file, index=False)
-        return "clean_"+ self.file
+        src = Path(self.file)
+        out = src.with_name("clean_" + src.name)
+        df.to_csv(out, index=False)
+        return out
+
+
+def django_dsn() -> str:
+    db = settings.DATABASES["default"]
+    return make_conninfo(
+        dbname=db["NAME"], user=db["USER"], password=db["PASSWORD"],
+        host=db["HOST"], port=db["PORT"],
+        sslmode=db.get("OPTIONS", {}).get("sslmode", "prefer"),
+    )
 
 class SongUploader:
 
@@ -209,7 +244,6 @@ class SongUploader:
         'pitch_class': 'SMALLINT',
         'mode': 'SMALLINT',
         'release_date': 'DATE',
-        'release_precision': 'TEXT',
         'release_year': 'SMALLINT',
     }
     REQUIRED = {'title', 'spotify_track_id'}
@@ -302,9 +336,7 @@ class SongUploader:
     """
 
     def __init__(self, dsn: str = None):
-        self.dsn = dsn or os.environ.get('DATABASE_URL')
-        if not self.dsn:
-            raise RuntimeError("set the DATABASE_URL enviroment variable")
+        self.dsn = dsn or django_dsn()
 
     def read_header(self, path: Path):
         """reads the first line and checks the column names are all matching."""
@@ -355,7 +387,7 @@ class SongUploader:
         with psycopg.connect(self.dsn) as conn:
             with conn.cursor() as cur:
                 # "load in progress" flag
-                cur.execute('SELECT pg_advisory_xact_lock(%s)' (self.LOCK_ID))
+                cur.execute('SELECT pg_advisory_xact_lock(%s)', (self.LOCK_ID,))
                 self.create_staging(cur)
                 self.copy_csv(cur, csv_path, header)
 
@@ -378,37 +410,37 @@ class SongUploader:
 
                 cur.execute(self.ASSIGN_CLUSTERS)
 
-            if revectorized:
-                with psycopg.connect(self.dsn, autocommint=True) as conn:
-                    conn.execute('REINDEX INDEX CONCURRENTLY music.songs_features_hnsw')
+        if revectorized:
+            with psycopg.connect(self.dsn, autocommit=True) as conn:
+                conn.execute('REINDEX INDEX CONCURRENTLY music.songs_features_hnsw')
 
-            return{
-                'rows_in_file': rows_in_file,
-                'inserted': inserted,
-                'skipped': rows_in_file - inserted,
-                'revectorized': revectorized,
-                'clean_csv' : str(csv_path)
-            }
+        return{
+            'rows_in_file': rows_in_file,
+            'inserted': inserted,
+            'skipped': rows_in_file - inserted,
+            'revectorized': revectorized,
+            'clean_csv' : str(csv_path)
+        }
 
     def rebuild_vectors(self) -> None:
         """Standardization stats and every song's vector recalculated
         
         Should only be run ocassionaly when low usage or libary has doubled"""
         with psycopg.connect(self.dsn) as conn:
-            conn.execute('SELECT pg_advisory_xact_lock(%s)', (self.LOCK_ID))
+            conn.execute('SELECT pg_advisory_xact_lock(%s)', (self.LOCK_ID,))
             conn.execute('SELECT music.refresh_feature_stats()')
             conn.execute('UPDATE music.songs SET energy = energy')
-        with psycopg.connect(self.dsn, autocommint= True) as conn:
+        with psycopg.connect(self.dsn, autocommit=True) as conn:
             conn.execute('REINDEX INDEX CONCURRENTLY music.songs_features_hnsw')
             
 
-if __name__ == '__main__':
-    # for clean file
-    loader = SongUploader()
-    cleaned = Cleaning('merged.csv').clean()
-    print(loader.load(cleaned, clean=False))
+# if __name__ == '__main__':
+#     # for clean file
+#     loader = SongUploader()
+#     cleaned = Cleaning('merged.csv').clean()
+#     print(loader.load(cleaned, clean=False))
 
 
-    # for unclean file
-    loader = SongUploader()
-    print(loader.load('merged.csv'))
+#     # for unclean file
+#     loader = SongUploader()
+#     print(loader.load('merged.csv'))
