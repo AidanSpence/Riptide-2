@@ -1845,6 +1845,20 @@ body {
   max-height: 8vmin;
 }
 
+.left_box_sizing.active {
+  background: radial-gradient(circle, #3b82f699 0%, #234c9075 70%, #0000 100%);
+}
+
+.left_playlist_box {
+  text-overflow: ellipsis;
+  font-size: var(--font-sml);
+  align-items: center;
+  gap: 1%;
+  padding: 1%;
+  display: flex;
+  overflow: hidden;
+}
+
 .left_linked_playlists {
   scrollbar-width: none;
   flex-direction: column;
@@ -1872,12 +1886,19 @@ body {
   overflow-y: scroll;
 }
 
+.left_playlist_img {
+  aspect-ratio: 1;
+  max-height: 100%;
+}
+
 .left_profile_container {
   border-top: var(--border-thin);
   flex-direction: row;
   flex: .3;
   place-items: center;
   gap: 5%;
+  min-width: 90%;
+  max-height: 10%;
   margin: auto;
   padding: 1%;
   display: flex;
@@ -1912,7 +1933,7 @@ body {
 }
 
 .left_profile_name {
-  font-size: var(--font-sml);
+  font-size: var(--font-med);
   white-space: nowrap;
   text-overflow: ellipsis;
   width: 100%;
@@ -1920,7 +1941,7 @@ body {
 }
 
 .left_profile_service_state {
-  font-size: var(--font-xsml);
+  font-size: var(--font-sml);
 }
 
 .center_box {
