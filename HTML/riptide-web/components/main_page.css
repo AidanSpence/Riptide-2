@@ -114,10 +114,33 @@
 
 }
 
+.left_chats_header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 3%;
+}
+
+.new_chat_button {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    height: 3.5vmin;
+    width: 3.5vmin;
+    padding: 0.6vmin;
+    border: var(--border-thick);
+    border-radius: var(--corner-rad-small);
+    color: var(--color-text);
+    cursor: pointer;
+    margin-top: 2%;
+}
+
 .left_chat_title
 {
     font-size: var(--font-med);
-    padding: 1%;
+    padding-left: 1%;
+    width: fit-content;
 }
 
 .new_chat_button{
@@ -154,6 +177,8 @@
     min-height: 8vmin;
     max-height: 8vmin;
     width:95%;
+    text-align: left;
+    padding-left: 10;
 }
 
 .left_box_sizing.active
@@ -319,7 +344,8 @@
     font-size: clamp(1rem, var(--font-sml),);
     border: var(--border-thin-highlight)
 }
-.center_playlist_privacy_title{
+
+/* .center_playlist_privacy_title{
     width: max-content;
     white-space: nowrap;
     height: fit-content;
@@ -331,7 +357,7 @@
     padding-right: 0.4rem;
     font-size: var(--font-sml);
     border: var(--border-thin-highlight)
-}
+} */
 
 .delete_chat_button_box{
     margin-left: auto;

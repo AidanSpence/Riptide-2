@@ -43,6 +43,8 @@ export default function MainPage() {
   // this enforces the sendlimit, false is unlocked, true is locked
   const [sendLimit, setSendLimit] = useState<boolean>(false);
 
+  const newMessages: message[] = [];
+
   const [chats, setChats] = useState<ChatSummary[]>([]);
 
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
@@ -74,6 +76,8 @@ export default function MainPage() {
 
   // active chat
   const [activeChatId, setActiveChatId] = useState<number | null>(null);
+
+  const currentChat = chats.find(chat => chat.id === currentChatId);
 
 
   const [username, setUsername] = useState<string>("");
@@ -144,6 +148,7 @@ useEffect(() => {
     id: string;
     text: string;
     sender: "system" | "user";
+    playlist?: PlaylistData;
   };
 
   // load the users saved conversations after the access token becomes available
@@ -591,15 +596,19 @@ async function saveChatInput() {
         inert={!leftOpen}
       >
         <div className="left_chats">
-          <div className="left_chat_title">Chats:</div>
-          <button
-            type="button"
-            className="new_chat_button"
-            onClick={startNewChat}
-            disabled={!accessToken || isSending || isLoadingChat}
-          >
-            New Chat
-          </button>
+          <div className="left_chats_header">
+            <div className="left_chat_title">Chats:</div>
+              <button
+                type="button"
+                className="new_chat_button"
+                onClick={startNewChat}
+                disabled={!accessToken || isSending || isLoadingChat}
+                aria-label="New chat"
+                title="New chat"
+              >
+              <Image className="new_chat_button_image" src="add.svg" width={30} height={30} alt="new chat button"></Image>
+              </button>
+          </div>
           <div className="left_chat_box_scrolling">
             {chats.map(chat => (
               <button
@@ -660,11 +669,10 @@ async function saveChatInput() {
       {/* Main chat area. */}
       <div className="center_box">
         <div className="center_title_bar">
-          <div className="center_playlist_title"> {"Chat Title"} 
+          <div className="center_playlist_title"> {currentChat?.name ?? "New chat"} 
             <div className="center_playlist_attached_title">No playlist Attached</div>
           </div>
 
-          <div className="center_playlist_privacy_title">Private</div>
           <div className="delete_chat_button_box" title="Delete current chat">
             <button className="delete_chat_button" onClick={() => {if(currentChatId !== null){handleDeleteChat(currentChatId)}} }>
               <Image src="bin.svg" alt="alt" width={30} height={30}/>
@@ -844,3 +852,4 @@ all elements can be of any type or length including blank but preferably have co
   </div>
 </div>
 )}
+

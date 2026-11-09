@@ -51,6 +51,7 @@ export default function Navbar() {
             ></AccountPopup>
             <div className="left_nav">
                 <div className="nav_logo"><Image className="logo_image" src="riptide-logo.svg" alt="logo" width={32} height={32} loading="eager" /></div>
+                <div className="nav_title"><h1>Riptide</h1></div>
             </div>
 
             <div className="right_nav">

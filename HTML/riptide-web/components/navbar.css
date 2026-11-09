@@ -68,6 +68,14 @@
   width: 100%;
   aspect-ratio: 1;
 }
+
+/* Nav Title */
+
+.nav_title {
+  font-size: var(--font-lar);
+}
+
+
 /* Nav Settings */
 
 .nav_settings{
