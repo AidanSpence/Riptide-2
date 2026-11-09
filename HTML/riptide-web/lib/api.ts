@@ -278,18 +278,19 @@ export async function getChat(
 export async function sendChatMessage(
   accessToken: string,
   chatId: number,
-  text: string
+  text: string,
+  id: string | null = null
 ) {
   const result = await authRequest<SendMessageResponse>(
     `/api/chats/${chatId}/messages/`,
     accessToken,
     {
       method: "POST",
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text, id })
     }
   );
 
-  // catch unexpected API response shapes rather than failing silently in React
+  // catch unexpected API response shapes rather than failing silently 
   if (!result || !result.message || typeof result.message.text !== "string" ||
       typeof result.message.id !== "number" ||
       typeof result.remaining_messages !== "number") {

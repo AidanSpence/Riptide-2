@@ -61,6 +61,7 @@ export default function MainPage() {
   const [isLoadingPlaylists, setIsLoadingPlaylists] = useState<boolean>(false);
   const [deletingPlaylistId, setDeletingPlaylistId] = useState<number | null>(null);
   const [exportingPlaylistId, setExportingPlaylistId] = useState<number | null>(null);
+  const [selectedSpotifyPlaylistId, setSelectedSpotifyPlaylistId] = useState<string>("");
   // negative IDs are temporary for generated playlists not saved by Django
   const nextLocalPlaylistId = useRef<number>(-2);
 
@@ -405,10 +406,10 @@ async function saveChatInput() {
     setMessageText(previous => [...previous, tempUserMessage]);
 
     // send just the new message to django instead of the full array
-    const result = await sendChatMessage(token, chatId, text);
+    const result = await sendChatMessage(token, chatId, text, selectedSpotifyPlaylistId);
     if (activeTokenRef.current !== token) return;
 
-    console.log(result);
+    console.log(token, chatId, text, selectedSpotifyPlaylistId);
     // update the chat name in the sidebar
     if (result.playlist?.chat_name) {
       setChats(previous =>
@@ -443,7 +444,7 @@ async function saveChatInput() {
 
     // append the system message
     setMessageText(previous => [...previous, ...newMessages]);
-
+    setSelectedSpotifyPlaylistId("");
     // django can optionally include a new playlist alongside the chat reply
     if (result.playlist) {
       if (isPlaylistData(result.playlist)) {
@@ -626,19 +627,17 @@ async function saveChatInput() {
           )}
 
           {!loading && linked && linkedPlaylists.map((p) => (
-            <a
+            <button
               key={p.id}
-              className="left_box_sizing left_playlist_box"
-              href={p.url}
-              target="_blank"
-              rel="noreferrer"
+              className={`left_box_sizing left_playlist_box ${
+                selectedSpotifyPlaylistId === p.id ? "selected" : ""}`}
             >
               {p.image && <img className="left_playlist_img" src={p.image} alt="" />}
               <div className="left_playlist_info">
                 <div className="left_playlist_name">{p.name}</div>
                 <div className="left_playlist_count">{p.track_count ?? "?"} tracks</div>
               </div>
-            </a>
+            </button>
           ))}
         </div>
       </div>

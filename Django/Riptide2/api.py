@@ -164,7 +164,7 @@ def chat_send_message(request, chat_id):
     playlist = None
     try:
         playlist = generate_ai_response(
-            history, user=request.user, playlist_id=None, spotify_playlist_id=None
+            history, user=request.user, playlist_id=None, spotify_playlist_id=request.data.get("id")
         )
     except Exception:
         traceback.print_exc()
