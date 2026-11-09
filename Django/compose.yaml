@@ -29,7 +29,6 @@ services:
       - .env.spotify
     environment:
       DB_HOST: db
-      DB_PORT: "5432"
       DJANGO_DEBUG: "1"
       OLLAMA_URL: http://host.docker.internal:11434/api/chat
 
