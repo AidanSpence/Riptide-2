@@ -71,7 +71,8 @@ export default function MainPage() {
   // spotify
   const [spotifyConnected, setSpotifyConnected] = useState<boolean>(false);
 
-
+  // active chat
+  const [activeChatId, setActiveChatId] = useState<number | null>(null);
 
 
   const [username, setUsername] = useState<string>("");
@@ -603,8 +604,11 @@ async function saveChatInput() {
               <button
                 key={chat.id}
                 type="button"
-                className="left_box_sizing left_chat_box_1"
-                onClick={() => openChat(chat.id)}
+                className={`left_box_sizing${chat.id === currentChatId ? " active" : ""}`}
+                onClick={() => {
+                  setActiveChatId(chat.id);
+                  openChat(chat.id);
+                }}
                 disabled={isSending || isLoadingChat}
               >
                 {chat.name}

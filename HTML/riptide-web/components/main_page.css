@@ -156,13 +156,8 @@
     width:95%;
 }
 
-.left_box_sizing:active
+.left_box_sizing.active
 {
-    border: var(--border-thick);
-    border-radius: var(--corner-rad-small);
-    min-height:8vmin;
-    max-height: 8vmin;
-    width:95%;
     background: radial-gradient(circle at center, #3B82F699 0%, #234C9075 70%, transparent 100%);
 }
 
