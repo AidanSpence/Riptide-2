@@ -160,7 +160,16 @@
 {
     background: radial-gradient(circle at center, #3B82F699 0%, #234C9075 70%, transparent 100%);
 }
-
+.left_playlist_box
+{
+    display: flex;
+    align-items: center;
+    padding: 1%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    gap: 1%;
+    font-size: var(--font-sml);
+}
 .left_linked_playlists
 {
     display: flex;
@@ -193,7 +202,7 @@
 
 .left_playlist_img{
     aspect-ratio: 1;
-    max-height: 64px;
+    max-height: 100%;
 }
 
 
