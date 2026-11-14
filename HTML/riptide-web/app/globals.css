@@ -22,6 +22,7 @@
   --border-thin-highlight: rgba(255, 255, 255, 0.3) solid 1px;
   --border-med-highlight: rgba(255, 255, 255, 0.3) solid 2px;
   --border-thick-highlight: rgba(255, 255, 255, 0.3) solid 3px;
+  --chat-system-window: linear-gradient(#172238 25%, var(--color-background) 100%);
 
 [data-theme="dark"] {
     --bg-color: #121212;
