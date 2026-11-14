@@ -6,27 +6,22 @@ import Login_popup from "@/components/login-popup";
 import AccountPopup from "@/components/accounts-popup";
 import { useAuth } from "./auth-provider";
 import {getCurrentUser} from '../lib/api'
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 export default function Navbar() {
     // defines the state of the popup
     const [loginActive, setLoginActive] = useState(false);
     const [accountActive, setAccountActive] = useState(false);
-    const { accessToken, logout } = useAuth();
+    const { accessToken } = useAuth();
     const [username, setUsername] = useState<string>("");
     
     
-    async function loadUsername() {
-          try {
-          const user = await getCurrentUser(accessToken!);
-          setUsername(user.username);
-          } catch (error) {
-          console.error("Failed to retrieve username:", error);
-          }
-      } 
     useEffect(() => {
         if (!accessToken) return;
-
-        void loadUsername();
+        let cancelled = false;
+        getCurrentUser(accessToken).then(user => {
+            if (!cancelled) setUsername(user.username);
+        }).catch(console.error);
+        return () => { cancelled = true; };
     }, [accessToken]);
 
     function getInitials(username: string): string {
@@ -70,7 +65,7 @@ export default function Navbar() {
                     setAccountActive(false)
                     setLoginActive((active) => !active)
                 }}>
-                        <div className="nav_profile">{username? getInitials(username): "JD"}</div>
+                        <div className="nav_profile">{accessToken && username ? getInitials(username) : "JD"}</div>
                     </button>
                 </div>
 

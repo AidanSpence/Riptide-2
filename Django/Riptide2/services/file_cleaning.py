@@ -211,6 +211,7 @@ def django_dsn() -> str:
         dbname=db["NAME"], user=db["USER"], password=db["PASSWORD"],
         host=db["HOST"], port=db["PORT"],
         sslmode=db.get("OPTIONS", {}).get("sslmode", "prefer"),
+        connect_timeout=db.get("OPTIONS", {}).get("connect_timeout", 10),
     )
 
 class SongUploader:

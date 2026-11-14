@@ -1,5 +1,6 @@
 // used by the static frontend at build time; localhost remains the dev fallback
-const API_URL = 'http://127.0.0.1:9000';
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ??
+  (process.env.NODE_ENV === "development" ? "http://127.0.0.1:9000" : "");
 const LOGIN_ENDPOINT = '/api/login/'
 const REGISTER_ENDPOINT = '/api/signup/'
 
@@ -64,7 +65,9 @@ export type LinkedPlaylistsResponse = {
 export type SendMessageResponse = {
   message: ChatMessageData;
   remaining_messages: number;
-  playlist: PlaylistData;
+  playlist?: PlaylistData;
+  reply?: string;
+  generation_error?: string | null;
 };
 
 
@@ -158,9 +161,7 @@ async function authRequest<T>(
   options: RequestInit = {}
 ): Promise<T> {
 
-  if (!API_URL) {
-    throw new Error("API_URL is not configured");
-  }
+  // an empty base URL uses the same CloudFront hostname as the website
 
   const headers = new Headers(options.headers);
 

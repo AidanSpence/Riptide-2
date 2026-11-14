@@ -1,3 +1,5 @@
+> AWS deployment preparation: start with [docs/AWS_SETUP.md](docs/AWS_SETUP.md) and [docs/CHANGES_AND_VALIDATION.md](docs/CHANGES_AND_VALIDATION.md). Review and pass CI before merging into `Deployment`.
+
 # Riptide 2
 
 Riptide 2 is a music recommendation system that combines AI-driven recommendations with clustering-based discovery. The project includes a Django backend for data processing and APIs, a PostgreSQL database, and a Next.js frontend for the user-facing interface.

@@ -6,6 +6,7 @@ from Riptide2 import api, views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("health/", api.health),
 
     # authentication
     path("api/signup/", api.signup),
@@ -16,12 +17,13 @@ urlpatterns = [
     # integrations and exports
     path("spotify/login/", views.spotify_login),
     path("spotify/callback/", views.spotify_callback),
-    path("spotify/export/", views.export),
+    path("api/spotify/export/<int:playlist_id>/", views.export),
     path("spotify/playlists/", views.spotify_playlists),
     path("spotify/status/", api.spotify_status),
 
     # playlists
     path("api/playlists/", api.list_playlists),
+    path("api/playlists/<int:playlist_id>/", api.delete_playlist),
     # chats
     path("api/chats/", api.chats),
     path("api/chats/<int:chat_id>/", api.chat_detail),

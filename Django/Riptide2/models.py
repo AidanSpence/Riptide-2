@@ -71,6 +71,7 @@ class Song(models.Model):
     energy = models.FloatField(null=True)
     features = VectorField(dimensions=9, null=True, editable=False)
     duration_s = models.IntegerField(null=True)
+    spotify_track_id = models.CharField(max_length=22, null=True, unique=True)
     cluster_id = models.IntegerField(null=True)
 
     class Meta:
@@ -186,3 +187,15 @@ class ChatMessage(models.Model):
     class Meta:
         db_table = "chat_messages"
         ordering = ["created_at", "id"]
+
+class SpotifyOAuthState(models.Model):
+    """short lived, single use spotify login state."""
+    state = models.CharField(max_length=128, primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    expires_at = models.DateTimeField()
+
+
+class GenerationBudget(models.Model):
+    """count reserved AI attempts across all users each UTC day."""
+    day = models.DateField(primary_key=True)
+    attempts = models.PositiveIntegerField(default=0)

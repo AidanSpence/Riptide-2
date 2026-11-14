@@ -3,6 +3,7 @@
 import Riptide2.fields
 import Riptide2.models
 from django.db import migrations, models
+from django.contrib.postgres.operations import CITextExtension
 import uuid
 
 
@@ -15,6 +16,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # needed before creating citext fields on a fresh database
+        CITextExtension(),
         migrations.CreateModel(
             name='User',
             fields=[

@@ -5,9 +5,9 @@ import type { PlaylistData } from "./api";
 export const demoPlaylists: PlaylistData[] = [
   {
     "id": -1,
-    "title": "Fun Car Ride",
+    "name": "Fun Car Ride",
+    "chat_name": "Fun Car Ride",
     "message": "Get ready to hit the road with this fun and energetic playlist!",
-    "description": "A fun and energetic car playlist to make driving more enjoyable.",
     "tracks": [
       {
         "id": 52934,

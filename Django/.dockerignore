@@ -1,7 +1,12 @@
 .venv/
-__pycache__/
-*.pyc
+**/__pycache__/
+**/*.pyc
 .git/
-.gitignore
 .env
+.env.*
+!.env.example
 db.sqlite3
+staticfiles/
+compose.yaml
+data/merged.csv
+data/code/

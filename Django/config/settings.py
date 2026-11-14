@@ -12,13 +12,25 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 import os
 from pathlib import Path
-from dotenv import dotenv_values
+from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-db_env = {**dotenv_values(BASE_DIR / ".env"), **os.environ}
-spotify_env = {**dotenv_values(BASE_DIR / ".env.spotify"), **os.environ}
+# local files are optional; EB environment variables take priority
+load_dotenv(BASE_DIR / ".env", override=False)
+load_dotenv(BASE_DIR / ".env.spotify", override=False)
+db_env = spotify_env = os.environ
+
+
+def env_bool(name, default="0"):
+    return os.getenv(name, default).lower() in {"1", "true", "yes"}
+
+
+def env_list(name, default=""):
+    return [value.strip() for value in os.getenv(name, default).split(",") if value.strip()]
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -31,7 +43,9 @@ SECRET_KEY = os.environ.get(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', '1').lower() in {'1', 'true', 'yes'}
+DEBUG = env_bool("DJANGO_DEBUG")
+if not DEBUG and (not os.getenv("SECRET_KEY") or len(SECRET_KEY) < 50):
+    raise ImproperlyConfigured("set a random SECRET_KEY of at least 50 characters")
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -56,6 +70,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'Riptide2.middleware.CloudFrontOriginMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -100,7 +115,8 @@ DATABASES = {
         'PORT': db_env.get("DB_PORT", "5432"),
         'CONN_MAX_AGE': 60,
         'OPTIONS': {
-            'sslmode': os.environ.get("DB_SSLMODE", "prefer"),
+            'sslmode': os.environ.get("DB_SSLMODE", "prefer" if DEBUG else "require"),
+            'connect_timeout': 10,
             'options': '-c search_path=app,public',
         },
     }
@@ -110,14 +126,14 @@ AUTH_USER_MODEL = "Riptide2.User"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
-FRONTEND_URL = "http://localhost:3000"
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000" if DEBUG else "")
 
 # Spotify Authentication
 
 SPOTIFY_CLIENT_ID = spotify_env["SPOTIFY_CLIENT_ID"]
 SPOTIFY_CLIENT_SECRET = spotify_env["SPOTIFY_CLIENT_SECRET"]
-SPOTIFY_REDIRECT_URI = "http://127.0.0.1:9000/spotify/callback/"
-SPOTIFY_SCOPES = "user-read-email user-read-private playlist-read-private user-library-modify user-library-read playlist-read-collaborative"
+SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI", "http://127.0.0.1:9000/spotify/callback/" if DEBUG else "")
+SPOTIFY_SCOPES = "user-read-private playlist-read-private playlist-read-collaborative playlist-modify-private"
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
@@ -162,7 +178,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MAILERS = {
     'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+        'BACKEND': ('django.core.mail.backends.console.EmailBackend' if DEBUG else 'django.core.mail.backends.smtp.EmailBackend'),
     },
 }
 
@@ -183,4 +199,42 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "USER_ID_FIELD": "id",
+}
+
+# cloudfront uses a secret origin header; never put it in browser code
+CLOUDFRONT_ORIGIN_SECRET = os.getenv("CLOUDFRONT_ORIGIN_SECRET", "")
+if not DEBUG:
+    for name in ("DJANGO_ALLOWED_HOSTS", "FRONTEND_URL", "SPOTIFY_REDIRECT_URI", "CLOUDFRONT_ORIGIN_SECRET"):
+        if not os.getenv(name):
+            raise ImproperlyConfigured(f"missing production setting: {name}")
+    if not FRONTEND_URL.startswith("https://") or not SPOTIFY_REDIRECT_URI.startswith("https://"):
+        raise ImproperlyConfigured("production browser and callback URLs must use https")
+
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", FRONTEND_URL)
+CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS", FRONTEND_URL)
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+# only our middleware supplies this header after checking the origin secret
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_REDIRECT_EXEMPT = [r"^health/$"]
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# shared between gunicorn workers, without another AWS service
+CACHES = {"default": {
+    "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+    "LOCATION": "riptide_cache",
+}}
+REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = [
+    "rest_framework.throttling.AnonRateThrottle",
+    "rest_framework.throttling.UserRateThrottle",
+]
+REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {"anon": "30/minute", "user": "120/minute"}
+GENERATION_DAILY_LIMIT = int(os.getenv("GENERATION_DAILY_LIMIT", "10"))
+GENERATION_USER_DAILY_LIMIT = int(os.getenv("GENERATION_USER_DAILY_LIMIT", "5"))
+
+LOGGING = {
+    "version": 1, "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": "INFO"},
 }

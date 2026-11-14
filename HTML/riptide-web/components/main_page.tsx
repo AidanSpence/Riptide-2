@@ -26,7 +26,36 @@ import {
 } from "../lib/api";
 import { demoPlaylists } from "../lib/playlist-demo";
 
+  // show the actual request error so failed endpoints aren't silent
+  function describeChatError(error: unknown, action: string): string {
+    if (error instanceof ChatApiError) {
+      if (error.status === 404) {
+        return `${action}: HTTP 404. Check that the Django chat endpoints exist.`;
+      }
+      return `${action}: HTTP ${error.status} - ${error.message}`;
+      }
+      if (error instanceof TypeError) {
+        return `${action}: Cannot contact Django. Check the API URL, server and CORS settings.`;
+      }
+    return `${action}: ${error instanceof Error ? error.message : "Unknown error"}`;
+  }
+
+  // playlist errors use the playlist endpoint rather than the chat endpoint
+  function describePlaylistError(error: unknown, action: string): string {
+    if (error instanceof ChatApiError && error.status === 404) {
+      return `${action}: HTTP 404. Check that the Django playlist endpoints exist.`;
+    }
+    return describeChatError(error, action);
+  }
+
+
 export default function MainPage() {
+  const { accessToken } = useAuth();
+  // remount account-specific state when the login changes
+  return <ChatPage key={accessToken ?? "guest"} />;
+}
+
+function ChatPage() {
   // retrieve the login key from the shared auth provider
   const { accessToken, logout } = useAuth();
 
@@ -58,7 +87,7 @@ export default function MainPage() {
   // right panel playlist state, separate from the users chat messages
   const [playlists, setPlaylists] = useState<PlaylistData[]>(PLAYLIST_DEMO_MODE ? demoPlaylists : []);
   const [playlistError, setPlaylistError] = useState<string>("");
-  const [isLoadingPlaylists, setIsLoadingPlaylists] = useState<boolean>(false);
+  const [isLoadingPlaylists, setIsLoadingPlaylists] = useState<boolean>(!PLAYLIST_DEMO_MODE && Boolean(accessToken));
   const [deletingPlaylistId, setDeletingPlaylistId] = useState<number | null>(null);
   const [exportingPlaylistId, setExportingPlaylistId] = useState<number | null>(null);
   const [selectedSpotifyPlaylistId, setSelectedSpotifyPlaylistId] = useState<string>("");
@@ -73,34 +102,20 @@ export default function MainPage() {
   const [spotifyConnected, setSpotifyConnected] = useState<boolean>(false);
 
   // active chat
-  const [activeChatId, setActiveChatId] = useState<number | null>(null);
+
 
 
   const [username, setUsername] = useState<string>("");
 
 
-  async function loadUsername() {
-      try {
-      const user = await getCurrentUser(accessToken!);
-      setUsername(user.username);
-      } catch (error) {
-      console.error("Failed to retrieve username:", error);
-      }
-  } 
-  
-useEffect(() => {
-  if (accessToken) {
-    void loadUsername();
-  }
-}, [accessToken]);
-    
-  
-useEffect(() => {
-  if (!accessToken) {
-    void setUsername("");
-  }
-}, [accessToken]);
-
+  useEffect(() => {
+    if (!accessToken) return;
+    let cancelled = false;
+    getCurrentUser(accessToken).then(user => {
+      if (!cancelled) setUsername(user.username);
+    }).catch(console.error);
+    return () => { cancelled = true; };
+  }, [accessToken]);
 
   // message limit message, sets limit internally to true, and
   // if django returns limit reached, run this and it should lockout interface
@@ -108,28 +123,6 @@ useEffect(() => {
     // show an error without saving a made-up system message to postgres
     setChatError("Send limit reached, create a new chat to continue");
     setSendLimit(true);
-  }
-
-  // show the actual request error so failed endpoints aren't silent
-  function describeChatError(error: unknown, action: string): string {
-    if (error instanceof ChatApiError) {
-      if (error.status === 404) {
-        return `${action}: HTTP 404. Check that the Django chat endpoints exist.`;
-      }
-      return `${action}: HTTP ${error.status} - ${error.message}`;
-      }
-      if (error instanceof TypeError) {
-        return `${action}: Cannot contact Django. Check the API URL, server and CORS settings.`;
-      }
-    return `${action}: ${error instanceof Error ? error.message : "Unknown error"}`;
-  }
-
-  // playlist errors use the playlist endpoint rather than the chat endpoint
-  function describePlaylistError(error: unknown, action: string): string {
-    if (error instanceof ChatApiError && error.status === 404) {
-      return `${action}: HTTP 404. Check that the Django playlist endpoints exist.`;
-    }
-    return describeChatError(error, action);
   }
 
   function toClientMessage(data: ChatMessageData): message {
@@ -149,16 +142,6 @@ useEffect(() => {
   // load the users saved conversations after the access token becomes available
   useEffect(() => {
     activeTokenRef.current = accessToken;
-
-    // clear the previous account's chats whenever the login changes
-    setChats([]);
-    setCurrentChatId(null);
-    setMessageText([]);
-    setTempMessageText("");
-    setSendLimit(false);
-    setChatError("");
-    setIsSending(false);
-    setIsLoadingChat(false);
 
     if (!accessToken) return;
 
@@ -182,17 +165,9 @@ useEffect(() => {
 
   // load saved playlists after login (demo data is used until Django has an endpoint)
   useEffect(() => {
-    setPlaylists(PLAYLIST_DEMO_MODE ? demoPlaylists : []);
-    setPlaylistError("");
-    setDeletingPlaylistId(null);
-
-    if (PLAYLIST_DEMO_MODE || !accessToken) {
-      setIsLoadingPlaylists(false);
-      return;
-    }
+    if (PLAYLIST_DEMO_MODE || !accessToken) return;
 
     let cancelled = false;
-    setIsLoadingPlaylists(true);
 
     listPlaylists(accessToken)
       .then(result => {
@@ -239,11 +214,23 @@ useEffect(() => {
       setPlaylistError("Log in before deleting a saved playlist.");
       return;
     }
+    const token = accessToken;
+    setDeletingPlaylistId(playlistId);
+    try {
+      await deletePlaylist(token, playlistId);
+      if (activeTokenRef.current === token) {
+        setPlaylists(previous => previous.filter(item => item.id !== playlistId));
+      }
+    } catch (error) {
+      if (activeTokenRef.current === token) setPlaylistError(describePlaylistError(error, "Unable to delete playlist"));
+    } finally {
+      if (activeTokenRef.current === token) setDeletingPlaylistId(null);
+    }
   }
   // check spotify connected and update the profile in bottom left
   useEffect(() => {
     if (!accessToken) return;
-    console.log("Spotify Connection status: ", getSpotifyStatus(accessToken))
+
     let cancelled = false;
 
     getSpotifyStatus(accessToken)
@@ -410,7 +397,7 @@ async function saveChatInput() {
     const result = await sendChatMessage(token, chatId, text, selectedSpotifyPlaylistId);
     if (activeTokenRef.current !== token) return;
 
-    console.log(token, chatId, text, selectedSpotifyPlaylistId);
+
     // update the chat name in the sidebar
     if (result.playlist?.chat_name) {
       setChats(previous =>
@@ -433,9 +420,9 @@ async function saveChatInput() {
     const newMessages: message[] = [];
 
     // append the system message if django returned one with the playlist
-    if (result.playlist?.message) {
+    if (result.reply || result.playlist?.message) {
       const temp_sys_msg: message = {
-        text: result.playlist.message,
+        text: result.reply || result.playlist?.message || "",
         id: crypto.randomUUID(),
         sender: "system"
       };
@@ -466,7 +453,9 @@ async function saveChatInput() {
     setTempMessageText("");
     setSendLimit(result.remaining_messages === 0);
 
-    if (result.remaining_messages === 0) {
+    if (result.generation_error) {
+      setChatError(result.generation_error);
+    } else if (result.remaining_messages === 0) {
       setChatError("Send limit reached, create a new chat to continue");
     }
 
@@ -485,7 +474,7 @@ async function saveChatInput() {
     console.error("Failed to send message:", error);
 
     if (error instanceof ChatApiError && error.status === 429) {
-      setLimitMessage();
+      setChatError(error.message);
     } else if (error instanceof ChatApiError && error.status === 401) {
       logout();
     } else {
@@ -607,7 +596,7 @@ async function saveChatInput() {
                 type="button"
                 className={`left_box_sizing${chat.id === currentChatId ? " active" : ""}`}
                 onClick={() => {
-                  setActiveChatId(chat.id);
+
                   openChat(chat.id);
                 }}
                 disabled={isSending || isLoadingChat}
@@ -824,7 +813,7 @@ all elements can be of any type or length including blank but preferably have co
               disabled={deletingPlaylistId !== null}
               aria-label={`export playlist ${playlist.name}`}
             >
-              {deletingPlaylistId === playlist.id ? "Export..." : "Export"}
+              {exportingPlaylistId === playlist.id ? "Export..." : "Export"}
             </button>
           </div>
           <div className="right_playlist_song_list">

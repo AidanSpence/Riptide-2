@@ -1,5 +1,9 @@
 import json
-import traceback
+import logging
+from django.conf import settings
+from django.utils import timezone
+from .models import GenerationBudget
+logger = logging.getLogger(__name__)
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
@@ -147,6 +151,18 @@ def chat_send_message(request, chat_id):
                 status=status.HTTP_429_TOO_MANY_REQUESTS,
             )
 
+        day = timezone.now().date()
+        budget, _ = GenerationBudget.objects.get_or_create(day=day)
+        budget = GenerationBudget.objects.select_for_update().get(day=day)
+        user_attempts = ChatMessage.objects.filter(
+            chat__user=request.user, sender=ChatMessage.Sender.USER, created_at__date=day,
+        ).count()
+        if (budget.attempts >= settings.GENERATION_DAILY_LIMIT
+                or user_attempts >= settings.GENERATION_USER_DAILY_LIMIT):
+            return Response({"error": "Daily generation limit reached. Try again tomorrow."}, status=429)
+        budget.attempts += 1
+        budget.save(update_fields=["attempts"])
+
         message = ChatMessage.objects.create(
             chat=chat,
             sender=ChatMessage.Sender.USER,
@@ -162,18 +178,32 @@ def chat_send_message(request, chat_id):
     from .services.ai_response import generate_ai_response
 
     playlist = None
+    generation_error = None
     try:
         playlist = generate_ai_response(
             history, user=request.user, playlist_id=None, spotify_playlist_id=request.data.get("id")
         )
     except Exception:
-        traceback.print_exc()
-        # still return the saved message so the UI doesn't lose it
+        logger.exception("playlist generation failed for chat %s", chat.pk)
+        generation_error = "Your message was saved, but playlist generation failed. Please try again later."
+
+    system_text = ""
+    if playlist:
+        system_text = playlist.get("message") or playlist.get("question") or ""
+        if playlist.get("type") == "spotify_not_linked":
+            system_text = "Connect your Spotify account before using that playlist."
+        if system_text:
+            ChatMessage.objects.create(chat=chat, sender=ChatMessage.Sender.SYSTEM, text=system_text)
+        if playlist.get("chat_name"):
+            chat.name = playlist["chat_name"][:100]
+            chat.save(update_fields=["name"])
 
     return Response({
         "message": ChatMessageSerializer(message).data,
         "remaining_messages": MESSAGE_LIMIT - count - 1,
-        **({"playlist": playlist} if playlist else {}),
+        "generation_error": generation_error,
+        "reply": system_text,
+        **({"playlist": playlist} if playlist and playlist.get("type") == "playlist" else {}),
     }, status=status.HTTP_201_CREATED)
 
 # ---------------------------------------------------------------------
@@ -237,3 +267,16 @@ def spotify_status(request):
     ).exists()
 
     return Response({"connected": connected})
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_playlist(request, playlist_id):
+    """delete only a playlist owned by this account."""
+    playlist = get_object_or_404(Playlist, pk=playlist_id, user=request.user)
+    playlist.delete()
+    return Response(status=204)
+
+
+def health(request):
+    """check the web process without calling the database or external APIs."""
+    return JsonResponse({"status": "ok"})

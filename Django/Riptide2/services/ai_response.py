@@ -50,7 +50,7 @@ def generate_ai_response(messages, user, playlist_id=None, spotify_playlist_id=N
         except SpotifyNotLinked:
             return {"type": "spotify_not_linked"}
         if tracks:
-            messages = playlist_with_message()
+            messages = playlist_with_message(messages, tracks)
 
     response = "".join(get_provider().stream(messages, system=SYSTEM_PROMPT))
 

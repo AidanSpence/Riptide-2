@@ -29,7 +29,12 @@ def get_spotify(user) -> spotipy.Spotify:
 
 def parse_track(track: dict) -> dict:
     return {
+        "spotify_track_id": track.get("id"),
+        "name": track.get("name") or "Unknown track",
         "artist": ", ".join(a["name"] for a in track.get("artists", [])),
+        "album": (track.get("album") or {}).get("name"),
+        "explicit": track.get("explicit", False),
+        "duration_ms": track.get("duration_ms"),
     }
 
 # "spotify_track_id": track.get("uri"),

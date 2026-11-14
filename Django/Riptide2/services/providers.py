@@ -4,7 +4,7 @@ from django.conf import settings
 
 class OllamaProvider:
     URL = os.environ.get("OLLAMA_URL", "http://localhost:11434/api/chat")
-    MODEL = "llama3.1:8b"
+    MODEL = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
 
     def stream(self, messages, system=None):
         import json, requests
@@ -34,9 +34,11 @@ class OllamaProvider:
 class BedrockProvider:
     def __init__(self):
         import boto3
+        from botocore.config import Config
         self.client = boto3.client(
             "bedrock-runtime",
             region_name=os.environ.get("AWS_REGION", "us-east-1"),
+            config=Config(connect_timeout=5, read_timeout=60, retries={"total_max_attempts": 1}),
         )
         self.model_id = os.environ["BEDROCK_MODEL_ID"]
 
@@ -47,15 +49,27 @@ class BedrockProvider:
                 {"role": m["role"], "content": [{"text": m["content"]}]}
                 for m in messages
             ],
-            "inferenceConfig": {"maxTokens": 1500},
+            "inferenceConfig": {"maxTokens": int(os.getenv("BEDROCK_MAX_TOKENS", "4096"))},
         }
         if system:
             kwargs["system"] = [{"text": system}]
 
         resp = self.client.converse_stream(**kwargs)
-        for event in resp["stream"]:
-            if "contentBlockDelta" in event:
-                yield event["contentBlockDelta"]["delta"].get("text", "")
+        import time
+        started = time.monotonic()
+        try:
+            for event in resp["stream"]:
+                if time.monotonic() - started > 80:
+                    raise TimeoutError("model response exceeded the time limit")
+                if "contentBlockDelta" in event:
+                    # reasoning blocks are not playlist JSON
+                    yield event["contentBlockDelta"]["delta"].get("text", "")
+                if "messageStop" in event and event["messageStop"].get("stopReason") == "max_tokens":
+                    raise ValueError("model output was truncated")
+                if any(key.endswith("Exception") for key in event):
+                    raise RuntimeError("model streaming failed")
+        finally:
+            resp["stream"].close()
 
 
 def get_provider():

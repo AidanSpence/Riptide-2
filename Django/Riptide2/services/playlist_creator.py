@@ -40,6 +40,7 @@ def create_playlist(ai_data, user=None, playlist_id=None):
         return send_playlist # guest users get the playlist but nothing is saved
 
     saved = save_playlist_for_user(user, user_playlist, playlist_id=playlist_id)
+    send_playlist["id"] = saved.id
     user_playlist["playlist_id"] = saved.id
     user_playlist["saved"] = True
 

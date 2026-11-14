@@ -1,7 +1,11 @@
 import spotipy
+import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
+from datetime import timedelta
+from django.db import transaction
+from django.utils import timezone
+from .models import SpotifyOAuthState
 from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect, get_object_or_404
 from rest_framework import status
@@ -21,10 +25,10 @@ def spotify_login(request):
 
     state = spotify_auth.generate_state()
 
-    cache.set(
-        f"spotify_oauth:{state}",
-        str(request.user.pk),
-        timeout=600
+    SpotifyOAuthState.objects.filter(expires_at__lt=timezone.now()).delete()
+    SpotifyOAuthState.objects.create(
+        state=state, user=request.user,
+        expires_at=timezone.now() + timedelta(minutes=10),
     )
 
     url = spotify_auth.build_authorize_url(state)
@@ -40,14 +44,15 @@ def spotify_callback(request):
     if not state:
         return HttpResponseBadRequest("Missing state.")
 
-    cache_key = f"spotify_oauth:{state}"
-    user_id = cache.get(cache_key)
-
-    if not user_id:
+    with transaction.atomic():
+        saved = SpotifyOAuthState.objects.select_for_update().filter(state=state).first()
+        if saved is None:
+            return HttpResponseBadRequest("Invalid or expired state.")
+        user_id = saved.user_id
+        expired = saved.expires_at <= timezone.now()
+        saved.delete()
+    if expired:
         return HttpResponseBadRequest("Invalid or expired state.")
-
-    # consume the state so it cannot be reused
-    cache.delete(cache_key)
 
     if request.GET.get("error"):
         return HttpResponseBadRequest("Spotify authorization was denied.")
@@ -59,8 +64,11 @@ def spotify_callback(request):
 
     user = get_user_model().objects.get(pk=user_id)
 
-    token_data = spotify_auth.exchange_code_for_tokens(code)
-    spotify_auth.link_account(user, token_data)
+    try:
+        token_data = spotify_auth.exchange_code_for_tokens(code)
+        spotify_auth.link_account(user, token_data)
+    except requests.RequestException:
+        return HttpResponseBadRequest("Spotify could not connect. Return to Riptide and try again.")
 
     return redirect(settings.FRONTEND_URL)
 
@@ -81,6 +89,8 @@ def export(request, playlist_id):
 
     track_ids = list(
         PlaylistSong.objects.filter(playlist=playlist)
+        .exclude(song__spotify_track_id__isnull=True)
+        .exclude(song__spotify_track_id="")
         .select_related("song")
         .order_by("position")
         .values_list("song__spotify_track_id", flat=True)
@@ -92,7 +102,7 @@ def export(request, playlist_id):
     try:
         result = export_playlist(
             request.user,
-            name=playlist.name,
+            title=playlist.name,
             description=playlist.description,
             track_ids=track_ids,
         )
@@ -104,7 +114,7 @@ def export(request, playlist_id):
     except spotipy.SpotifyException as e:
         # 401/403 usually means missing scopes, so the user needs to reconnect
         return Response(
-            {"error": "Spotify rejected the request.", "detail": str(e)},
+            {"error": "Spotify rejected the request. Try reconnecting your account."},
             status=status.HTTP_502_BAD_GATEWAY,
         )
 
@@ -142,7 +152,7 @@ def spotify_playlists(request):
             results = sp.next(results) if results.get("next") else None
     except spotipy.SpotifyException as e:
         return Response(
-            {"error": "Spotify rejected the request.", "detail": str(e)},
+            {"error": "Spotify rejected the request. Try reconnecting your account."},
             status=status.HTTP_502_BAD_GATEWAY,
         )
 
