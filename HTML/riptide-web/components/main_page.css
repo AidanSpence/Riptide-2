@@ -639,3 +639,52 @@
         transition: none;
     }
 }
+
+
+/* system bubble that contains a playlist needs real width for the iframes */
+.center_box_sizing_system.has_playlist {
+    width: 50%;
+    display: block;
+}
+
+.chat_playlist {
+    margin-top: 2%;
+    width: 100%;
+}
+
+.chat_playlist_name {
+    font-weight: bold;
+    margin-bottom: 1%;
+}
+
+/* 5 compact embeds are 80px each + 4px gap = 420px, anything beyond scrolls */
+.chat_playlist_embeds {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: calc(5 * 80px + 4 * 4px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+
+.chat_playlist_embed {
+    flex: 0 0 80px;
+    height: 80px;
+    border: 0;
+    border-radius: 12px;
+    color-scheme: normal;
+}
+
+.chat_playlist_fallback {
+    flex: 0 0 80px;
+    display: flex;
+    align-items: center;
+    padding: 0 3%;
+    border: var(--border-thin);
+    border-radius: 12px;
+    font-size: var(--font-sml);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

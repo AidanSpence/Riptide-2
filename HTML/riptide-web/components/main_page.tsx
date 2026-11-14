@@ -43,8 +43,6 @@ export default function MainPage() {
   // this enforces the sendlimit, false is unlocked, true is locked
   const [sendLimit, setSendLimit] = useState<boolean>(false);
 
-  const newMessages: message[] = [];
-
   const [chats, setChats] = useState<ChatSummary[]>([]);
 
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
@@ -437,15 +435,17 @@ async function saveChatInput() {
 
     const newMessages: message[] = [];
 
-    // append the system message if django returned one with the playlist
-    if (result.playlist?.message) {
-      const temp_sys_msg: message = {
-        text: result.playlist.message,
-        id: crypto.randomUUID(),
-        sender: "system"
-      };
+    const validPlaylist =
+      result.playlist && isPlaylistData(result.playlist) ? result.playlist : undefined;
 
-      newMessages.push(temp_sys_msg);
+    // show a system bubble if django sent text and/or a playlist
+    if (result.playlist?.message || validPlaylist) {
+      newMessages.push({
+        text: result.playlist?.message ?? "",
+        id: crypto.randomUUID(),
+        sender: "system",
+        playlist: validPlaylist
+      });
     }
 
     // append the system message
@@ -689,12 +689,40 @@ async function saveChatInput() {
             <div
               key={msg.id}
               className={
-                msg.sender === "user"
+                (msg.sender === "user"
                   ? "center_box_sizing_user"
-                  : "center_box_sizing_system"
+                  : "center_box_sizing_system") +
+                (msg.playlist ? " has_playlist" : "")
               }
             >
               {msg.text}
+
+              {msg.playlist && (
+                <div className="chat_playlist">
+                  <div className="chat_playlist_name">{msg.playlist.name}</div>
+                  <div className="chat_playlist_embeds">
+                    {msg.playlist.tracks.map((track, index) =>
+                      track.spotify_track_id ? (
+                        <iframe
+                          key={`${track.id}-${index}`}
+                          className="chat_playlist_embed"
+                          src={`https://open.spotify.com/embed/track/${track.spotify_track_id}`}
+                          width="100%"
+                          height="80"
+                          loading="lazy"
+                          allow="encrypted-media; clipboard-write; fullscreen; picture-in-picture"
+                          title={`${track.title} by ${track.artists}`}
+                        />
+                      ) : (
+                        // no spotify id: fall back to a plain row so the song still shows
+                        <div key={`${track.id}-${index}`} className="chat_playlist_fallback">
+                          {track.title} - {track.artists}
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
 
