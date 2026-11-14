@@ -21,6 +21,7 @@ from .models import Playlist, PlaylistSong
 from .models import ChatMessage, UserChat
 from .models import SpotifyAccount
 
+
 User = get_user_model()
 MESSAGE_LIMIT = 3
 
@@ -60,10 +61,11 @@ class UserChatSerializer(serializers.ModelSerializer):
 
 class ChatMessageSerializer(serializers.ModelSerializer):
     """return saved chat messages."""
+    playlist = serializers.JSONField(source="playlist_data", read_only=True)
 
     class Meta:
         model = ChatMessage
-        fields = ("id", "sender", "text", "created_at")
+        fields = ("id", "sender", "text", "created_at", "playlist")
         read_only_fields = fields
 
 
@@ -157,6 +159,7 @@ def chat_send_message(request, chat_id):
         {"role": "user" if m.sender == ChatMessage.Sender.USER else "assistant",
          "content": m.text}
         for m in chat.messages.order_by("created_at", "id")
+        if m.text
     ]
 
     from .services.ai_response import generate_ai_response
@@ -169,11 +172,47 @@ def chat_send_message(request, chat_id):
     except Exception:
         traceback.print_exc()
         # still return the saved message so the UI doesn't lose it
+    
+    reply = None
+    if playlist and playlist.get("type") in ("playlist", "clarification"):
+        reply_text = playlist.get("message") or playlist.get("question") or ""
+        saved_id = playlist.get("playlist_id")
+        playlist_obj = (
+            Playlist.objects.filter(id=saved_id, user=request.user).first()
+            if saved_id else None
+        )
+
+        card = None
+        if playlist_obj:
+            card = {
+                "id": playlist_obj.id,
+                "name": playlist.get("name") or playlist_obj.name,
+                "message": "",
+                "chat_name": "",
+                "tracks": [
+                    {**t, "duration_s": t.get("duration_s") or 0}
+                    for t in playlist.get("tracks", [])
+                ],
+            }
+
+        if reply_text or card:
+            reply = ChatMessage.objects.create(
+                chat=chat,
+                sender=ChatMessage.Sender.SYSTEM,
+                text=reply_text,
+                playlist=playlist_obj,
+                playlist_data=card,
+            )
+
+        if playlist.get("chat_name"):
+            chat.name = playlist["chat_name"][:100]
+            chat.save(update_fields=["name"])
 
     return Response({
         "message": ChatMessageSerializer(message).data,
+        "reply": ChatMessageSerializer(reply).data if reply else None,
+        "chat_name": chat.name,
         "remaining_messages": MESSAGE_LIMIT - count - 1,
-        **({"playlist": playlist} if playlist else {}),
     }, status=status.HTTP_201_CREATED)
 
 # ---------------------------------------------------------------------

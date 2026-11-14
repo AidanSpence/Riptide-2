@@ -142,6 +142,17 @@ useEffect(() => {
     };
   }
 
+  function toClientMessages(data: ChatMessageData): message[] {
+    const out: message[] = [];
+    if (data.text) {
+      out.push({ id: `${data.id}-text`, text: data.text, sender: data.sender });
+    }
+    if (data.playlist && isPlaylistData(data.playlist)) {
+      out.push({ id: `${data.id}-playlist`, text: "", sender: data.sender, playlist: data.playlist });
+    }
+    return out;
+  }
+
   type message = {
     id: string;
     text: string;
@@ -413,60 +424,27 @@ async function saveChatInput() {
     const result = await sendChatMessage(token, chatId, text, selectedSpotifyPlaylistId);
     if (activeTokenRef.current !== token) return;
 
-    console.log(token, chatId, text, selectedSpotifyPlaylistId);
-    // update the chat name in the sidebar
-    if (result.playlist?.chat_name) {
-      setChats(previous =>
-        previous.map(chat =>
-          chat.id === chatId
-            ? { ...chat, name: result.playlist!.chat_name }
-            : chat
-        )
-      );
-    }
-    // replace the temporary message with django's saved message
-    setMessageText(previous =>
-      previous.map(msg =>
-        msg.id === tempMessageId
-          ? toClientMessage(result.message)
-          : msg
-      )
+    // swap the temp user message for the saved one, then add the saved AI reply
+    const replyMessages = result.reply ? toClientMessages(result.reply) : [];
+    setMessageText(previous => [
+      ...previous.map(msg =>
+        msg.id === tempMessageId ? toClientMessage(result.message) : msg
+      ),
+      ...replyMessages,
+    ]);
+
+    // sidebar title
+    setChats(previous =>
+      previous.map(chat => chat.id === chatId ? { ...chat, name: result.chat_name } : chat)
     );
 
-    const newMessages: message[] = [];
-
-    const validPlaylist =
-      result.playlist && isPlaylistData(result.playlist) ? result.playlist : undefined;
-
-    // show a system bubble if django sent text and/or a playlist
-    if (result.playlist?.message || validPlaylist) {
-      newMessages.push({
-        text: result.playlist?.message ?? "",
-        id: crypto.randomUUID(),
-        sender: "system",
-        playlist: validPlaylist
-      });
+    // right panel
+    const card = result.reply?.playlist;
+    if (card && isPlaylistData(card)) {
+      setPlaylists(previous => [card, ...previous.filter(item => item.id !== card.id)]);
     }
 
-    // append the system message
-    setMessageText(previous => [...previous, ...newMessages]);
     setSelectedSpotifyPlaylistId("");
-    // django can optionally include a new playlist alongside the chat reply
-    if (result.playlist) {
-      if (isPlaylistData(result.playlist)) {
-        const newPlaylist: PlaylistData = {
-          ...result.playlist,
-          id: result.playlist.id ?? nextLocalPlaylistId.current--
-        };
-
-        setPlaylists(previous => [
-          newPlaylist,
-          ...previous.filter(item => item.id !== newPlaylist.id)
-        ]);
-      } else {
-        setPlaylistError("Django returned a playlist in an unexpected format.");
-      }
-    }
 
     setTempMessageText("");
     setSendLimit(result.remaining_messages === 0);
@@ -552,7 +530,7 @@ async function saveChatInput() {
       setCurrentChatId(chat.id);
 
       // Load its messages into the existing array
-      setMessageText(chat.messages.map(toClientMessage));
+      setMessageText(chat.messages.flatMap(toClientMessages));
 
       // Apply Django's message limit
       setSendLimit(chat.remaining_messages === 0);

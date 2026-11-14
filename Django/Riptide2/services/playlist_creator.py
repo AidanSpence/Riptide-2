@@ -29,6 +29,7 @@ def create_playlist(ai_data, user=None, playlist_id=None):
         "tracks": summarised,
     }
 
+    # sends the ai message and chat name but doesnt need the description
     send_playlist = {
         "message": settings.get("message") or "",
         "chat_name" : settings.get("chat_name") or "",
@@ -42,6 +43,9 @@ def create_playlist(ai_data, user=None, playlist_id=None):
     saved = save_playlist_for_user(user, user_playlist, playlist_id=playlist_id)
     user_playlist["playlist_id"] = saved.id
     user_playlist["saved"] = True
+
+    send_playlist["playlist_id"] = saved.id
+    send_playlist["saved"] = True
 
     return send_playlist
 

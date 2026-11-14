@@ -183,6 +183,13 @@ class ChatMessage(models.Model):
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    playlist = models.ForeignKey(
+        "Playlist", null=True, blank=True,
+        on_delete=models.SET_NULL, related_name="chat_messages",
+    )
+
+    playlist_data = models.JSONField(null=True, blank=True)
+    
     class Meta:
         db_table = "chat_messages"
         ordering = ["created_at", "id"]

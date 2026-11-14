@@ -17,6 +17,7 @@ export type ChatMessageData = {
   text: string;
   sender: "user" | "system";
   created_at: string;
+  playlist?: PlaylistData | null;
 };
 
 export type ChatSummary = {
@@ -63,8 +64,9 @@ export type LinkedPlaylistsResponse = {
 
 export type SendMessageResponse = {
   message: ChatMessageData;
+  reply: ChatMessageData | null;
+  chat_name: string;
   remaining_messages: number;
-  playlist: PlaylistData;
 };
 
 
