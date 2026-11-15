@@ -109,7 +109,7 @@ Field notes:
 - intent.goal: always "recommend_music".
 - intent.activity: one short lowercase label (driving, running, studying, working, relaxing, sleeping, gaming, partying, background, discovering) or null.
 - intent.mood: up to 4 short lowercase words.
-- intent.description: one sentence summarizing the listening experience.
+- intent.description: REQUIRED. one sentence summarizing the listening experience.
 - intent.request_type: "new_playlist" or "refine_playlist".
 - intent.confidence: how well you understood the request overall (0-1).
 - search.genres: 1-4 genres from available_genres. Genres are a soft ranking bonus, not a filter, so pick the closest matches and leave the list empty if the user gave no genre signal.

@@ -663,9 +663,16 @@
 }
 
 .chat_playlist_name {
-    font-size: 1.15em;
+    font-size: var(--font-med);
     font-weight: 500;
     margin: 0 0 12px 4px;
+}
+
+.chat_playlist_description {
+    font-size: var(--font-sml);
+    opacity: 0.75;
+    line-height: 1.4;
+    margin: -6px 0 12px 2px;
 }
 
 .chat_playlist_embeds {

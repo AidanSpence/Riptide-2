@@ -19,5 +19,7 @@ def generate_ai_response(messages, user, playlist_id=None, spotify_playlist_id=N
     if clarify:
         return {"type": "clarification", "question": question}
 
+    print("AI msg:", ai_msg)
+
     playlist = create_playlist(ai_data=ai_msg, user=user, playlist_id=None)
     return {"type": "playlist", **playlist}

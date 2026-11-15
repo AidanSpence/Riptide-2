@@ -89,7 +89,7 @@ class MusicalFiltersSerializer(serializers.Serializer):
 
 
 class ClusterSearchSerializer(serializers.Serializer):
-    candidate_pool_size = NullableInt(min_value=100, max_value=300)
+    candidate_pool_size = NullableInt(min_value=1, max_value=300)
 
 
 class SearchSerializer(serializers.Serializer):

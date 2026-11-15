@@ -46,6 +46,7 @@ export type PlaylistData = {
   message: string,
   chat_name : string,
   name:string,
+  description?: string,
   tracks: PlaylistTrackData[];
 };
 

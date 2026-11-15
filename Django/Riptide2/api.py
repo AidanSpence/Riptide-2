@@ -187,6 +187,7 @@ def chat_send_message(request, chat_id):
             card = {
                 "id": playlist_obj.id,
                 "name": playlist.get("name") or playlist_obj.name,
+                "description": playlist.get("description"),
                 "message": "",
                 "chat_name": "",
                 "tracks": [
@@ -257,6 +258,7 @@ def list_playlists(request):
         result.append({
             "id": playlist.id,
             "name": playlist.name,
+            "description": playlist.description,
             "message": "",
             "chat_name": "",
             "tracks": tracks

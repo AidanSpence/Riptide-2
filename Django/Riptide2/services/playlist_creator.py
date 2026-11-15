@@ -23,29 +23,22 @@ def create_playlist(ai_data, user=None, playlist_id=None):
 
     summarised = summarise(tracks)
 
-    user_playlist = {
+    playlist = {
+        "message": settings.get("message") or "",
+        "chat_name": settings.get("chat_name") or "",
         "name": settings.get("name") or "",
         "description": intent.get("description") or "",
-        "tracks": summarised,
-    }
-
-    # sends the ai message and chat name but doesnt need the description
-    send_playlist = {
-        "message": settings.get("message") or "",
-        "chat_name" : settings.get("chat_name") or "",
-        "name": settings.get("name") or "",
-        "tracks": summarised,
+        "tracks": summarise(tracks),
     }
 
     if not summarised or user is None:
-        return send_playlist # guest users get the playlist but nothing is saved
+        return playlist # guest users get the playlist but nothing is saved
 
-    saved = save_playlist_for_user(user, user_playlist, playlist_id=playlist_id)
-    user_playlist["playlist_id"] = saved.id
-    user_playlist["saved"] = True
+    to_save = {k: playlist[k] for k in ("name", "description", "tracks")}
+    saved = save_playlist_for_user(user, to_save, playlist_id=playlist_id)
 
-    send_playlist["playlist_id"] = saved.id
-    send_playlist["saved"] = True
+    playlist["playlist_id"] = saved.id
+    playlist["saved"] = True
 
-    return send_playlist
+    return playlist
 

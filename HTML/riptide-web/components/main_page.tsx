@@ -678,6 +678,9 @@ async function saveChatInput() {
               {msg.playlist && (
                 <div className="chat_playlist">
                   <div className="chat_playlist_name">{msg.playlist.name}</div>
+                  {msg.playlist.description && (
+                    <div className="chat_playlist_description">{msg.playlist.description}</div>
+                  )}
                   <div className="chat_playlist_embeds">
                     {msg.playlist.tracks.map((track, index) =>
                       track.spotify_track_id ? (
@@ -719,6 +722,7 @@ async function saveChatInput() {
         <div className='center_chats_input_box'>
             <input
           className='center_chats_input_clickable'
+          aria-label="center chat box input field"
           id="user_chat"
           name="chat"
           type="text"
