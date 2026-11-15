@@ -44,6 +44,7 @@ jobs:
       DB_USER: riptide
       DB_PASSWORD: ci-test-password
       DB_HOST: 127.0.0.1
+      DB_PORT: '5432'
       DB_SSLMODE: disable
       SPOTIFY_CLIENT_ID: ci-placeholder
       SPOTIFY_CLIENT_SECRET: ci-placeholder
