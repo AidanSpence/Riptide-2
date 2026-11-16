@@ -88,7 +88,7 @@
     border: none;
     height: 100%;
     width: 0;
-
+    border-radius: 2%;
 }
 
 
@@ -141,6 +141,7 @@
     font-size: var(--font-med);
     padding-left: 1%;
     width: fit-content;
+    text-transform: uppercase;
 }
 
 .new_chat_button{
@@ -252,7 +253,7 @@
     padding: 1%;
     gap: 5%;
     margin: auto;
-    border-top: var(--border-thin)
+    border-top: var(--border-med)
 }
 
 
@@ -314,7 +315,7 @@
     box-sizing: border-box;
     flex:1 1 0;
     min-width: 0;
-    border: var(--border-thick);
+    /*border: var(--border-thick);*/
     height: 100%;
     width: auto;
 }
@@ -325,7 +326,7 @@
     padding-left: 1%;
     height: auto;
     width: 100%;
-    border-bottom: var(--border-thin);
+    border-bottom: var(--border-med);
     overflow: hidden;
     flex: 1;
 }
@@ -520,7 +521,7 @@
     height: 100%;
     width: 0;
     z-index: 10;
-
+    border-radius: 2%;
 }
 
 .right_box.is_open {
@@ -540,9 +541,10 @@
 
 .playlist_top_bar {
     flex: 0 0 auto;
-    padding: 1%;
+    padding: 2%;
     border-bottom: var(--border-thin);
     font-size: var(--font-med);
+    text-transform: uppercase;
 }
 
 .right_all_playlists_container {
@@ -743,4 +745,159 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+
+/* --------------- Linked Spotify playlists (left drawer) --------------- */
+
+.linked_section {
+    display: flex;
+    flex: 1.6;
+    flex-direction: column;
+    min-height: 0;
+    margin-top: 2%;
+    padding-top: 2%;
+    border-top: var(--border-thin);
+}
+
+.linked_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2% 3%;
+}
+
+.linked_title {
+    font-size: var(--font-med);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.linked_badge {
+    padding: 0.2vmin 0.9vmin;
+    border-radius: 999px;
+    background: rgba(59, 130, 246, 0.18);
+    color: var(--color-primary);
+    font-size: var(--font-sml);
+    font-weight: 600;
+}
+
+.linked_list {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    gap: 0.6vmin;
+    padding-right: 0.4vmin;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.linked_item {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 1.2vmin;
+    width: 100%;
+    padding: 1vmin;
+    text-align: left;
+    color: var(--color-text);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 1.2vmin;
+    cursor: pointer;
+    transition: background 120ms ease, border-color 120ms ease;
+}
+
+.linked_item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.linked_item:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.linked_item.is_selected {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.55);
+}
+
+.linked_item.is_selected::after {
+    content: "✓";
+    margin-left: auto;
+    padding-left: 0.6vmin;
+    font-size: var(--font-sml);
+    color: var(--color-primary);
+}
+
+.linked_img {
+    flex: 0 0 auto;
+    width: 5.6vmin;
+    height: 5.6vmin;
+    object-fit: cover;
+    border-radius: 0.8vmin;
+    background: var(--color-surface);
+}
+
+.linked_img_placeholder {
+    display: grid;
+    place-items: center;
+    color: var(--color-muted);
+    font-size: var(--font-med);
+    border: var(--border-thin);
+}
+
+.linked_info {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.2vmin;
+}
+
+.linked_name {
+    overflow: hidden;
+    font-size: var(--font-med);
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.linked_meta {
+    font-size: var(--font-sml);
+    color: var(--color-muted);
+}
+
+/* empty / not connected */
+.linked_empty {
+    padding: 2vmin 1.2vmin;
+    font-size: var(--font-sml);
+    line-height: 1.5;
+    text-align: center;
+    color: var(--color-muted);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 1.2vmin;
+}
+
+/* loading placeholders */
+.linked_skeleton {
+    flex: 0 0 6.6vmin;
+    border-radius: 1.2vmin;
+    background: linear-gradient(90deg,
+        rgba(255, 255, 255, 0.04) 25%,
+        rgba(255, 255, 255, 0.09) 50%,
+        rgba(255, 255, 255, 0.04) 75%);
+    background-size: 200% 100%;
+    animation: linked_shimmer 1.2s linear infinite;
+}
+
+@keyframes linked_shimmer {
+    to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .linked_skeleton { animation: none; }
+    .linked_item { transition: none; }
 }

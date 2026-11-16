@@ -598,69 +598,92 @@ async function saveChatInput() {
         aria-hidden={!leftOpen}
         inert={!leftOpen}
       >
-        <div className="left_chats">
-          <div className="left_chats_header">
-            <div className="left_chat_title">Chats:</div>
-              <button
-                type="button"
-                className="new_chat_button"
-                onClick={startNewChat}
-                disabled={!accessToken || isSending || isLoadingChat}
-                aria-label="New chat"
-                title="New chat"
-              >
-              <Image className="new_chat_button_image" src="add.svg" width={30} height={30} alt="new chat button"></Image>
-              </button>
-          </div>
-          <div className="left_chat_box_scrolling">
-            {chats.map(chat => (
-              <button
-                key={chat.id}
-                type="button"
-                className={`left_box_sizing${chat.id === currentChatId ? " active" : ""}`}
-                onClick={() => {
-                  setActiveChatId(chat.id);
-                  openChat(chat.id);
-                }}
-                disabled={isSending || isLoadingChat}
-              >
-                {chat.name}
-              </button>
-            ))}
-          </div>
-
-      <div className="left_linked_playlists">
-        <div className="left_playlist_title">Your linked service playlists:</div>
-        <div className="left_linked_playlists_scrolling">
-          {loading && <div>Loading…</div>}
-
-          {!loading && !linked && (
-            <div className="left_linked_message">
-              <div>Connect Spotify</div>
-              <div>To See</div>
-              <div>Linked Playlists</div>
-            </div>
-          )}
-
-          {!loading && linked && linkedPlaylists.length === 0 && (
-            <div>No playlists found.</div>
-          )}
-
-          {!loading && linked && linkedPlaylists.map((p) => (
+      <div className="left_chats">
+        <div className="left_chats_header">
+          <div className="left_chat_title">Chats</div>
             <button
-              key={p.id}
-              className={`left_box_sizing left_playlist_box ${
-                selectedSpotifyPlaylistId === p.id ? "selected" : ""}`}
+              type="button"
+              className="new_chat_button"
+              onClick={startNewChat}
+              disabled={!accessToken || isSending || isLoadingChat}
+              aria-label="New chat"
+              title="New chat"
             >
-              {p.image && <img className="left_playlist_img" src={p.image} alt="" />}
-              <div className="left_playlist_info">
-                <div className="left_playlist_name">{p.name}</div>
-                <div className="left_playlist_count">{p.track_count ?? "?"} tracks</div>
-              </div>
+            <Image className="new_chat_button_image" src="add.svg" width={30} height={30} alt="new chat button"></Image>
+            </button>
+        </div>
+        <div className="left_chat_box_scrolling">
+          {chats.map(chat => (
+            <button
+              key={chat.id}
+              type="button"
+              className={`left_box_sizing${chat.id === currentChatId ? " active" : ""}`}
+              onClick={() => {
+                setActiveChatId(chat.id);
+                openChat(chat.id);
+              }}
+              disabled={isSending || isLoadingChat}
+            >
+              {chat.name}
             </button>
           ))}
         </div>
-      </div>
+
+              <div className="linked_section">
+          <div className="linked_header">
+            <span className="linked_title">Spotify playlists</span>
+            {linked && linkedPlaylists.length > 0 && (
+              <span className="linked_badge">{linkedPlaylists.length}</span>
+            )}
+          </div>
+
+          <div className="linked_list">
+            {loading && (
+              <>
+                <div className="linked_skeleton" />
+                <div className="linked_skeleton" />
+                <div className="linked_skeleton" />
+              </>
+            )}
+
+            {!loading && !linked && (
+              <div className="linked_empty">
+                Connect your Spotify account in settings to see your playlists here.
+              </div>
+            )}
+
+            {!loading && linked && linkedPlaylists.length === 0 && (
+              <div className="linked_empty">No playlists found on your Spotify account.</div>
+            )}
+
+            {!loading && linked && linkedPlaylists.map((p) => {
+              const selected = selectedSpotifyPlaylistId === p.id;
+              const count = p.track_count;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`linked_item${selected ? " is_selected" : ""}`}
+                  aria-pressed={selected}
+                  title={p.name}
+                  onClick={() => setSelectedSpotifyPlaylistId(selected ? "" : p.id)}
+                >
+                  {p.image ? (
+                    <img className="linked_img" src={p.image} alt="" loading="lazy" />
+                  ) : (
+                    <div className="linked_img linked_img_placeholder" aria-hidden="true">♪</div>
+                  )}
+                  <div className="linked_info">
+                    <div className="linked_name">{p.name}</div>
+                    <div className="linked_meta">
+                      {count == null ? "Playlist" : `${count} ${count === 1 ? "track" : "tracks"}`}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
 
         </div>

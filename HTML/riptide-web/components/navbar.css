@@ -20,7 +20,7 @@
 
 
   /* Border - bottom only */
-  border: var(--border-thick);
+  border: var(--border-med);
   border-top: none;
   border-left: none;
   border-right: none;
@@ -72,7 +72,8 @@
 /* Nav Title */
 
 .nav_title {
-  font-size: var(--font-lar);
+  font-size: var(--font-xlar);
+  text-transform: uppercase;
 }
 
 

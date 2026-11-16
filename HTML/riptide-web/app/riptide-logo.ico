@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 240 240" role="img" aria-label="Riptide">
+  <rect width="240" height="240" rx="56" fill="#134E4A"/>
+  <g transform="translate(32.4 48.0) scale(1.2)">
+    <rect x="0" y="32.1" width="14" height="55.8" rx="7.0" fill="#14B8A6"/>
+    <rect x="22" y="0.5" width="14" height="77.5" rx="7.0" fill="#2DD4BF"/>
+    <rect x="44" y="-3.8" width="14" height="86.0" rx="7.0" fill="#5EEAD4"/>
+    <rect x="66" y="20.8" width="14" height="78.3" rx="7.0" fill="#FDBA74"/>
+    <rect x="88" y="52.2" width="14" height="57.2" rx="7.0" fill="#FB923C"/>
+    <rect x="110" y="55.8" width="14" height="50.0" rx="7.0" fill="#F97316"/>
+    <rect x="132" y="23.2" width="14" height="73.7" rx="7.0" fill="#EA580C"/>
+  </g>
+</svg>

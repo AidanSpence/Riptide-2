@@ -22,6 +22,7 @@
   --color-highight-nointeract: rgba(0, 128, 0, 0.575);
 
   --border-thin: #94a3b829 solid 1px;
+  --border-med: #94a3b829 solid 2px;
   --border-thick: #94a3b829 solid 3px;
   --border-thin-highlight: rgba(255, 255, 255, 0.3) solid 1px;
   --border-med-highlight: rgba(255, 255, 255, 0.3) solid 2px;
@@ -36,8 +37,9 @@
   --corner-rad-small: 2vmin;
 
   /* font sizing */
-  --font-lar: 3vmin;
-  --font-med: 2vmin;
+  --font-xlar: 3vmin;
+  --font-lar: 2vmin;
+  --font-med: 1.7vmin;
   --font-sml: 1.4vmin;
   --font-xsml: 1vmin;
 }
