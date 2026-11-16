@@ -65,6 +65,7 @@ class Artist(models.Model):
 class Song(models.Model):
     """A song and its audio details."""
     title = models.TextField()
+    spotify_track_id = models.CharField(max_length=22, unique=True, null=True, blank=True)
     artists = models.ManyToManyField(Artist, through="SongArtist", related_name="songs")
     bpm = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     camelot = models.CharField(max_length=3, null=True)

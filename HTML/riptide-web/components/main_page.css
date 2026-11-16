@@ -334,7 +334,7 @@
 .center_playlist_title{
     flex-direction: column;
     max-width: 20.5vmin;
-    font-size: var(--font-med);
+    font-size: var(--font-lar);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -631,8 +631,8 @@
 
 .right_playlist_status {
     padding: 2%;
-    font-size: var(--font-xsml);
-    color: var(--color-text);
+    font-size: var(--font-sml);
+    color: red;
     overflow-wrap: anywhere;
 }
 

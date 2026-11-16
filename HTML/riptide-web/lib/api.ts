@@ -106,6 +106,14 @@ export async function spotifyLogin(accessToken: string): Promise<void> {
   window.location.assign(data.url);
 }
 
+export async function spotifyLogout(accessToken: string): Promise<void> {
+  await authRequest<void>(
+    "/spotify/logout/",
+    accessToken,
+    { method: "DELETE" }
+  );
+}
+
 // get the user's linked spotify playlists
 export async function getLinkedPlaylists(
   accessToken: string

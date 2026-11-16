@@ -608,6 +608,7 @@ async function saveChatInput() {
               disabled={!accessToken || isSending || isLoadingChat}
               aria-label="New chat"
               title="New chat"
+              {...{ autoComplete: "off" }}
             >
             <Image className="new_chat_button_image" src="add.svg" width={30} height={30} alt="new chat button"></Image>
             </button>

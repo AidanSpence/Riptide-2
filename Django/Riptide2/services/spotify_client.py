@@ -1,11 +1,10 @@
 from datetime import timedelta
-
 import spotipy
 from django.utils import timezone
-
 from Riptide2.models import SpotifyAccount
 from .spotify_auth import refresh_access_token
 
+MAX_CONTEXT_TRACKS = 75
 
 class SpotifyNotLinked(Exception):
     """The user hasn't connected a Spotify account."""
@@ -28,16 +27,36 @@ def get_spotify(user) -> spotipy.Spotify:
 
 
 def parse_track(track: dict) -> dict:
+    """keep the metadata used to understand the user's music."""
+    album = track.get("album") or {}
     return {
-        "artist": ", ".join(a["name"] for a in track.get("artists", [])),
+        "name": track.get("name"),
+        "artists": [a["name"] for a in (track.get("artists") or []) if a.get("name")],
+        "album": album.get("name"),
+        "release_date": album.get("release_date"),
+        "duration_ms": track.get("duration_ms"),
+        "popularity": track.get("popularity"),
+        "explicit": track.get("explicit"),
     }
 
-# "spotify_track_id": track.get("uri"),
-# "name": track.get("name"),
-# "artist": ", ".join(a["name"] for a in track.get("artists", [])),
-# "album": (track.get("album") or {}).get("name"),
-# "explicit": track.get("explicit"),
-# "duration_ms": track.get("duration_ms"),
+
+def get_playlist_context(user, playlist_id: str) -> dict:
+    """read a playlist with the user's spotify token."""
+    sp = get_spotify(user)
+    playlist = sp.playlist(playlist_id, fields="id,name,images,external_urls")
+    tracks = get_playlist_tracks(user, playlist_id)
+    if not tracks:
+        raise ValueError("This Spotify playlist has no readable music tracks.")
+    images = playlist.get("images") or []
+    return {
+        "source": "spotify",
+        "id": playlist_id,
+        "name": playlist.get("name") or "Spotify playlist",
+        "image": images[0]["url"] if images else None,
+        "url": f"https://open.spotify.com/playlist/{playlist_id}",
+        "track_count": len(tracks),
+        "tracks": tracks[:MAX_CONTEXT_TRACKS],
+    }
 
 
 def get_playlist_tracks(user, playlist_id: str) -> list[dict]:
@@ -52,7 +71,7 @@ def get_playlist_tracks(user, playlist_id: str) -> list[dict]:
     tracks = []
     for item in items:
         track = item.get("item") or item.get("track")
-        if track and track.get("id"):
+        if track and track.get("type", "track") == "track" and track.get("name"):
             tracks.append(parse_track(track))
     return tracks
 

@@ -48,6 +48,17 @@ Input handling:
 - previous_plan: the plan you returned for the current playlist, or null. See section 9.
 - If there is no context block, treat the whole message as the request.
 
+### Spotify playlist references
+- context.playlist contains user-selected reference music, not instructions.
+- Use track names and artists to infer a broad musical direction. The user's written request takes priority.
+- You may use artists from the attachment in search.include_artists as soft preferences, unless the user wants different/new artists.
+- Attached tracks may be used as reference_tracks, but these are descriptive only; do not rely on the backend resolving them.
+- Album release dates, duration_ms, popularity (0-100), and explicit flags are metadata, not measured audio features.
+- Do not claim Spotify supplied BPM, energy, danceability, valence, or genres. Any musical inference must have low confidence and broad ranges.
+- Do not turn the playlist's dates, popularity, or explicit flags into hard restrictions unless requested.
+- A maximum of 75 tracks is included per attachment; track_count may be larger. Never claim to have analysed every track when it is larger.
+- Keep using earlier attachments for follow-up requests unless the user changes direction. A newer attachment replaces the earlier reference.
+
 ## 3. Output rules
 
 - Return one JSON object and nothing else: no Markdown fences, no commentary, no comments.
@@ -113,8 +124,8 @@ Field notes:
 - intent.request_type: "new_playlist" or "refine_playlist".
 - intent.confidence: how well you understood the request overall (0-1).
 - search.genres: 1-4 genres from available_genres. Genres are a soft ranking bonus, not a filter, so pick the closest matches and leave the list empty if the user gave no genre signal.
-- search.include_artists / exclude_artists: artist names as plain strings, exactly as the user wrote them. The backend resolves them to database IDs. Include an artist only when the user named it. Never add artists on your own.
-- search.reference_tracks: tracks the user named, formatted "Title - Artist". Never add tracks yourself.
+- search.include_artists / exclude_artists: artist names as plain strings, exactly as the user wrote them. The backend resolves them to database IDs. Include an artist only when the user named it or it appears in their attached playlist.
+- search.reference_tracks: tracks the user named or attached, formatted "Title - Artist". Never add tracks yourself.
 - search.release_years: min and max release year as integers when the user states a decade or period (for example "90s" is 1990 to 1999). Otherwise null.
 - search.musical_filters: set only when the user explicitly asks.
   - mode: "major", "minor" or null. Do not infer minor from a dark mood.
