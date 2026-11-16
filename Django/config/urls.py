@@ -22,6 +22,7 @@ urlpatterns = [
 
     # playlists
     path("api/playlists/", api.list_playlists),
+    path("api/playlists/<int:playlist_id>/", api.playlist_detail),
     # chats
     path("api/chats/", api.chats),
     path("api/chats/<int:chat_id>/", api.chat_detail),

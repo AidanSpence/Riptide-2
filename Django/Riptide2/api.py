@@ -265,6 +265,15 @@ def list_playlists(request):
         })
 
     return Response({"playlists": result})
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def playlist_detail(request, playlist_id):
+    """delete one saved playlist owned by the logged-in user."""
+    playlist = get_object_or_404(Playlist, id=playlist_id, user=request.user)
+    playlist.delete()  # PlaylistSong rows cascade
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
 # ---------------------------------------------------------------------
 # Spotify check if linked
 # ---------------------------------------------------------------------
