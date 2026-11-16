@@ -18,6 +18,7 @@ export type ChatMessageData = {
   sender: "user" | "system";
   created_at: string;
   playlist?: PlaylistData | null;
+  spotify_playlist?: LinkedPlaylist | null;
 };
 
 export type ChatSummary = {
@@ -290,14 +291,14 @@ export async function sendChatMessage(
   accessToken: string,
   chatId: number,
   text: string,
-  id: string | null = null
+  spotifyPlaylistId: string | null = null
 ) {
   const result = await authRequest<SendMessageResponse>(
     `/api/chats/${chatId}/messages/`,
     accessToken,
     {
       method: "POST",
-      body: JSON.stringify({ text, id })
+      body: JSON.stringify({ text, spotify_playlist_id: spotifyPlaylistId })
     }
   );
 

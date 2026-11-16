@@ -146,11 +146,15 @@ def spotify_playlists(request):
 
     playlists = []
     try:
+        spotify_user_id = sp.current_user()["id"]
         results = sp.current_user_playlists(limit=50)
+
         while results:
             for p in results["items"]:
-                if not p:
+                # skip playlists owned by someone else
+                if not p or (p.get("owner") or {}).get("id") != spotify_user_id:
                     continue
+
                 images = p.get("images") or []
                 playlists.append({
                     "id": p["id"],
@@ -159,6 +163,7 @@ def spotify_playlists(request):
                     "track_count": (p.get("items") or p.get("tracks") or {}).get("total"),
                     "url": p["external_urls"]["spotify"],
                 })
+
             results = sp.next(results) if results.get("next") else None
     except spotipy.SpotifyException as e:
         return Response(

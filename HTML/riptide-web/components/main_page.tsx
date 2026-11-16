@@ -76,6 +76,9 @@ export default function MainPage() {
   // active chat
   const [activeChatId, setActiveChatId] = useState<number | null>(null);
 
+  const selectedSpotifyPlaylist = linkedPlaylists.find(p => p.id === selectedSpotifyPlaylistId);
+  const lastAttachedPlaylist = [...messageText].reverse().find(msg => msg.spotify_playlist)?.spotify_playlist;
+
   const currentChat = chats.find(chat => chat.id === currentChatId);
 
 
@@ -145,14 +148,15 @@ useEffect(() => {
     return {
       id: String(data.id),
       text: data.text,
-      sender: data.sender
+      sender: data.sender,
+      spotify_playlist: data.spotify_playlist ?? undefined
     };
   }
 
   function toClientMessages(data: ChatMessageData): message[] {
     const out: message[] = [];
     if (data.text) {
-      out.push({ id: `${data.id}-text`, text: data.text, sender: data.sender });
+      out.push(toClientMessage(data));
     }
     if (data.playlist && isPlaylistData(data.playlist)) {
       out.push({ id: `${data.id}-playlist`, text: "", sender: data.sender, playlist: data.playlist });
@@ -165,11 +169,17 @@ useEffect(() => {
     text: string;
     sender: "system" | "user";
     playlist?: PlaylistData;
+    spotify_playlist?: LinkedPlaylist;
   };
 
   // load the users saved conversations after the access token becomes available
   useEffect(() => {
     activeTokenRef.current = accessToken;
+    setSelectedSpotifyPlaylistId("");
+    setLinked(false);
+    setLinkedPlaylists([]);
+    setSpotifyConnected(false);
+    setLoading(false);
 
     // clear the previous account's chats whenever the login changes
     setChats([]);
@@ -399,7 +409,7 @@ useEffect(() => {
     }
   }
 async function saveChatInput() {
-  const text = tempMessageText.trim();
+  const text = tempMessageText.trim() || (selectedSpotifyPlaylist ? "Recommend music based on this playlist." : "");
   if (!text) return;
 
   // let the user know why the message wasn't sent rather than doing nothing
@@ -444,7 +454,8 @@ async function saveChatInput() {
     const tempUserMessage: message = {
       id: tempMessageId,
       text: text,
-      sender: "user"
+      sender: "user",
+      spotify_playlist: selectedSpotifyPlaylist
     };
 
     setMessageText(previous => [...previous, tempUserMessage]);
@@ -532,6 +543,7 @@ async function saveChatInput() {
       // Clear previous chat messages and input
       setMessageText([]);
       setTempMessageText("");
+      setSelectedSpotifyPlaylistId("");
 
       // Unlock messaging for the new chat
       setSendLimit(false);
@@ -564,6 +576,8 @@ async function saveChatInput() {
       // Apply Django's message limit
       setSendLimit(chat.remaining_messages === 0);
       setTempMessageText("");
+      setSelectedSpotifyPlaylistId("");
+
     } catch (error) {
       if (activeTokenRef.current !== token) return;
       console.error("Failed to load chat:", error);
@@ -666,7 +680,9 @@ async function saveChatInput() {
                   type="button"
                   className={`linked_item${selected ? " is_selected" : ""}`}
                   aria-pressed={selected}
-                  title={p.name}
+                  title={selected ? `Remove ${p.name} from next message` : `Attach ${p.name} to next message`}
+                  aria-label={selected ? `Remove ${p.name} from next message` : `Attach ${p.name} to next message`}
+                  disabled={!accessToken || isSending || isLoadingChat || sendLimit}
                   onClick={() => setSelectedSpotifyPlaylistId(selected ? "" : p.id)}
                 >
                   {p.image ? (
@@ -680,6 +696,7 @@ async function saveChatInput() {
                       {count == null ? "Playlist" : `${count} ${count === 1 ? "track" : "tracks"}`}
                     </div>
                   </div>
+                  <span className="linked_add" aria-hidden="true">{selected ? "−" : "+"}</span>
                 </button>
               );
             })}
@@ -701,7 +718,10 @@ async function saveChatInput() {
       <div className="center_box">
         <div className="center_title_bar">
           <div className="center_playlist_title"> {currentChat?.name ?? "New chat"} 
-            <div className="center_playlist_attached_title">No playlist Attached</div>
+            <div className="center_playlist_attached_title">
+              {selectedSpotifyPlaylist ? `Attached: ${selectedSpotifyPlaylist.name}` :
+              lastAttachedPlaylist ? `Reference: ${lastAttachedPlaylist.name}` : "No playlist attached"}
+            </div>
           </div>
 
           <div className="delete_chat_button_box" title="Delete current chat">
@@ -727,6 +747,15 @@ async function saveChatInput() {
               }
             >
               {msg.text}
+              {msg.spotify_playlist && (
+                <div className="spotify_attachment">
+                  {msg.spotify_playlist.image && <img src={msg.spotify_playlist.image} alt="" width={40} height={40} />}
+                  <div>
+                    <a href={msg.spotify_playlist.url} target="_blank" rel="noopener noreferrer">{msg.spotify_playlist.name}</a>
+                    <small>Spotify reference · {msg.spotify_playlist.track_count} tracks</small>
+                  </div>
+                </div>
+              )}
 
               {msg.playlist && (
                 <div className="chat_playlist">
@@ -763,13 +792,23 @@ async function saveChatInput() {
         </div>
         {/* show errors / login instructions outside the scrolling chat messages */}
         {(chatError || isSending || isLoadingChat || !accessToken || currentChatId === null || sendLimit) && (
-          <div role={chatError ? "alert" : "status"} aria-live="polite"
-            style={{ padding: "0.25rem 1rem", fontSize: "0.85rem" }}>
+          <div role={chatError ? "alert" : "status"} aria-live="polite" className="chat_window_status">
             {chatError || (isSending ? "Generating response..." :
               isLoadingChat ? "Loading conversation..." :
               !accessToken ? "Log in using the profile button to send messages." :
               sendLimit ? "Send limit reached, create a new chat to continue." :
               "Send a message to create a conversation, or select a saved chat.")}
+          </div>
+        )}
+        {selectedSpotifyPlaylist && (
+          <div className="spotify_attachment pending_attachment" role="status">
+            {selectedSpotifyPlaylist.image && <img src={selectedSpotifyPlaylist.image} alt="" width={40} height={40} />}
+            <div>
+              <strong>{selectedSpotifyPlaylist.name}</strong>
+              <small>Attached to your next message · up to 75 tracks used</small>
+            </div>
+            <button type="button" onClick={() => setSelectedSpotifyPlaylistId("")}
+              disabled={isSending || isLoadingChat} aria-label="Remove playlist attachment">×</button>
           </div>
         )}
         <div className='center_chats_input_box'>
@@ -782,6 +821,7 @@ async function saveChatInput() {
           autoComplete="off"
           // update the temp variable everytime an input happens
           value={tempMessageText}
+          disabled={isSending || isLoadingChat}
           onChange={tempChatInput}
           onKeyDown={(event) => {
             if (event.key === "Enter") {

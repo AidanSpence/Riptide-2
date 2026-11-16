@@ -9,8 +9,6 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Prefetch
 
-
-
 from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -61,11 +59,21 @@ class UserChatSerializer(serializers.ModelSerializer):
 
 class ChatMessageSerializer(serializers.ModelSerializer):
     """return saved chat messages."""
-    playlist = serializers.JSONField(source="playlist_data", read_only=True)
+    playlist = serializers.SerializerMethodField()
+    spotify_playlist = serializers.SerializerMethodField()
+
+    def get_playlist(self, message):
+        return message.playlist_data if message.sender == ChatMessage.Sender.SYSTEM else None
+
+    def get_spotify_playlist(self, message):
+        data = message.playlist_data or {}
+        if message.sender == ChatMessage.Sender.USER and data.get("source") == "spotify":
+            return {key: value for key, value in data.items() if key != "tracks"}
+        return None
 
     class Meta:
         model = ChatMessage
-        fields = ("id", "sender", "text", "created_at", "playlist")
+        fields = ("id", "sender", "text", "created_at", "playlist", "spotify_playlist")
         read_only_fields = fields
 
 
@@ -73,6 +81,9 @@ class ChatInputSerializer(serializers.Serializer):
     """check new chat messages."""
 
     text = serializers.CharField(max_length=4000, allow_blank=False, trim_whitespace=True)
+    spotify_playlist_id = serializers.RegexField(
+        r"^[A-Za-z0-9]{1,64}$", required=False, allow_blank=True, allow_null=True
+    )
 
 # ---------------------------------------------------------------------
 # Account endpoints
@@ -137,6 +148,24 @@ def chat_send_message(request, chat_id):
     serializer = ChatInputSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
+    # check ownership before reading anything from spotify
+    chat = get_object_or_404(UserChat, id=chat_id, user=request.user)
+    if chat.messages.filter(sender=ChatMessage.Sender.USER).count() >= MESSAGE_LIMIT:
+        return Response({"error": "Message limit reached", "remaining_messages": 0}, status=429)
+
+    attachment = None
+    spotify_id = serializer.validated_data.get("spotify_playlist_id")
+    if spotify_id:
+        from .services.spotify_client import get_playlist_context, SpotifyNotLinked
+        from spotipy.exceptions import SpotifyException
+        from requests.exceptions import RequestException
+        try:
+            attachment = get_playlist_context(request.user, spotify_id)
+        except (SpotifyNotLinked, ValueError) as error:
+            return Response({"error": str(error)}, status=400)
+        except (SpotifyException, RequestException):
+            return Response({"error": "Could not read this Spotify playlist. Check your connection and playlist access, then try again."}, status=502)
+
     # lock the chat while checking the limit
     with transaction.atomic():
         chat = get_object_or_404(
@@ -153,6 +182,7 @@ def chat_send_message(request, chat_id):
             chat=chat,
             sender=ChatMessage.Sender.USER,
             text=serializer.validated_data["text"],
+            playlist_data=attachment,
         )
 
     history = [
@@ -162,12 +192,13 @@ def chat_send_message(request, chat_id):
         if m.text
     ]
 
-    from .services.ai_response import generate_ai_response
+    from .services.ai_response import generate_ai_response, build_chat_history
+    history = build_chat_history(chat.messages.order_by("created_at", "id"))
 
     playlist = None
     try:
         playlist = generate_ai_response(
-            history, user=request.user, playlist_id=None, spotify_playlist_id=request.data.get("id")
+            history, user=request.user
         )
     except Exception:
         traceback.print_exc()

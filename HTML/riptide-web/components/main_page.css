@@ -333,7 +333,7 @@
 
 .center_playlist_title{
     flex-direction: column;
-    max-width: 20.5vmin;
+    max-width: 40vmin;
     font-size: var(--font-lar);
     white-space: nowrap;
     overflow: hidden;
@@ -341,7 +341,9 @@
     flex: 1;
 }
 .center_playlist_attached_title{
-    width: max-content;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: fit-content;
     white-space: nowrap;
     max-height: fit-content;
     background-color: var(--color-highight-nointeract);
@@ -376,7 +378,12 @@
     cursor: pointer;
 }
 
-
+.chat_window_status {
+    padding: 2%;
+    font-size: var(--font-med);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 .center_chats_container {
     display: flex;
@@ -901,3 +908,58 @@
     .linked_skeleton { animation: none; }
     .linked_item { transition: none; }
 }
+
+/* spotify references in the sidebar and chat */
+.linked_add {
+  flex-shrink: 0;
+  margin-left: auto;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.linked_item:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.spotify_attachment {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem;
+  margin-top: 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+.spotify_attachment img {
+  flex-shrink: 0;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.spotify_attachment small {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.spotify_attachment a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.pending_attachment {
+  margin: 0.5rem 1rem;
+  flex-shrink: 0;
+}
+
+.pending_attachment button {
+  margin-left: auto;
+  padding: 0.25rem 0.6rem;
+  font-size: 1.4rem;
+  color: inherit;
+  cursor: pointer;
+}
+

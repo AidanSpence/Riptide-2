@@ -21,6 +21,13 @@ def extract_json(message):
     try:
         return json.loads(text[start:end + 1])
     except json.JSONDecodeError as e:
+        print("AI JSON error:", str(e), flush=True)
+        print("AI response length:", len(message), flush=True)
+
+        # show the end so we can check for an unfinished response
+        print("Last 1500 characters of AI response:", flush=True)
+        print(repr(message[-1500:]), flush=True)
+
         raise ValidationError(f"AI reply was not valid JSON: {e}")
 
 def analyse_music_request(message):

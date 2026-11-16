@@ -1,5 +1,6 @@
 from Riptide2.services.candidate_search import retrieve_candidates
 from Riptide2.services.playlist_builder import build_playlist
+from Riptide2.services.reference_tracks import apply_reference_features
 from Riptide2.services.playlist_saver import save_playlist_for_user
 
 def summarise(playlist):
@@ -15,6 +16,7 @@ def summarise(playlist):
     ]
 
 def create_playlist(ai_data, user=None, playlist_id=None):
+    ai_data = apply_reference_features(ai_data)
     candidates = retrieve_candidates(ai_data)
     tracks = build_playlist(candidates=candidates, ai_data=ai_data)
 
