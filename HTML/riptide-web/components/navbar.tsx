@@ -15,27 +15,32 @@ export default function Navbar() {
     const [username, setUsername] = useState<string>("");
     
     
-    async function loadUsername() {
-          try {
-          const user = await getCurrentUser(accessToken!);
-          setUsername(user.username);
-          } catch (error) {
-          console.error("Failed to retrieve username:", error);
-          }
-      } 
     useEffect(() => {
-        if (!accessToken) return;
+        if (!accessToken) {
+            setUsername("");
+            return;
+        }
+
+        let cancelled = false;
+
+        async function loadUsername() {
+            try {
+                const user = await getCurrentUser(accessToken!);
+                if (!cancelled) setUsername(user.username);
+            } catch (error) {
+                console.error("Failed to retrieve username:", error);
+            }
+        }
 
         void loadUsername();
+
+        // ignore a slow response that arrives after logout or a login change
+        return () => { cancelled = true; };
     }, [accessToken]);
 
     function getInitials(username: string): string {
         return username
-        .trim()
-        .split(/\s+/)
         .slice(0, 2)
-        .map(word => word[0].toUpperCase())
-        .join("");
     }
     return(
 
@@ -71,7 +76,7 @@ export default function Navbar() {
                     setAccountActive(false)
                     setLoginActive((active) => !active)
                 }}>
-                        <div className="nav_profile">{username? getInitials(username): "JD"}</div>
+                        <div className="nav_profile">{username? getInitials(username): "Gu"}</div>
                     </button>
                 </div>
 
