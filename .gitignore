@@ -2,11 +2,5 @@
 venv/
 __pycache__/
 *.pyc
-**/.env
-**/.env.*
-!**/.env.example
-node_modules/
-.next/
-out/
-staticfiles/
-*.zip
+Django/.env.spotify
+Django/.env

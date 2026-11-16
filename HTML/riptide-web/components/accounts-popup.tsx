@@ -2,7 +2,7 @@
 
 import "./accounts-popup.css";
 import Image from 'next/image'
-import {getCurrentUser, spotifyLogin} from '../lib/api'
+import { getCurrentUser, spotifyLogin, spotifyLogout } from "../lib/api";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 type AccountPopupProps = {
@@ -30,7 +30,20 @@ export default function AccountPopup({ isActive, onClose }: AccountPopupProps) {
     loadUsername();
     }, [accessToken]);
 
+    async function disconnectSpotify() {
+    if (!accessToken) return;
 
+    try {
+        await spotifyLogout(accessToken);
+        window.location.reload();
+    } catch (error) {
+        alert(
+            error instanceof Error
+                ? error.message
+                : "Unable to disconnect Spotify."
+        );
+    }
+}
 
     return (
         <div
@@ -52,7 +65,7 @@ export default function AccountPopup({ isActive, onClose }: AccountPopupProps) {
         <div className="account_info">
             <div className="username">Username: {accessToken ? username : "Not Logged in"}</div>
             <div> <button className="spotify_signin" onClick={() => spotifyLogin(accessToken!)}>Sign in with Spotify</button> </div>
-            <div> <button className="spotify_signout">Sign out of Spotify</button> </div>
+            <div> <button className="spotify_signout" type="button"  disabled={!accessToken} onClick={disconnectSpotify} {...{ autoComplete: "off" }}>Sign out of Spotify</button> </div>
 
 
 

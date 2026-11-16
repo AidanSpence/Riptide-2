@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Riptide",
-  description: "Create music playlists with Riptide.",
+  description: "Riptide Ai music generation",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

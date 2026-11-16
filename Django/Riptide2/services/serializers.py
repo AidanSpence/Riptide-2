@@ -27,6 +27,35 @@ def string_list():
     )
 
 
+class ReferenceTrackField(serializers.Field):
+    """accept a reference string or a song object, then use one format."""
+
+    def to_internal_value(self, value):
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+
+        if isinstance(value, dict):
+            title = value.get("title") or value.get("name")
+            artist = value.get("artist") or value.get("artists")
+
+            # the lookup needs one credited artist, not a combined list
+            if isinstance(artist, list):
+                artist = artist[0] if artist else None
+            if isinstance(artist, dict):
+                artist = artist.get("name")
+
+            if (isinstance(title, str) and title.strip()
+                    and isinstance(artist, str) and artist.strip()):
+                return f"{title.strip()} - {artist.strip()}"
+
+        raise serializers.ValidationError(
+            'Use "Title - Artist" or a song object containing a title/name and artist/artists.'
+        )
+
+    def to_representation(self, value):
+        return value
+
+
 # ---------------------------------------------------------------------
 # Audio features
 # ---------------------------------------------------------------------
@@ -89,7 +118,7 @@ class MusicalFiltersSerializer(serializers.Serializer):
 
 
 class ClusterSearchSerializer(serializers.Serializer):
-    candidate_pool_size = NullableInt(min_value=100, max_value=300)
+    candidate_pool_size = NullableInt(min_value=1, max_value=300)
 
 
 class SearchSerializer(serializers.Serializer):
@@ -97,7 +126,17 @@ class SearchSerializer(serializers.Serializer):
     genres = string_list()
     include_artists = string_list()
     exclude_artists = string_list()
-    reference_tracks = string_list()
+    reference_tracks = serializers.ListField(
+        child=ReferenceTrackField(), required=False, default=list,
+    )
+    reference_overrides = serializers.ListField(
+        child=serializers.ChoiceField(choices=[
+            "energy", "danceability", "acousticness", "instrumentalness",
+            "valence", "speechiness", "liveness", "bpm", "loudness_db",
+        ]),
+        required=False,
+        default=list,
+    )
     popularity = PopularitySerializer(required=False, default=dict)
     release_years = ReleaseYearsSerializer(required=False, default=dict)
     musical_filters = MusicalFiltersSerializer(required=False, default=dict)
@@ -117,7 +156,7 @@ class ConstraintsSerializer(serializers.Serializer):
 
 
 class PlaylistSerializer(serializers.Serializer):
-    track_count = NullableInt(default=30, min_value=1, max_value=100)
+    track_count = NullableInt(default=30, min_value=1, max_value=1000)
     strategy = serializers.CharField( required=False, allow_null=True, allow_blank=True)
     diversity = NullableFloat(min_value=0, max_value=1)
     discovery = NullableFloat(min_value=0, max_value=1)

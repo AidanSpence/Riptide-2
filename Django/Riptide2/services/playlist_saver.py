@@ -9,16 +9,19 @@ def save_playlist_for_user(user, data, playlist_id=None):
     if missing:
         raise ValueError(f"Unknown song ids: {missing}")
 
+    name = data.get("name") or "Untitled Playlist"
+    description = data.get("description", "")
+
     if playlist_id:
-        playlist.name = data.get("title") or playlist.name
-        playlist.description = data.get("description", "")
+        # load the existing playlist (owned by this user) before changing it
+        playlist = Playlist.objects.get(id=playlist_id, user=user)
+        playlist.name = name
+        playlist.description = description
         playlist.save(update_fields=["name", "description", "updated_at"])
         playlist.playlistsong_set.all().delete()
     else:
         playlist = Playlist.objects.create(
-            user=user,
-            name=data.get("title") or "Untitled Playlist",
-            description=data.get("description", ""),
+            user=user, name=name, description=description,
         )
 
     PlaylistSong.objects.bulk_create(

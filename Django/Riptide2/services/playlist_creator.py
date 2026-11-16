@@ -1,5 +1,6 @@
 from Riptide2.services.candidate_search import retrieve_candidates
 from Riptide2.services.playlist_builder import build_playlist
+from Riptide2.services.reference_tracks import apply_reference_features
 from Riptide2.services.playlist_saver import save_playlist_for_user
 
 def summarise(playlist):
@@ -15,6 +16,7 @@ def summarise(playlist):
     ]
 
 def create_playlist(ai_data, user=None, playlist_id=None):
+    ai_data = apply_reference_features(ai_data)
     candidates = retrieve_candidates(ai_data)
     tracks = build_playlist(candidates=candidates, ai_data=ai_data)
 
@@ -23,26 +25,22 @@ def create_playlist(ai_data, user=None, playlist_id=None):
 
     summarised = summarise(tracks)
 
-    user_playlist = {
+    playlist = {
+        "message": settings.get("message") or "",
+        "chat_name": settings.get("chat_name") or "",
         "name": settings.get("name") or "",
         "description": intent.get("description") or "",
-        "tracks": summarised,
-    }
-
-    send_playlist = {
-        "message": settings.get("message") or "",
-        "chat_name" : settings.get("chat_name") or "",
-        "name": settings.get("name") or "",
-        "tracks": summarised,
+        "tracks": summarise(tracks),
     }
 
     if not summarised or user is None:
-        return send_playlist # guest users get the playlist but nothing is saved
+        return playlist # guest users get the playlist but nothing is saved
 
-    saved = save_playlist_for_user(user, user_playlist, playlist_id=playlist_id)
-    send_playlist["id"] = saved.id
-    user_playlist["playlist_id"] = saved.id
-    user_playlist["saved"] = True
+    to_save = {k: playlist[k] for k in ("name", "description", "tracks")}
+    saved = save_playlist_for_user(user, to_save, playlist_id=playlist_id)
 
-    return send_playlist
+    playlist["playlist_id"] = saved.id
+    playlist["saved"] = True
+
+    return playlist
 

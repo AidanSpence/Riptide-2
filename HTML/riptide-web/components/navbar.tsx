@@ -16,21 +16,31 @@ export default function Navbar() {
     
     
     useEffect(() => {
-        if (!accessToken) return;
+        if (!accessToken) {
+            setUsername("");
+            return;
+        }
+
         let cancelled = false;
-        getCurrentUser(accessToken).then(user => {
-            if (!cancelled) setUsername(user.username);
-        }).catch(console.error);
+
+        async function loadUsername() {
+            try {
+                const user = await getCurrentUser(accessToken!);
+                if (!cancelled) setUsername(user.username);
+            } catch (error) {
+                console.error("Failed to retrieve username:", error);
+            }
+        }
+
+        void loadUsername();
+
+        // ignore a slow response that arrives after logout or a login change
         return () => { cancelled = true; };
     }, [accessToken]);
 
     function getInitials(username: string): string {
         return username
-        .trim()
-        .split(/\s+/)
         .slice(0, 2)
-        .map(word => word[0].toUpperCase())
-        .join("");
     }
     return(
 
@@ -46,6 +56,7 @@ export default function Navbar() {
             ></AccountPopup>
             <div className="left_nav">
                 <div className="nav_logo"><Image className="logo_image" src="riptide-logo.svg" alt="logo" width={32} height={32} loading="eager" /></div>
+                <div className="nav_title"><h1>Riptide</h1></div>
             </div>
 
             <div className="right_nav">
@@ -65,7 +76,7 @@ export default function Navbar() {
                     setAccountActive(false)
                     setLoginActive((active) => !active)
                 }}>
-                        <div className="nav_profile">{accessToken && username ? getInitials(username) : "JD"}</div>
+                        <div className="nav_profile">{username? getInitials(username): "Gu"}</div>
                     </button>
                 </div>
 

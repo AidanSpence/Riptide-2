@@ -65,6 +65,7 @@ class Artist(models.Model):
 class Song(models.Model):
     """A song and its audio details."""
     title = models.TextField()
+    spotify_track_id = models.CharField(max_length=22, unique=True, null=True, blank=True)
     artists = models.ManyToManyField(Artist, through="SongArtist", related_name="songs")
     bpm = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     camelot = models.CharField(max_length=3, null=True)
@@ -184,6 +185,13 @@ class ChatMessage(models.Model):
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    playlist = models.ForeignKey(
+        "Playlist", null=True, blank=True,
+        on_delete=models.SET_NULL, related_name="chat_messages",
+    )
+
+    playlist_data = models.JSONField(null=True, blank=True)
+    
     class Meta:
         db_table = "chat_messages"
         ordering = ["created_at", "id"]

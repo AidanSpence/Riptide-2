@@ -1,3 +1,4 @@
+import requests
 import spotipy
 import requests
 from django.conf import settings
@@ -14,7 +15,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .services import spotify_auth
-from .models import Playlist, PlaylistSong
+from .models import Playlist, PlaylistSong, SpotifyAccount
 from .services.spotify_client import SpotifyNotLinked, export_playlist, get_spotify
 
 
@@ -72,6 +73,13 @@ def spotify_callback(request):
 
     return redirect(settings.FRONTEND_URL)
 
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def spotify_logout(request):
+    """remove the user's saved spotify connection."""
+    SpotifyAccount.objects.filter(user=request.user).delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -111,8 +119,20 @@ def export(request, playlist_id):
             {"error": "Connect your Spotify account first."},
             status=status.HTTP_409_CONFLICT,
         )
+    except ValueError as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    except requests.RequestException:
+        return Response(
+            {"error": "Spotify could not be reached or its token could not be refreshed. Reconnect Spotify and try again."},
+            status=status.HTTP_502_BAD_GATEWAY,
+        )
     except spotipy.SpotifyException as e:
-        # 401/403 usually means missing scopes, so the user needs to reconnect
+        if e.http_status in (401, 403):
+            return Response(
+                {"error": "Spotify denied playlist access. Reconnect Spotify to grant playlist permissions; also check the app account restrictions."},
+                status=status.HTTP_409_CONFLICT,
+            )
+        # other upstream errors remain visible as a failed export
         return Response(
             {"error": "Spotify rejected the request. Try reconnecting your account."},
             status=status.HTTP_502_BAD_GATEWAY,
@@ -136,11 +156,15 @@ def spotify_playlists(request):
 
     playlists = []
     try:
+        spotify_user_id = sp.current_user()["id"]
         results = sp.current_user_playlists(limit=50)
+
         while results:
             for p in results["items"]:
-                if not p:
+                # skip playlists owned by someone else
+                if not p or (p.get("owner") or {}).get("id") != spotify_user_id:
                     continue
+
                 images = p.get("images") or []
                 playlists.append({
                     "id": p["id"],
@@ -149,6 +173,7 @@ def spotify_playlists(request):
                     "track_count": (p.get("items") or p.get("tracks") or {}).get("total"),
                     "url": p["external_urls"]["spotify"],
                 })
+
             results = sp.next(results) if results.get("next") else None
     except spotipy.SpotifyException as e:
         return Response(

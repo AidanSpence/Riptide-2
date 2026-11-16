@@ -94,6 +94,7 @@
 }
 .accent_login{
     position: absolute;
+    aspect-ratio: 1.26;
     bottom: 0;
     right: 0;
     padding-right: 0px;

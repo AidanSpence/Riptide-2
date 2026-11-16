@@ -20,7 +20,7 @@
 
 
   /* Border - bottom only */
-  border: var(--border-thick);
+  border: var(--border-med);
   border-top: none;
   border-left: none;
   border-right: none;
@@ -68,6 +68,15 @@
   width: 100%;
   aspect-ratio: 1;
 }
+
+/* Nav Title */
+
+.nav_title {
+  font-size: var(--font-xlar);
+  text-transform: uppercase;
+}
+
+
 /* Nav Settings */
 
 .nav_settings{
@@ -129,7 +138,7 @@
   border-radius: var(--corner-rad-small);
 
   /* bg */
-  background: var(--color-primary);
+  background: var(--logo-gradient);
   cursor: pointer;
 }
 
