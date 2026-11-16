@@ -64,6 +64,7 @@ export default function MainPage() {
   const [selectedSpotifyPlaylistId, setSelectedSpotifyPlaylistId] = useState<string>("");
   // negative IDs are temporary for generated playlists not saved by Django
   const nextLocalPlaylistId = useRef<number>(-2);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // linked playlists map
   const [linked, setLinked] = useState<boolean>(false);
@@ -102,6 +103,12 @@ useEffect(() => {
     void setUsername("");
   }
 }, [accessToken]);
+
+useEffect(() => {
+  const el = chatContainerRef.current;
+  if (!el) return;
+  el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+}, [messageText]);
 
 
   // message limit message, sets limit internally to true, and
@@ -252,6 +259,28 @@ useEffect(() => {
     if (!accessToken) {
       setPlaylistError("Log in before deleting a saved playlist.");
       return;
+    }
+
+    const token = accessToken;
+    setDeletingPlaylistId(playlistId);
+    try {
+      await deletePlaylist(token, playlistId);
+      if (activeTokenRef.current !== token) return;
+
+      // remove it from the right panel
+      setPlaylists(previous => previous.filter(item => item.id !== playlistId));
+
+      // remove its card from the open chat too (the saved link is cleared in Django)
+      setMessageText(previous =>
+        previous.filter(msg => msg.playlist?.id !== playlistId)
+      );
+    } catch (error) {
+      if (activeTokenRef.current !== token) return;
+      console.error("Failed to delete playlist:", error);
+      if (error instanceof ChatApiError && error.status === 401) logout();
+      else setPlaylistError(describePlaylistError(error, "Unable to delete playlist"));
+    } finally {
+      if (activeTokenRef.current === token) setDeletingPlaylistId(null);
     }
   }
   // check spotify connected and update the profile in bottom left
@@ -546,11 +575,7 @@ async function saveChatInput() {
   }
   function getInitials(username: string): string {
     return username
-      .trim()
-      .split(/\s+/)
       .slice(0, 2)
-      .map(word => word[0].toUpperCase())
-      .join("");
   }
   // Page stuff
   return(
@@ -640,9 +665,9 @@ async function saveChatInput() {
 
         </div>
         <div className="left_profile_container">
-          <div className="left_profile_icon_bg"><div className="left_profile_icon_text">{username? getInitials(username): "JD"}</div></div>
+          <div className="left_profile_icon_bg"><div className="left_profile_icon_text">{username? getInitials(username): "Gu"}</div></div>
           <div className="left_profile_info_box">
-            <div className="left_profile_name">{username? username: "John Doe"}</div>
+            <div className="left_profile_name">{username? username: "Guest"}</div>
             <div className="left_profile_service_state">{spotifyConnected ? "Spotify Connected" : "Spotify Not Connected"}</div>
           </div>
         </div>
@@ -661,7 +686,7 @@ async function saveChatInput() {
             </button>
           </div>
         </div>
-        <div className="center_chats_container">
+        <div className="center_chats_container" ref={chatContainerRef}>
 
           {/* Create all boxes for chatting here in the container center_chats_container.
           center_box_sizing_user - (message is from the user)
