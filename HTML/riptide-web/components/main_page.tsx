@@ -610,7 +610,11 @@ async function saveChatInput() {
           {loading && <div>Loading…</div>}
 
           {!loading && !linked && (
-            <p>Connect Spotify To See Linked Playlists</p>
+            <div className="left_linked_message">
+              <div>Connect Spotify</div>
+              <div>To See</div>
+              <div>Linked Playlists</div>
+            </div>
           )}
 
           {!loading && linked && linkedPlaylists.length === 0 && (
