@@ -99,8 +99,9 @@ class AccountAndChatTests(TestCase):
         generate.return_value = {'type': 'clarification', 'question': 'Which genre?'}
         response = self.client.post(f'/api/chats/{self.chat.pk}/messages/', {'text': 'hello'}, format='json')
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data['reply'], 'Which genre?')
-        self.assertNotIn('playlist', response.data)
+        self.assertIsInstance(response.data['reply'], dict)
+        self.assertEqual(response.data['reply']['text'], 'Which genre?')
+        self.assertIsNone(response.data['reply']['playlist'])
         self.assertTrue(self.chat.messages.filter(sender='system', text='Which genre?').exists())
 
     @patch('Riptide2.services.ai_response.generate_ai_response', side_effect=RuntimeError('mock failure'))

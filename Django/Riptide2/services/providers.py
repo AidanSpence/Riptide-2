@@ -16,7 +16,7 @@ class OllamaProvider:
                 "messages": msgs,
                 "stream": True,
                 "format": "json",
-                "options": {"num_ctx": 12288, "num_predict": 2048},
+                "options": {"num_ctx": 8192, "num_predict": 2048},
             },
             stream=True,
             timeout=300,

@@ -1,10 +1,11 @@
 from datetime import timedelta
+
 import spotipy
 from django.utils import timezone
+
 from Riptide2.models import SpotifyAccount
 from .spotify_auth import refresh_access_token
 
-MAX_CONTEXT_TRACKS = 75
 
 class SpotifyNotLinked(Exception):
     """The user hasn't connected a Spotify account."""
@@ -26,22 +27,25 @@ def get_spotify(user) -> spotipy.Spotify:
     return spotipy.Spotify(auth=get_valid_token(user), requests_timeout=10)
 
 
+MAX_CONTEXT_TRACKS = 75
+
+
 def parse_track(track: dict) -> dict:
-    """keep the metadata used to understand the user's music."""
+    """keep metadata for playlist references, not guessed audio features."""
     album = track.get("album") or {}
     return {
-        "name": track.get("name"),
-        "artists": [a["name"] for a in (track.get("artists") or []) if a.get("name")],
+        "name": track.get("name") or "Unknown track",
+        "artists": [artist["name"] for artist in (track.get("artists") or []) if artist.get("name")],
         "album": album.get("name"),
         "release_date": album.get("release_date"),
         "duration_ms": track.get("duration_ms"),
         "popularity": track.get("popularity"),
-        "explicit": track.get("explicit"),
+        "explicit": track.get("explicit", False),
     }
 
 
 def get_playlist_context(user, playlist_id: str) -> dict:
-    """read a playlist with the user's spotify token."""
+    """load an attached Spotify playlist using the linked user's token."""
     sp = get_spotify(user)
     playlist = sp.playlist(playlist_id, fields="id,name,images,external_urls")
     tracks = get_playlist_tracks(user, playlist_id)
@@ -52,7 +56,7 @@ def get_playlist_context(user, playlist_id: str) -> dict:
         "source": "spotify",
         "id": playlist_id,
         "name": playlist.get("name") or "Spotify playlist",
-        "image": images[0]["url"] if images else None,
+        "image": images[0].get("url") if images else None,
         "url": f"https://open.spotify.com/playlist/{playlist_id}",
         "track_count": len(tracks),
         "tracks": tracks[:MAX_CONTEXT_TRACKS],
@@ -60,26 +64,25 @@ def get_playlist_context(user, playlist_id: str) -> dict:
 
 
 def get_playlist_tracks(user, playlist_id: str) -> list[dict]:
-    """Fetch every track in a playlist (handles pagination)."""
+    """read Spotify tracks with pagination and ignore non-music items."""
     sp = get_spotify(user)
     results = sp.playlist_items(playlist_id, limit=50)
-    items = results["items"]
-    while results["next"]:
-        results = sp.next(results)
-        items.extend(results["items"])
-
     tracks = []
-    for item in items:
-        track = item.get("item") or item.get("track")
-        if track and track.get("type", "track") == "track" and track.get("name"):
-            tracks.append(parse_track(track))
-    return tracks
+    while True:
+        for item in results.get("items") or []:
+            track = item.get("item") or item.get("track")
+            if track and track.get("type", "track") == "track" and track.get("name"):
+                tracks.append(parse_track(track))
+        if not results.get("next"):
+            return tracks
+        results = sp.next(results)
+
 
 def _to_uri(track_id: str) -> str:
     return track_id if track_id.startswith("spotify:track:") else f"spotify:track:{track_id}"
 
 
-def export_playlist(user, title: str, description: str, track_ids: list[str]) -> dict:
+def export_playlist(user, name: str, description: str, track_ids: list[str]) -> dict:
     """Create a private playlist on the user's Spotify account and fill it."""
     sp = get_spotify(user)
 
@@ -89,7 +92,7 @@ def export_playlist(user, title: str, description: str, track_ids: list[str]) ->
     new_playlist = sp._post(
         "me/playlists",
         payload={
-            "name": title[:100],
+            "name": name[:100],
             "public": False,
             "description": (description or "")[:300],
         },

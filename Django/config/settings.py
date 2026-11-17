@@ -132,8 +132,8 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000" if DEBUG else "
 
 SPOTIFY_CLIENT_ID = spotify_env["SPOTIFY_CLIENT_ID"]
 SPOTIFY_CLIENT_SECRET = spotify_env["SPOTIFY_CLIENT_SECRET"]
-SPOTIFY_REDIRECT_URI = "http://127.0.0.1:9000/spotify/callback/"
-SPOTIFY_SCOPES = "user-read-email user-read-private playlist-read-private user-library-modify user-library-read playlist-read-collaborative playlist-modify-private"
+SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI", "http://127.0.0.1:9000/spotify/callback/" if DEBUG else "")
+SPOTIFY_SCOPES = "user-read-private playlist-read-private playlist-read-collaborative playlist-modify-private"
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
@@ -176,11 +176,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': ('django.core.mail.backends.console.EmailBackend' if DEBUG else 'django.core.mail.backends.smtp.EmailBackend'),
-    },
-}
+EMAIL_BACKEND = (
+    "django.core.mail.backends.console.EmailBackend"
+    if DEBUG else "django.core.mail.backends.smtp.EmailBackend"
+)
 
 # API / COOKIES
 

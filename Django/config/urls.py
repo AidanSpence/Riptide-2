@@ -20,11 +20,11 @@ urlpatterns = [
     path("api/spotify/export/<int:playlist_id>/", views.export),
     path("spotify/playlists/", views.spotify_playlists),
     path("spotify/status/", api.spotify_status),
-    path("spotify/logout/", views.spotify_logout),
+    path("spotify/logout/", api.spotify_logout),
 
     # playlists
     path("api/playlists/", api.list_playlists),
-    path("api/playlists/<int:playlist_id>/", api.playlist_detail),
+    path("api/playlists/<int:playlist_id>/", api.delete_playlist),
     # chats
     path("api/chats/", api.chats),
     path("api/chats/<int:chat_id>/", api.chat_detail),

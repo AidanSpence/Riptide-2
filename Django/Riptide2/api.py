@@ -1,5 +1,3 @@
-import json
-import traceback
 import logging
 from django.conf import settings
 from django.utils import timezone
@@ -9,21 +7,20 @@ logger = logging.getLogger(__name__)
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.db import transaction
-from django.http import JsonResponse, StreamingHttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Prefetch
+
+
 
 from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
 
 from .models import Playlist, PlaylistSong
 from .models import ChatMessage, UserChat
 from .models import SpotifyAccount
-
 
 User = get_user_model()
 MESSAGE_LIMIT = 3
@@ -63,12 +60,18 @@ class UserChatSerializer(serializers.ModelSerializer):
 
 
 class ChatMessageSerializer(serializers.ModelSerializer):
-    """return saved chat messages."""
+    """return chat messages and their saved playlist attachments."""
+
     playlist = serializers.SerializerMethodField()
     spotify_playlist = serializers.SerializerMethodField()
 
     def get_playlist(self, message):
-        return message.playlist_data if message.sender == ChatMessage.Sender.SYSTEM else None
+        # a deleted Playlist sets the FK to NULL; do not resurrect its saved card
+        # from playlist_data when the chat is loaded again.
+        if (message.sender == ChatMessage.Sender.SYSTEM
+                and getattr(message, "playlist_id", None) is not None):
+            return message.playlist_data
+        return None
 
     def get_spotify_playlist(self, message):
         data = message.playlist_data or {}
@@ -149,14 +152,16 @@ def chat_detail(request, chat_id):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def chat_send_message(request, chat_id):
-    """save a message if the chat has space."""
+    """save a chat message, optionally with a Spotify playlist reference."""
     serializer = ChatInputSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    # check ownership before reading anything from spotify
+    # fail before the external call when the user doesn't own this chat
     chat = get_object_or_404(UserChat, id=chat_id, user=request.user)
     if chat.messages.filter(sender=ChatMessage.Sender.USER).count() >= MESSAGE_LIMIT:
-        return Response({"error": "Message limit reached", "remaining_messages": 0}, status=429)
+        return Response(
+            {"error": "Message limit reached", "remaining_messages": 0}, status=429
+        )
 
     attachment = None
     spotify_id = serializer.validated_data.get("spotify_playlist_id")
@@ -164,14 +169,19 @@ def chat_send_message(request, chat_id):
         from .services.spotify_client import get_playlist_context, SpotifyNotLinked
         from spotipy.exceptions import SpotifyException
         from requests.exceptions import RequestException
+
         try:
             attachment = get_playlist_context(request.user, spotify_id)
         except (SpotifyNotLinked, ValueError) as error:
             return Response({"error": str(error)}, status=400)
         except (SpotifyException, RequestException):
-            return Response({"error": "Could not read this Spotify playlist. Check your connection and playlist access, then try again."}, status=502)
+            logger.exception("spotify playlist lookup failed for chat %s", chat.pk)
+            return Response(
+                {"error": "Could not read the Spotify playlist. Check its access and try again."},
+                status=502,
+            )
 
-    # lock the chat while checking the limit
+    # keep the deployment's concurrency, message and daily budget limits
     with transaction.atomic():
         chat = get_object_or_404(
             UserChat.objects.select_for_update(), id=chat_id, user=request.user
@@ -187,7 +197,8 @@ def chat_send_message(request, chat_id):
         budget, _ = GenerationBudget.objects.get_or_create(day=day)
         budget = GenerationBudget.objects.select_for_update().get(day=day)
         user_attempts = ChatMessage.objects.filter(
-            chat__user=request.user, sender=ChatMessage.Sender.USER, created_at__date=day,
+            chat__user=request.user, sender=ChatMessage.Sender.USER,
+            created_at__date=day,
         ).count()
         if (budget.attempts >= settings.GENERATION_DAILY_LIMIT
                 or user_attempts >= settings.GENERATION_USER_DAILY_LIMIT):
@@ -202,46 +213,37 @@ def chat_send_message(request, chat_id):
             playlist_data=attachment,
         )
 
-    history = [
-        {"role": "user" if m.sender == ChatMessage.Sender.USER else "assistant",
-         "content": m.text}
-        for m in chat.messages.order_by("created_at", "id")
-        if m.text
-    ]
-
     from .services.ai_response import generate_ai_response, build_chat_history
     history = build_chat_history(chat.messages.order_by("created_at", "id"))
 
     playlist = None
     generation_error = None
     try:
-        playlist = generate_ai_response(
-            history, user=request.user
-        )
+        playlist = generate_ai_response(history, user=request.user)
     except Exception:
-        traceback.print_exc()
-        # still return the saved message so the UI doesn't lose it
-    
+        logger.exception("playlist generation failed for chat %s", chat.pk)
+        generation_error = "Your message was saved, but playlist generation failed. Please try again later."
+
     reply = None
     if playlist and playlist.get("type") in ("playlist", "clarification"):
         reply_text = playlist.get("message") or playlist.get("question") or ""
         saved_id = playlist.get("playlist_id")
-        playlist_obj = (
-            Playlist.objects.filter(id=saved_id, user=request.user).first()
+        saved_playlist = (
+            Playlist.objects.filter(pk=saved_id, user=request.user).first()
             if saved_id else None
         )
 
         card = None
-        if playlist_obj:
+        if saved_playlist:
             card = {
-                "id": playlist_obj.id,
-                "name": playlist.get("name") or playlist_obj.name,
-                "description": playlist.get("description"),
+                "id": saved_playlist.id,
+                "name": playlist.get("name") or saved_playlist.name,
+                "description": playlist.get("description") or saved_playlist.description,
                 "message": "",
                 "chat_name": "",
                 "tracks": [
-                    {**t, "duration_s": t.get("duration_s") or 0}
-                    for t in playlist.get("tracks", [])
+                    {**track, "duration_s": track.get("duration_s") or 0}
+                    for track in playlist.get("tracks", [])
                 ],
             }
 
@@ -250,10 +252,9 @@ def chat_send_message(request, chat_id):
                 chat=chat,
                 sender=ChatMessage.Sender.SYSTEM,
                 text=reply_text,
-                playlist=playlist_obj,
+                playlist=saved_playlist,
                 playlist_data=card,
             )
-
         if playlist.get("chat_name"):
             chat.name = playlist["chat_name"][:100]
             chat.save(update_fields=["name"])
@@ -263,6 +264,7 @@ def chat_send_message(request, chat_id):
         "reply": ChatMessageSerializer(reply).data if reply else None,
         "chat_name": chat.name,
         "remaining_messages": MESSAGE_LIMIT - count - 1,
+        "generation_error": generation_error,
     }, status=status.HTTP_201_CREATED)
 
 # ---------------------------------------------------------------------
@@ -301,7 +303,8 @@ def list_playlists(request):
                 "artists": ", ".join(
                     artist.name for artist in song.artists.all()
                 ),
-                "duration_s": song.duration_s or 0
+                "duration_s": song.duration_s or 0,
+                "spotify_track_id": song.spotify_track_id,
             })
 
         result.append({
@@ -314,15 +317,6 @@ def list_playlists(request):
         })
 
     return Response({"playlists": result})
-
-@api_view(["DELETE"])
-@permission_classes([IsAuthenticated])
-def playlist_detail(request, playlist_id):
-    """delete one saved playlist owned by the logged-in user."""
-    playlist = get_object_or_404(Playlist, id=playlist_id, user=request.user)
-    playlist.delete()  # PlaylistSong rows cascade
-    return Response(status=status.HTTP_204_NO_CONTENT)
-
 # ---------------------------------------------------------------------
 # Spotify check if linked
 # ---------------------------------------------------------------------
@@ -349,3 +343,11 @@ def delete_playlist(request, playlist_id):
 def health(request):
     """check the web process without calling the database or external APIs."""
     return JsonResponse({"status": "ok"})
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def spotify_logout(request):
+    """unlink Spotify without deleting chats or generated playlists."""
+    SpotifyAccount.objects.filter(user=request.user).delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)

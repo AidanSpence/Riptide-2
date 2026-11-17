@@ -30,7 +30,7 @@ def create_playlist(ai_data, user=None, playlist_id=None):
         "chat_name": settings.get("chat_name") or "",
         "name": settings.get("name") or "",
         "description": intent.get("description") or "",
-        "tracks": summarise(tracks),
+        "tracks": summarised,
     }
 
     if not summarised or user is None:

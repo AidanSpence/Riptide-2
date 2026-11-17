@@ -64,7 +64,7 @@ export default function AccountPopup({ isActive, onClose }: AccountPopupProps) {
         </div>
         <div className="account_info">
             <div className="username">Username: {accessToken ? username : "Not Logged in"}</div>
-            <div> <button className="spotify_signin" onClick={() => spotifyLogin(accessToken!)}>Sign in with Spotify</button> </div>
+            <div> <button className="spotify_signin" disabled={!accessToken} onClick={() => { if (accessToken) void spotifyLogin(accessToken); }}>Sign in with Spotify</button> </div>
             <div> <button className="spotify_signout" type="button"  disabled={!accessToken} onClick={disconnectSpotify} {...{ autoComplete: "off" }}>Sign out of Spotify</button> </div>
 
 

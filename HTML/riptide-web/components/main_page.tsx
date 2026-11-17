@@ -91,8 +91,6 @@ function ChatPage() {
   const [deletingPlaylistId, setDeletingPlaylistId] = useState<number | null>(null);
   const [exportingPlaylistId, setExportingPlaylistId] = useState<number | null>(null);
   const [selectedSpotifyPlaylistId, setSelectedSpotifyPlaylistId] = useState<string>("");
-  // negative IDs are temporary for generated playlists not saved by Django
-  const nextLocalPlaylistId = useRef<number>(-2);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // linked playlists map
@@ -101,9 +99,6 @@ function ChatPage() {
   const [loading, setLoading] = useState<boolean>(false);
   // spotify
   const [spotifyConnected, setSpotifyConnected] = useState<boolean>(false);
-
-  // active chat
-  const [activeChatId, setActiveChatId] = useState<number | null>(null);
 
   const selectedSpotifyPlaylist = linkedPlaylists.find(p => p.id === selectedSpotifyPlaylistId);
   const lastAttachedPlaylist = [...messageText].reverse().find(msg => msg.spotify_playlist)?.spotify_playlist;
@@ -523,7 +518,6 @@ async function saveChatInput() {
     try {
       const chat = await createChat(token);
       if (activeTokenRef.current !== token) return;
-      if (chats.length >= 3) return;
       // Add the new chat to the sidebar array
       setChats(previous => [chat, ...previous]);
 
@@ -624,8 +618,7 @@ async function saveChatInput() {
               type="button"
               className={`left_box_sizing${chat.id === currentChatId ? " active" : ""}`}
               onClick={() => {
-                setActiveChatId(chat.id);
-                openChat(chat.id);
+                void openChat(chat.id);
               }}
               disabled={isSending || isLoadingChat}
             >
