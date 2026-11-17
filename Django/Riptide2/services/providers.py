@@ -31,6 +31,36 @@ class OllamaProvider:
                 if data.get("done"):
                     break
 
+class OpenAIProvider:
+    def __init__(self):
+        from openai import OpenAI
+
+        self.client = OpenAI(
+            api_key=os.environ["OPENAI_API_KEY"]
+        )
+
+        self.model = os.getenv(
+            "OPENAI_MODEL",
+            "gpt-5.5"
+        )
+
+    def stream(self, messages, system=None):
+        input_messages = list(messages)
+
+        stream = self.client.responses.create(
+            model=self.model,
+            instructions=system or None,
+            input=input_messages,
+            stream=True,
+            max_output_tokens=int(
+                os.getenv("OPENAI_MAX_TOKENS", "4096")
+            ),
+        )
+
+        for event in stream:
+            if event.type == "response.output_text.delta":
+                yield event.delta
+    
 class BedrockProvider:
     def __init__(self):
         import boto3
@@ -71,7 +101,6 @@ class BedrockProvider:
         finally:
             resp["stream"].close()
 
-
 def get_provider():
     provider_name = os.getenv("LLM_PROVIDER", "ollama").lower()
 
@@ -80,6 +109,9 @@ def get_provider():
 
     if provider_name == "bedrock":
         return BedrockProvider()
+
+    if provider_name == "openai":
+        return OpenAIProvider()
 
     raise ValueError(
         f"Unsupported LLM provider: {provider_name}"
