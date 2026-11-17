@@ -79,19 +79,19 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: HTML/riptide-web/package-lock.json
-      - name: Build static frontend
-        working-directory: HTML/riptide-web
-        env:
-          NEXT_PUBLIC_API_URL: ''
-        run: |
-          # npm ci
-          # npm run lint
-          # npm run build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: riptide-frontend
-          path: HTML/riptide-web/out/
-          if-no-files-found: error
+      # - name: Build static frontend
+      #   working-directory: HTML/riptide-web
+      #   env:
+      #     NEXT_PUBLIC_API_URL: ''
+      #   run: |
+      #     # npm ci
+      #     # npm run lint
+      #     # npm run build
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: riptide-frontend
+      #     path: HTML/riptide-web/out/
+      #     if-no-files-found: error
       - name: Build backend image
         run: docker build -t riptide-check Django
       - run: python scripts/package_backend.py riptide-backend.zip
