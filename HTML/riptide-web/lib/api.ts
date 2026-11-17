@@ -9,7 +9,8 @@ type LoginResponse = {
   refresh: string;
 };
 type RegisterResponse = {
-  message: string;
+  id: string;
+  username: string;
 };
 
 
@@ -18,6 +19,8 @@ export type ChatMessageData = {
   text: string;
   sender: "user" | "system";
   created_at: string;
+  playlist?: PlaylistData | null;
+  spotify_playlist?: LinkedPlaylist | null;
 };
 
 export type ChatSummary = {
@@ -46,6 +49,7 @@ export type PlaylistData = {
   message: string,
   chat_name : string,
   name:string,
+  description?: string,
   tracks: PlaylistTrackData[];
 };
 
@@ -64,9 +68,9 @@ export type LinkedPlaylistsResponse = {
 
 export type SendMessageResponse = {
   message: ChatMessageData;
+  reply: ChatMessageData | null;
+  chat_name: string;
   remaining_messages: number;
-  playlist?: PlaylistData;
-  reply?: string;
   generation_error?: string | null;
 };
 
@@ -83,10 +87,8 @@ type SpotifyLoginResponse = {
 
 
 
-// use the provided JSON while the Django playlist endpoints are unfinished
-// set NEXT_PUBLIC_PLAYLIST_MODE=api before building to enable real API requests
-export const PLAYLIST_DEMO_MODE = false
-// process.env.NEXT_PUBLIC_PLAYLIST_MODE !== "api";
+// Saved playlists use the Django API in production.
+export const PLAYLIST_DEMO_MODE = false;
 
 export async function getCurrentUser(accessToken: string): Promise<UserData> {
   return authRequest<UserData>(
@@ -104,6 +106,14 @@ export async function spotifyLogin(accessToken: string): Promise<void> {
   );
 
   window.location.assign(data.url);
+}
+
+export async function spotifyLogout(accessToken: string): Promise<void> {
+  await authRequest<void>(
+    "/spotify/logout/",
+    accessToken,
+    { method: "DELETE" }
+  );
 }
 
 // get the user's linked spotify playlists
@@ -280,14 +290,14 @@ export async function sendChatMessage(
   accessToken: string,
   chatId: number,
   text: string,
-  id: string | null = null
+  spotifyPlaylistId: string | null = null
 ) {
   const result = await authRequest<SendMessageResponse>(
     `/api/chats/${chatId}/messages/`,
     accessToken,
     {
       method: "POST",
-      body: JSON.stringify({ text, id })
+      body: JSON.stringify({ text, spotify_playlist_id: spotifyPlaylistId })
     }
   );
 
@@ -380,12 +390,6 @@ export async function listPlaylists(accessToken: string): Promise<PlaylistData[]
   if (playlists.some(playlist => typeof playlist.id !== "number" || playlist.id <= 0)) {
     throw new Error("Saved playlists returned by Django need a positive numeric playlist id.");
   }
-  console.table(
-  playlists.map(playlist => ({
-    id: playlist.id,
-    name: playlist.name,
-    tracks: playlist.tracks.length
-  })))
   return playlists;
 }
 

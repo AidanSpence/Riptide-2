@@ -10,35 +10,38 @@
     transition: transform 0.05s ease, box-shadow 0.05s ease; */
 
 :root {
+  color-scheme: dark;
   /* pallet */
   --color-background: #0B1020;
   --color-surface: #151B2B;
+  --color-soft-surface: #15233F;
   --color-primary: #3B82F6;
+  --color-muted-primary: #2E59A2;
   --color-muted: #94A3B8;
   --color-text: #E5E7EB;
-  --color-highight-nointeract: green;
+  --color-highight-nointeract: rgba(0, 128, 0, 0.575);
+
   --border-thin: #94a3b829 solid 1px;
+  --border-med: #94a3b829 solid 2px;
   --border-thick: #94a3b829 solid 3px;
   --border-thin-highlight: rgba(255, 255, 255, 0.3) solid 1px;
   --border-med-highlight: rgba(255, 255, 255, 0.3) solid 2px;
   --border-thick-highlight: rgba(255, 255, 255, 0.3) solid 3px;
+  --chat-system-window: linear-gradient(#172238 25%, var(--color-background) 100%);
+  --logo-gradient: radial-gradient(circle in oklab ,var(--color-primary) 35%, var(--color-muted-primary) 100%);
 
-[data-theme="dark"] {
-    --bg-color: #121212;
-    --text-color: #f5f5f5;
-    --btn-bg: #ffc107;
-    --btn-text: #121212;
-}
+  --background: linear-gradient(to right, #151B2B, #0B1020);
+  --foreground: var(--color-primary);
 
   /* corner rad */
   --corner-rad-small: 2vmin;
 
   /* font sizing */
-  --font-lar: 3vmin;
-  --font-med: 2vmin;
+  --font-xlar: 3vmin;
+  --font-lar: 2vmin;
+  --font-med: 1.7vmin;
   --font-sml: 1.4vmin;
   --font-xsml: 1vmin;
-
 }
 
 @theme inline {
@@ -48,12 +51,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: linear-gradient(to right, #151B2B, #0B1020);
-    --foreground: var(--color-primary);
-  }
+html {
+  color-scheme: dark;
+  background-color: var(--color-background);
 }
+
 /* Sets default stuff, currently being used to set the text color and font family */
 body {
   background: var(--background);

@@ -1,12 +1,26 @@
 .venv/
 venv/
 __pycache__/
+**/__pycache__/
 *.pyc
+*.pyo
+
+# local environment files / credentials
 **/.env
 **/.env.*
 !**/.env.example
+
+# frontend dependencies and generated output
 node_modules/
+**/node_modules/
 .next/
+**/.next/
 out/
+**/out/
+
+# django generated files
 staticfiles/
+**/staticfiles/
+
+# local build artifacts
 *.zip

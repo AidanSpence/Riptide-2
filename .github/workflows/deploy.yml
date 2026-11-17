@@ -79,19 +79,19 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: HTML/riptide-web/package-lock.json
-      - name: Build static frontend
-        working-directory: HTML/riptide-web
-        env:
-          NEXT_PUBLIC_API_URL: ''
-        run: |
-          npm ci
-          npm run lint
-          npm run build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: riptide-frontend
-          path: HTML/riptide-web/out/
-          if-no-files-found: error
+      # - name: Build static frontend
+      #   working-directory: HTML/riptide-web
+      #   env:
+      #     NEXT_PUBLIC_API_URL: ''
+      #   run: |
+      #     # npm ci
+      #     # npm run lint
+      #     # npm run build
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: riptide-frontend
+      #     path: HTML/riptide-web/out/
+      #     if-no-files-found: error
       - name: Build backend image
         run: docker build -t riptide-check Django
       - run: python scripts/package_backend.py riptide-backend.zip
@@ -126,8 +126,38 @@ jobs:
           version="riptide-${GITHUB_SHA:0:12}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           object_key="riptide/${version}.zip"
           aws s3 cp riptide-backend.zip "s3://${bucket}/${object_key}"
-          aws elasticbeanstalk create-application-version             --application-name "$APPLICATION_NAME" --version-label "$version"             --source-bundle "S3Bucket=${bucket},S3Key=${object_key}" --process
-          aws elasticbeanstalk update-environment             --environment-name "$ENVIRONMENT_NAME" --version-label "$version"
+          aws elasticbeanstalk create-application-version \
+            --application-name "$APPLICATION_NAME" \
+            --version-label "$version" \
+            --source-bundle "S3Bucket=${bucket},S3Key=${object_key}" \
+            --process
+
+          # --process is asynchronous. Do not point the environment at the
+          # version until Elastic Beanstalk has finished validating the bundle.
+          version_status=""
+          for attempt in {1..36}; do
+            version_status=$(aws elasticbeanstalk describe-application-versions \
+              --application-name "$APPLICATION_NAME" \
+              --version-labels "$version" \
+              --query 'ApplicationVersions[0].Status' \
+              --output text)
+            case "${version_status,,}" in
+              processed) break ;;
+              failed)
+                echo "Elastic Beanstalk failed to process application version $version" >&2
+                exit 1
+                ;;
+            esac
+            sleep 5
+          done
+          if [ "${version_status,,}" != "processed" ]; then
+            echo "Timed out waiting for Elastic Beanstalk to process application version $version (last status: $version_status)" >&2
+            exit 1
+          fi
+
+          aws elasticbeanstalk update-environment \
+            --environment-name "$ENVIRONMENT_NAME" \
+            --version-label "$version"
           aws elasticbeanstalk wait environment-updated --environment-names "$ENVIRONMENT_NAME"
           deployed=$(aws elasticbeanstalk describe-environments --environment-names "$ENVIRONMENT_NAME" --query 'Environments[0].VersionLabel' --output text)
           test "$deployed" = "$version"

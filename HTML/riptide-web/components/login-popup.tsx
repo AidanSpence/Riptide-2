@@ -131,7 +131,7 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
                   <>
                     {/* re-use the existing login panel for logout, without changing its layout */}
                     <div id="login-title" className='login_title_left'>Signed in</div>
-                    <button className="logout_button" type="button" onClick={() => { logout(); onClose(); }}>
+                    <button className="logout_button" type="button" onClick={() => { logout(); onClose();  }}>
                       Log out
                     </button>
                   </>
@@ -265,7 +265,7 @@ export default function Login_popup({ isActive, onClose }: LoginPopupProps)
         {/* right */}
         <div className='right_login'>
         <div className='title_riptide_login'>Riptide</div>
-        <Image className="accent_login" src="accent.png" alt="alt" width={30} height={30} loading='eager' unoptimized />
+        <Image className="accent_login" src="accent.png" alt="alt" width={73.11} height={58.05} loading='eager' unoptimized />
         </div>
         </div>
     </div>
